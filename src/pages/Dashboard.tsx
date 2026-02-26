@@ -102,7 +102,7 @@ const Dashboard = () => {
           {tabs.map((tab, i) => (
             <React.Fragment key={tab.id}>
               {i === 2 && (
-                <div className="relative -mt-7">
+                <div className="relative -mt-7 flex flex-col items-center">
                   <motion.button
                     onClick={() => setShowEmergency(true)}
                     className="flex h-14 w-14 items-center justify-center rounded-full bg-destructive text-2xl shadow-lg ring-4 ring-background transition-shadow hover:shadow-xl"
@@ -111,6 +111,7 @@ const Dashboard = () => {
                   >
                     <span className="animate-pulse-gentle">🔥</span>
                   </motion.button>
+                  <span className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-destructive">Chill</span>
                 </div>
               )}
               <button

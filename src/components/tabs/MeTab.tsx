@@ -184,21 +184,37 @@ const MeTab = () => {
 
       {/* Stats Row */}
       <div className="mb-4 grid grid-cols-4 gap-2">
-        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+        <div className="group relative rounded-xl border border-border bg-card p-2.5 text-center">
           <p className="font-heading text-xl font-bold text-primary">{sabrPoints}</p>
           <p className="text-[9px] text-muted-foreground">Sabr Pts</p>
+          <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 w-48 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+            <p className="text-[10px] font-bold text-primary mb-0.5">Sabr Points</p>
+            <p className="text-[10px] text-muted-foreground">Earned by controlling anger (+10 per incident). Unlock achievements as you grow.</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+        <div className="group relative rounded-xl border border-border bg-card p-2.5 text-center">
           <p className="font-heading text-xl font-bold text-success">{controlRate}%</p>
           <p className="text-[9px] text-muted-foreground">Control</p>
+          <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 w-48 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+            <p className="text-[10px] font-bold text-success mb-0.5">Control Rate</p>
+            <p className="text-[10px] text-muted-foreground">Percentage of anger incidents where you successfully controlled your emotions. {controlRate >= 70 ? "MashaAllah!" : "Keep striving!"}</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+        <div className="group relative rounded-xl border border-border bg-card p-2.5 text-center">
           <p className="font-heading text-xl font-bold text-accent">{bookmarks.length}</p>
           <p className="text-[9px] text-muted-foreground">Saved</p>
+          <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 w-48 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+            <p className="text-[10px] font-bold text-accent mb-0.5">Bookmarks</p>
+            <p className="text-[10px] text-muted-foreground">Ayahs, hadiths, and duas you've saved for quick reference.</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+        <div className="group relative rounded-xl border border-border bg-card p-2.5 text-center">
           <p className="font-heading text-xl font-bold text-secondary">{avgMood || "—"}</p>
           <p className="text-[9px] text-muted-foreground">Mood</p>
+          <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 w-48 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+            <p className="text-[10px] font-bold text-secondary mb-0.5">Average Mood</p>
+            <p className="text-[10px] text-muted-foreground">Your average mood score (1=struggling, 5=great) based on daily check-ins.</p>
+          </div>
         </div>
       </div>
 
@@ -245,7 +261,12 @@ const MeTab = () => {
             </div>
 
             {/* Weekly Chart */}
-            <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📊 Weekly Pattern</h2>
+            <div className="group relative mb-3">
+              <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">📊 Weekly Pattern</h2>
+              <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                <p className="text-[10px] text-muted-foreground">Shows daily anger incidents over the past 7 days. Green = controlled, orange = uncontrolled. Helps identify patterns.</p>
+              </div>
+            </div>
             <div className="mb-5 rounded-2xl border border-border bg-card p-4">
               {total > 0 ? (
                 <ResponsiveContainer width="100%" height={180}>
@@ -269,7 +290,12 @@ const MeTab = () => {
             {/* Intensity Trend */}
             {total > 0 && (
               <>
-                <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🌡️ Intensity Trend</h2>
+                <div className="group relative mb-3">
+                  <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">🌡️ Intensity Trend</h2>
+                  <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    <p className="text-[10px] text-muted-foreground">Average anger intensity (1-5) over the past 14 days. Lower is better — it means your episodes are becoming less severe.</p>
+                  </div>
+                </div>
                 <div className="mb-5 rounded-2xl border border-border bg-card p-4">
                   <ResponsiveContainer width="100%" height={140}>
                     <AreaChart data={intensityData}>
@@ -286,7 +312,12 @@ const MeTab = () => {
             {/* Trigger Breakdown */}
             {triggerData.length > 0 && (
               <>
-                <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🎯 Top Triggers</h2>
+                <div className="group relative mb-3">
+                  <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">🎯 Top Triggers</h2>
+                  <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    <p className="text-[10px] text-muted-foreground">Your most common anger triggers ranked by frequency. Knowing your triggers helps you prepare and prevent anger before it starts.</p>
+                  </div>
+                </div>
                 <div className="mb-5 rounded-2xl border border-border bg-card p-4">
                   <div className="flex items-center gap-4">
                     <div className="h-28 w-28 flex-shrink-0">
@@ -344,7 +375,17 @@ const MeTab = () => {
                       <p className="text-sm font-medium text-foreground">{entry.situation || entry.trigger}</p>
                       <span className="text-lg">{entry.controlled ? "✅" : "⚠️"}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">{entry.trigger} · Intensity {entry.intensity}/5 · {new Date(entry.date).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {entry.trigger} · Intensity {entry.intensity}/5 · {new Date(entry.date).toLocaleDateString()}
+                      {entry.durationSeconds ? ` · ⏱️ ${entry.durationSeconds < 60 ? `${entry.durationSeconds}s` : `${Math.floor(entry.durationSeconds / 60)}m ${entry.durationSeconds % 60}s`}` : ""}
+                    </p>
+                    {entry.tacticsUsed && entry.tacticsUsed.length > 0 && (
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {entry.tacticsUsed.map((t) => (
+                          <span key={t} className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary">{t}</span>
+                        ))}
+                      </div>
+                    )}
                     {entry.reflection && <p className="mt-1 text-xs italic text-muted-foreground">"{entry.reflection}"</p>}
                   </div>
                 ))}

@@ -36,6 +36,8 @@ export interface AngerEntry {
   controlled: boolean;
   situation: string;
   reflection?: string;
+  tacticsUsed?: string[];
+  durationSeconds?: number;
 }
 
 export interface Bookmark {
