@@ -6,6 +6,10 @@ import TrackTab from "@/components/tabs/TrackTab";
 import ProfileTab from "@/components/tabs/ProfileTab";
 import EmergencyFlow from "@/components/EmergencyFlow";
 import QuranPlayer from "@/components/QuranPlayer";
+import DhikrCounter from "@/components/DhikrCounter";
+import WuduGuide from "@/components/WuduGuide";
+import AngerJournal from "@/components/AngerJournal";
+import SituationGuide from "@/components/SituationGuide";
 
 const tabs = [
   { id: "home", label: "Home", icon: "🏠" },
@@ -18,11 +22,23 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [showEmergency, setShowEmergency] = useState(false);
   const [playingSurah, setPlayingSurah] = useState<string | null>(null);
+  const [showDhikr, setShowDhikr] = useState(false);
+  const [showWudu, setShowWudu] = useState(false);
+  const [showJournal, setShowJournal] = useState(false);
+  const [showSituations, setShowSituations] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-28">
       <main className="flex-1">
-        {activeTab === "home" && <HomeTab onPlayQuran={(surahId) => setPlayingSurah(surahId)} />}
+        {activeTab === "home" && (
+          <HomeTab
+            onPlayQuran={(surahId) => setPlayingSurah(surahId)}
+            onOpenDhikr={() => setShowDhikr(true)}
+            onOpenWudu={() => setShowWudu(true)}
+            onOpenJournal={() => setShowJournal(true)}
+            onOpenSituations={() => setShowSituations(true)}
+          />
+        )}
         {activeTab === "learn" && <LearnTab />}
         {activeTab === "track" && <TrackTab />}
         {activeTab === "profile" && <ProfileTab />}
@@ -48,7 +64,6 @@ const Dashboard = () => {
           {tabs.map((tab, i) => (
             <React.Fragment key={tab.id}>
               {i === 2 && (
-                /* Center emergency button */
                 <div className="relative -mt-8">
                   <motion.button
                     onClick={() => setShowEmergency(true)}
@@ -78,6 +93,10 @@ const Dashboard = () => {
 
       <AnimatePresence>
         {showEmergency && <EmergencyFlow onClose={() => setShowEmergency(false)} />}
+        {showDhikr && <DhikrCounter onClose={() => setShowDhikr(false)} />}
+        {showWudu && <WuduGuide onClose={() => setShowWudu(false)} />}
+        {showJournal && <AngerJournal onClose={() => setShowJournal(false)} />}
+        {showSituations && <SituationGuide onClose={() => setShowSituations(false)} />}
       </AnimatePresence>
     </div>
   );
