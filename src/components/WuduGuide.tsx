@@ -116,7 +116,12 @@ interface WuduGuideProps {
 const WuduGuide = ({ onClose }: WuduGuideProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const [completed, setCompleted] = useState(false);
   const step = wuduSteps[currentStep];
+
+  const handleComplete = () => {
+    setCompleted(true);
+  };
 
   return (
     <motion.div
@@ -128,98 +133,129 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
       <button onClick={onClose} className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground hover:text-foreground" aria-label="Close">✕</button>
 
       <div className="mx-auto w-full max-w-sm px-4 py-12 text-center">
-        <h1 className="mb-4 font-heading text-lg font-bold text-foreground">Wudu Guide</h1>
-        <p className="mb-2 text-sm text-muted-foreground">Step {currentStep + 1} of {wuduSteps.length}</p>
-
-        {/* Progress */}
-        <div className="mb-6 flex gap-1">
-          {wuduSteps.map((_, i) => (
-            <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= currentStep ? "bg-primary" : "bg-muted"}`} />
-          ))}
-        </div>
-
         <AnimatePresence mode="wait">
-          <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <span className="mb-4 block text-5xl">{step.icon}</span>
-            <h2 className="mb-3 font-heading text-2xl font-bold text-foreground">{step.title}</h2>
+          {completed ? (
+            <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
+              <motion.span
+                className="mb-4 block text-6xl"
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                💧
+              </motion.span>
+              <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">Wudu Complete!</h2>
+              <p className="mb-4 text-sm text-muted-foreground">May Allah accept your purification</p>
+              <div className="mb-6 rounded-2xl bg-gradient-calm border border-border p-4">
+                <p className="mb-2 font-arabic text-lg leading-relaxed text-foreground" dir="rtl">
+                  اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ
+                </p>
+                <p className="mb-1 text-xs font-medium text-primary italic">Allāhumma-j'alnī minat-tawwābīna wa-j'alnī minal-mutaṭahhirīn</p>
+                <p className="mb-2 text-sm text-muted-foreground italic">"O Allah, make me among those who repent and make me among those who purify themselves."</p>
+                <a href="https://sunnah.com/tirmidhi:55" target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+                  Tirmidhi 55 →
+                </a>
+              </div>
+              <button onClick={onClose} className="w-full rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95">
+                Done ✨
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div key="steps">
+              <h1 className="mb-4 font-heading text-lg font-bold text-foreground">Wudu Guide</h1>
+              <p className="mb-2 text-sm text-muted-foreground">Step {currentStep + 1} of {wuduSteps.length}</p>
 
-            {/* Arabic + transliteration */}
-            {step.arabic && (
-              <div className="mb-4 rounded-xl bg-gradient-calm border border-border p-3">
-                <p className="mb-1 font-arabic text-xl leading-relaxed text-foreground" dir="rtl">{step.arabic}</p>
-                {step.transliteration && (
-                  <p className="text-xs font-medium text-primary italic">{step.transliteration}</p>
+              {/* Progress */}
+              <div className="mb-6 flex gap-1">
+                {wuduSteps.map((_, i) => (
+                  <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= currentStep ? "bg-primary" : "bg-muted"}`} />
+                ))}
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                  <span className="mb-4 block text-5xl">{step.icon}</span>
+                  <h2 className="mb-3 font-heading text-2xl font-bold text-foreground">{step.title}</h2>
+
+                  {/* Arabic + transliteration */}
+                  {step.arabic && (
+                    <div className="mb-4 rounded-xl bg-gradient-calm border border-border p-3">
+                      <p className="mb-1 font-arabic text-xl leading-relaxed text-foreground" dir="rtl">{step.arabic}</p>
+                      {step.transliteration && (
+                        <p className="text-xs font-medium text-primary italic">{step.transliteration}</p>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="mb-4 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+
+                  {/* Tips */}
+                  {step.tips && (
+                    <div className="mb-4 flex items-start gap-2 rounded-xl border border-secondary/30 bg-secondary/5 p-3 text-left">
+                      <span className="text-sm">💡</span>
+                      <p className="text-xs text-foreground">{step.tips}</p>
+                    </div>
+                  )}
+
+                  {/* Sunnah reference */}
+                  {step.sunnah && (
+                    <div className="mb-4">
+                      <button
+                        onClick={() => setShowDetails(!showDetails)}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        📚 Sunnah Reference {showDetails ? "▲" : "▼"}
+                      </button>
+                      <AnimatePresence>
+                        {showDetails && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-2 rounded-xl border border-border bg-card p-3 text-left">
+                              <p className="text-xs text-foreground italic">{step.sunnah}</p>
+                              {step.sunnahLink && (
+                                <a href={step.sunnahLink} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-primary underline">
+                                  View on Sunnah.com →
+                                </a>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setCurrentStep(Math.max(0, currentStep - 1)); setShowDetails(false); }}
+                  disabled={currentStep === 0}
+                  className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground disabled:opacity-30 transition-colors hover:bg-muted"
+                >
+                  Back
+                </button>
+                {currentStep < wuduSteps.length - 1 ? (
+                  <button
+                    onClick={() => { setCurrentStep(currentStep + 1); setShowDetails(false); }}
+                    className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95"
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleComplete}
+                    className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95"
+                  >
+                    Complete Wudu ✨
+                  </button>
                 )}
               </div>
-            )}
-
-            <p className="mb-4 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-
-            {/* Tips */}
-            {step.tips && (
-              <div className="mb-4 flex items-start gap-2 rounded-xl border border-secondary/30 bg-secondary/5 p-3 text-left">
-                <span className="text-sm">💡</span>
-                <p className="text-xs text-foreground">{step.tips}</p>
-              </div>
-            )}
-
-            {/* Sunnah reference */}
-            {step.sunnah && (
-              <div className="mb-4">
-                <button
-                  onClick={() => setShowDetails(!showDetails)}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  📚 Sunnah Reference {showDetails ? "▲" : "▼"}
-                </button>
-                <AnimatePresence>
-                  {showDetails && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="mt-2 rounded-xl border border-border bg-card p-3 text-left">
-                        <p className="text-xs text-foreground italic">{step.sunnah}</p>
-                        {step.sunnahLink && (
-                          <a href={step.sunnahLink} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-primary underline">
-                            View on Sunnah.com →
-                          </a>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => { setCurrentStep(Math.max(0, currentStep - 1)); setShowDetails(false); }}
-            disabled={currentStep === 0}
-            className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground disabled:opacity-30 transition-colors hover:bg-muted"
-          >
-            Back
-          </button>
-          {currentStep < wuduSteps.length - 1 ? (
-            <button
-              onClick={() => { setCurrentStep(currentStep + 1); setShowDetails(false); }}
-              className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95"
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              onClick={onClose}
-              className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95"
-            >
-              Done ✨
-            </button>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
     </motion.div>
   );
