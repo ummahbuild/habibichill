@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
+import ReferenceTooltip from "@/components/ReferenceTooltip";
 
 interface QuranSunnahTabProps {
   onPlayQuran: (surahId: string) => void;
@@ -511,7 +512,9 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
                       </div>
                       <p className="mb-1 text-xs font-medium text-primary italic">{ayah.transliteration}</p>
                       <p className="mb-2 text-sm text-muted-foreground italic">"{ayah.english}"</p>
-                      <a href={ayah.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">Qur'an {ayah.ref} →</a>
+                      <ReferenceTooltip reference={`Qur'an ${ayah.ref}`} arabic={ayah.arabic} english={ayah.english} link={ayah.link}>
+                        <a href={ayah.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">Qur'an {ayah.ref} →</a>
+                      </ReferenceTooltip>
                     </div>
                   ))}
                 </div>
@@ -551,7 +554,9 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
                           {h.arabic && <p className="mb-2 font-arabic text-base leading-relaxed text-foreground" dir="rtl">{h.arabic}</p>}
                           {h.transliteration && <p className="mb-2 text-xs text-primary italic">{h.transliteration}</p>}
                           <p className="mb-2 text-xs text-muted-foreground">📜 {h.narrator}</p>
-                          <a href={h.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary underline">View on Sunnah.com →</a>
+                          <ReferenceTooltip reference={h.source} arabic={h.arabic} english={h.english} link={h.link} source={h.narrator}>
+                            <a href={h.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary underline">View on Sunnah.com →</a>
+                          </ReferenceTooltip>
                         </div>
                       </motion.div>
                     )}
