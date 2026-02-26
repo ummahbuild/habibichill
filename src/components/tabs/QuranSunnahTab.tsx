@@ -1,0 +1,369 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface QuranSunnahTabProps {
+  onPlayQuran: (surahId: string) => void;
+}
+
+/* ── Surah collection with themes ── */
+const surahCollections = [
+  {
+    title: "🌿 For Calmness & Peace",
+    surahs: [
+      { id: "55", name: "Ar-Rahman", arabic: "الرحمن", desc: "The Most Merciful — reminds you of Allah's countless blessings", verses: 78 },
+      { id: "93", name: "Ad-Duha", arabic: "الضحى", desc: "The Morning Hours — Allah's comfort during times of distress", verses: 11 },
+      { id: "94", name: "Ash-Sharh", arabic: "الشرح", desc: "The Relief — 'With hardship comes ease' repeated twice", verses: 8 },
+      { id: "36", name: "Ya-Sin", arabic: "يس", desc: "Heart of the Quran — recite for spiritual healing", verses: 83 },
+    ],
+  },
+  {
+    title: "🛡️ For Protection & Refuge",
+    surahs: [
+      { id: "1", name: "Al-Fatiha", arabic: "الفاتحة", desc: "The Opening — the greatest surah, a cure for the heart", verses: 7 },
+      { id: "112", name: "Al-Ikhlas", arabic: "الإخلاص", desc: "Sincerity — equals one-third of the Quran", verses: 4 },
+      { id: "113", name: "Al-Falaq", arabic: "الفلق", desc: "The Daybreak — seek refuge from all evil", verses: 5 },
+      { id: "114", name: "An-Nas", arabic: "الناس", desc: "Mankind — seek refuge from the whisperer", verses: 6 },
+    ],
+  },
+  {
+    title: "💪 For Patience & Strength",
+    surahs: [
+      { id: "67", name: "Al-Mulk", arabic: "الملك", desc: "The Sovereignty — protection from the punishment of the grave", verses: 30 },
+      { id: "56", name: "Al-Waqi'ah", arabic: "الواقعة", desc: "The Inevitable — recite for provision and contentment", verses: 96 },
+      { id: "73", name: "Al-Muzzammil", arabic: "المزمل", desc: "The Enshrouded One — on night prayer and patience", verses: 20 },
+    ],
+  },
+];
+
+/* ── Hadith on anger ── */
+const angerHadiths = [
+  {
+    arabic: "لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ",
+    transliteration: "Laysa ash-shadīdu biṣ-ṣur'ah, innamā ash-shadīdu alladhī yamliku nafsahu 'indal-ghaḍab",
+    english: "The strong person is not the one who can overpower others. The strong person is the one who controls himself when he is angry.",
+    narrator: "Abu Hurayrah (رضي الله عنه)",
+    source: "Sahih al-Bukhari 6114",
+    link: "https://sunnah.com/bukhari:6114",
+    theme: "Strength",
+  },
+  {
+    arabic: "لاَ تَغْضَبْ",
+    transliteration: "Lā taghḍab",
+    english: "Do not get angry.",
+    narrator: "Abu Hurayrah (رضي الله عنه) — A man asked the Prophet ﷺ for advice, and he repeated this three times.",
+    source: "Sahih al-Bukhari 6116",
+    link: "https://sunnah.com/bukhari:6116",
+    theme: "Advice",
+  },
+  {
+    arabic: "إِذَا غَضِبَ أَحَدُكُمْ وَهُوَ قَائِمٌ فَلْيَجْلِسْ فَإِنْ ذَهَبَ عَنْهُ الْغَضَبُ وَإِلاَّ فَلْيَضْطَجِعْ",
+    transliteration: "Idhā ghaḍiba aḥadukum wa huwa qā'imun falyajlis, fa in dhahaba 'anhu al-ghaḍabu wa illā falyaḍṭaji'",
+    english: "If any of you becomes angry and he is standing, let him sit down so his anger will go away. If it does not go away, let him lie down.",
+    narrator: "Abu Dharr (رضي الله عنه)",
+    source: "Sunan Abu Dawud 4782",
+    link: "https://sunnah.com/abudawud:4782",
+    theme: "Action",
+  },
+  {
+    arabic: "إِنَّ الْغَضَبَ مِنَ الشَّيْطَانِ وَإِنَّ الشَّيْطَانَ خُلِقَ مِنَ النَّارِ",
+    transliteration: "Innal-ghaḍaba minash-shayṭān, wa innash-shayṭāna khuliqa minan-nār",
+    english: "Anger comes from Shaytan. Shaytan was created from fire, and fire is extinguished only with water. So when any of you becomes angry, let him perform wudu.",
+    narrator: "Atiyyah as-Sa'di (رضي الله عنه)",
+    source: "Sunan Abu Dawud 4784",
+    link: "https://sunnah.com/abudawud:4784",
+    theme: "Wudu",
+  },
+  {
+    arabic: "إِذَا غَضِبَ أَحَدُكُمْ فَلْيَسْكُتْ",
+    transliteration: "Idhā ghaḍiba aḥadukum falyaskut",
+    english: "If any of you becomes angry, let him keep silent.",
+    narrator: "Ibn Abbas (رضي الله عنه)",
+    source: "Musnad Ahmad 2136",
+    link: "https://sunnah.com/ahmad:2136",
+    theme: "Silence",
+  },
+  {
+    english: "Whoever restrains his anger when he is able to act upon it, Allah will call him before all of creation on the Day of Resurrection and let him choose whichever of the Hoor al-'Ayn he wishes.",
+    narrator: "Mu'adh ibn Anas (رضي الله عنه)",
+    source: "Sunan at-Tirmidhi 2021",
+    link: "https://sunnah.com/tirmidhi:2021",
+    theme: "Reward",
+  },
+  {
+    english: "The most beloved of people to Allah are those who are most beneficial to people. The most beloved of deeds to Allah is making a Muslim happy, removing a hardship from him, or paying off a debt for him.",
+    narrator: "Ibn Umar (رضي الله عنه)",
+    source: "al-Mu'jam al-Awsat 6192",
+    link: "https://sunnah.com/search?q=most+beloved+people",
+    theme: "Kindness",
+  },
+  {
+    english: "None of you truly believes until he loves for his brother what he loves for himself.",
+    narrator: "Anas ibn Malik (رضي الله عنه)",
+    source: "Sahih al-Bukhari 13",
+    link: "https://sunnah.com/bukhari:13",
+    theme: "Brotherhood",
+  },
+];
+
+/* ── Duas for anger & distress ── */
+const duas = [
+  {
+    title: "Seeking Refuge from Anger",
+    arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+    transliteration: "A'ūdhu billāhi minash-shayṭānir-rajīm",
+    english: "I seek refuge in Allah from the accursed Satan.",
+    when: "When you feel anger rising",
+    source: "Sahih al-Bukhari 6115",
+    link: "https://sunnah.com/bukhari:6115",
+  },
+  {
+    title: "Dua for Patience",
+    arabic: "رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَثَبِّتْ أَقْدَامَنَا وَانْصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ",
+    transliteration: "Rabbanā afrigh 'alaynā ṣabran wa thabbit aqdāmanā wanṣurnā 'alal-qawmil-kāfirīn",
+    english: "Our Lord, pour upon us patience and plant firmly our feet.",
+    when: "When facing a difficult situation",
+    source: "Qur'an 2:250",
+    link: "https://quran.com/2/250",
+  },
+  {
+    title: "Dua for Relief from Distress",
+    arabic: "لَا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ",
+    transliteration: "Lā ilāha illā anta subḥānaka innī kuntu minaẓ-ẓālimīn",
+    english: "There is no god but You, glorified are You. Indeed, I have been of the wrongdoers.",
+    when: "When overwhelmed — the dua of Prophet Yunus (عليه السلام)",
+    source: "Qur'an 21:87",
+    link: "https://quran.com/21/87",
+  },
+  {
+    title: "Dua for Ease",
+    arabic: "اللَّهُمَّ لاَ سَهْلَ إِلاَّ مَا جَعَلْتَهُ سَهْلاً وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلاً",
+    transliteration: "Allāhumma lā sahla illā mā ja'altahu sahlā, wa anta taj'alul-ḥazna idhā shi'ta sahlā",
+    english: "O Allah, there is no ease except what You make easy. And You make grief easy if You will.",
+    when: "When things feel impossibly hard",
+    source: "Sahih Ibn Hibban 974",
+    link: "https://sunnah.com/search?q=la+sahla+illa",
+  },
+  {
+    title: "Dua for Guidance",
+    arabic: "اللَّهُمَّ اهْدِنِي وَسَدِّدْنِي",
+    transliteration: "Allāhummah-dinī wa saddidnī",
+    english: "O Allah, guide me and keep me on the right path.",
+    when: "When unsure how to respond",
+    source: "Sahih Muslim 2725",
+    link: "https://sunnah.com/muslim:2725",
+  },
+];
+
+/* ── Ayahs on anger, patience, forgiveness ── */
+const ayahCollections = [
+  {
+    title: "On Restraining Anger",
+    ayahs: [
+      { arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ", transliteration: "Wal-kāẓimīnal-ghayẓa wal-'āfīna 'anin-nāsi wallāhu yuḥibbul-muḥsinīn", english: "Those who restrain their anger and pardon people — and Allah loves the doers of good.", ref: "3:134", link: "https://quran.com/3/134" },
+      { arabic: "وَإِذَا مَا غَضِبُوا هُمْ يَغْفِرُونَ", transliteration: "Wa idhā mā ghaḍibū hum yaghfirūn", english: "And when they are angry, they forgive.", ref: "42:37", link: "https://quran.com/42/37" },
+    ],
+  },
+  {
+    title: "On Patience",
+    ayahs: [
+      { arabic: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", transliteration: "Innallāha ma'aṣ-ṣābirīn", english: "Indeed, Allah is with the patient.", ref: "2:153", link: "https://quran.com/2/153" },
+      { arabic: "إِنَّمَا يُوَفَّى الصَّابِرُونَ أَجْرَهُم بِغَيْرِ حِسَابٍ", transliteration: "Innamā yuwaffā aṣ-ṣābirūna ajrahum bighayri ḥisāb", english: "The patient will be given their reward without account.", ref: "39:10", link: "https://quran.com/39/10" },
+      { arabic: "وَلَمَن صَبَرَ وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنْ عَزْمِ الْأُمُورِ", transliteration: "Wa laman ṣabara wa ghafara inna dhālika lamin 'azmi al-umūr", english: "And whoever is patient and forgives — that is of the matters requiring determination.", ref: "42:43", link: "https://quran.com/42/43" },
+    ],
+  },
+  {
+    title: "On Forgiveness",
+    ayahs: [
+      { arabic: "خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ", transliteration: "Khudhil-'afwa wa'mur bil-'urfi wa a'riḍ 'anil-jāhilīn", english: "Show forgiveness, enjoin what is good, and turn away from the ignorant.", ref: "7:199", link: "https://quran.com/7/199" },
+      { arabic: "أَلَا تُحِبُّونَ أَن يَغْفِرَ اللَّهُ لَكُمْ", transliteration: "Alā tuḥibbūna an yaghfirallāhu lakum", english: "Do you not wish that Allah should forgive you?", ref: "24:22", link: "https://quran.com/24/22" },
+    ],
+  },
+  {
+    title: "On Ease After Hardship",
+    ayahs: [
+      { arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا · إِنَّ مَعَ الْعُسْرِ يُسْرًا", transliteration: "Fa inna ma'al-'usri yusrā. Inna ma'al-'usri yusrā", english: "For indeed, with hardship comes ease. Indeed, with hardship comes ease.", ref: "94:5-6", link: "https://quran.com/94/5-6" },
+      { arabic: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ", transliteration: "Idfa' billatī hiya aḥsan", english: "Repel evil with that which is better.", ref: "41:34", link: "https://quran.com/41/34" },
+    ],
+  },
+];
+
+type SubTab = "listen" | "sunnah" | "duas" | "ayahs";
+
+const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
+  const [subTab, setSubTab] = useState<SubTab>("listen");
+  const [expandedHadith, setExpandedHadith] = useState<number | null>(null);
+
+  const subTabs: { id: SubTab; label: string; emoji: string }[] = [
+    { id: "listen", label: "Listen", emoji: "🎧" },
+    { id: "ayahs", label: "Ayahs", emoji: "📖" },
+    { id: "sunnah", label: "Sunnah", emoji: "📚" },
+    { id: "duas", label: "Duas", emoji: "🤲" },
+  ];
+
+  return (
+    <div className="container mx-auto max-w-lg px-4 pt-6 pb-8">
+      <h1 className="mb-2 font-heading text-xl font-bold text-foreground">Quran & Sunnah</h1>
+      <p className="mb-4 text-sm text-muted-foreground">Your spiritual toolkit for anger management</p>
+
+      {/* Sub-tabs */}
+      <div className="mb-6 flex gap-1.5 rounded-xl bg-muted p-1">
+        {subTabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setSubTab(t.id)}
+            className={`flex-1 rounded-lg py-2 text-xs font-medium transition-all ${
+              subTab === t.id
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="block text-base">{t.emoji}</span>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {/* ── Listen Tab ── */}
+        {subTab === "listen" && (
+          <motion.div key="listen" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            {surahCollections.map((collection) => (
+              <div key={collection.title} className="mb-6">
+                <h2 className="mb-3 font-heading text-sm font-semibold text-foreground">{collection.title}</h2>
+                <div className="flex flex-col gap-2">
+                  {collection.surahs.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => onPlayQuran(s.id)}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-all hover:shadow-calm active:scale-[0.98]"
+                    >
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                        <span className="font-arabic text-lg text-primary">{s.arabic}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">Surah {s.name}</p>
+                        <p className="truncate text-xs text-muted-foreground">{s.desc}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">▶</span>
+                        <span className="text-[10px] text-muted-foreground">{s.verses} ayat</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* ── Ayahs Tab ── */}
+        {subTab === "ayahs" && (
+          <motion.div key="ayahs" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            {ayahCollections.map((collection) => (
+              <div key={collection.title} className="mb-6">
+                <h2 className="mb-3 font-heading text-sm font-semibold text-foreground">{collection.title}</h2>
+                <div className="flex flex-col gap-3">
+                  {collection.ayahs.map((ayah, i) => (
+                    <div key={i} className="rounded-2xl bg-gradient-calm border border-border p-4">
+                      <p className="mb-2 font-arabic text-lg leading-loose text-foreground" dir="rtl">{ayah.arabic}</p>
+                      <p className="mb-1 text-xs font-medium text-primary italic">{ayah.transliteration}</p>
+                      <p className="mb-2 text-sm text-muted-foreground italic">"{ayah.english}"</p>
+                      <a href={ayah.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+                        Qur'an {ayah.ref} →
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* ── Sunnah Tab ── */}
+        {subTab === "sunnah" && (
+          <motion.div key="sunnah" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <p className="mb-4 text-sm text-muted-foreground">Authentic Hadiths on anger, patience, and self-control</p>
+            <div className="flex flex-col gap-3">
+              {angerHadiths.map((h, i) => (
+                <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden">
+                  <button
+                    onClick={() => setExpandedHadith(expandedHadith === i ? null : i)}
+                    className="flex w-full items-start gap-3 p-4 text-left"
+                  >
+                    <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                      expandedHadith === i ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    }`}>
+                      {i + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground leading-relaxed">"{h.english}"</p>
+                      <div className="mt-2 flex items-center gap-2 flex-wrap">
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">{h.theme}</span>
+                        <span className="text-[10px] text-muted-foreground">{h.source}</span>
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground mt-1">{expandedHadith === i ? "▲" : "▼"}</span>
+                  </button>
+                  <AnimatePresence>
+                    {expandedHadith === i && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-border px-4 pb-4 pt-3">
+                          {h.arabic && (
+                            <p className="mb-2 font-arabic text-base leading-relaxed text-foreground" dir="rtl">{h.arabic}</p>
+                          )}
+                          {h.transliteration && (
+                            <p className="mb-2 text-xs text-primary italic">{h.transliteration}</p>
+                          )}
+                          <p className="mb-2 text-xs text-muted-foreground">📜 {h.narrator}</p>
+                          <a href={h.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary underline">
+                            View on Sunnah.com →
+                          </a>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Duas Tab ── */}
+        {subTab === "duas" && (
+          <motion.div key="duas" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <p className="mb-4 text-sm text-muted-foreground">Prophetic supplications for moments of anger and distress</p>
+            <div className="flex flex-col gap-4">
+              {duas.map((dua, i) => (
+                <div key={i} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm">🤲</span>
+                    <h3 className="text-sm font-semibold text-foreground">{dua.title}</h3>
+                  </div>
+                  <div className="mb-3 rounded-xl bg-gradient-calm p-3">
+                    <p className="mb-1 font-arabic text-lg leading-loose text-foreground" dir="rtl">{dua.arabic}</p>
+                    <p className="text-xs font-medium text-primary italic">{dua.transliteration}</p>
+                  </div>
+                  <p className="mb-2 text-sm text-foreground">"{dua.english}"</p>
+                  <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2">
+                    <span className="text-xs">⏰</span>
+                    <p className="text-xs text-muted-foreground">{dua.when}</p>
+                  </div>
+                  <a href={dua.link} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-primary underline">
+                    {dua.source} →
+                  </a>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default QuranSunnahTab;
