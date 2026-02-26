@@ -19,6 +19,7 @@ const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
 
 interface HomeTabProps {
   onPlayQuran: (surahId: string) => void;
+  onNavigateToRead: (surahId: number) => void;
   onOpenDhikr: () => void;
   onOpenWudu: () => void;
   onOpenJournal: () => void;
@@ -27,7 +28,7 @@ interface HomeTabProps {
   onOpenBreathing: () => void;
 }
 
-const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing }: HomeTabProps) => {
+const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing }: HomeTabProps) => {
   const { sabrPoints, streak, angerLog, moodLog, addMoodEntry } = useApp();
   const todayIndex = Math.floor(Date.now() / 86400000) % wisdoms.length;
   const [wisdomIndex, setWisdomIndex] = useState(todayIndex);
@@ -204,9 +205,9 @@ const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSi
         </div>
       )}
 
-      {/* Quick Play */}
+      {/* Quick Quran */}
       <div className="rounded-2xl border border-border bg-card p-4">
-        <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🎧 Quick Listen</h2>
+        <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📖 Quick Quran</h2>
         <div className="grid grid-cols-2 gap-2">
           {[
             { id: "55", name: "Ar-Rahman", emoji: "🌿" },
@@ -214,15 +215,31 @@ const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSi
             { id: "93", name: "Ad-Duha", emoji: "☀️" },
             { id: "67", name: "Al-Mulk", emoji: "🛡️" },
           ].map((s) => (
-            <motion.button
+            <div
               key={s.id}
-              onClick={() => onPlayQuran(s.id)}
-              className="flex items-center gap-2 rounded-xl border border-border bg-background p-2.5 text-left transition-colors hover:bg-muted"
-              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 rounded-xl border border-border bg-background p-2.5"
             >
               <span className="text-lg">{s.emoji}</span>
-              <span className="text-xs font-medium text-foreground">{s.name}</span>
-            </motion.button>
+              <span className="flex-1 text-xs font-medium text-foreground">{s.name}</span>
+              <div className="flex gap-1">
+                <motion.button
+                  onClick={() => onNavigateToRead(Number(s.id))}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-[10px] transition-colors hover:bg-muted"
+                  whileTap={{ scale: 0.9 }}
+                  aria-label={`Read ${s.name}`}
+                >
+                  📜
+                </motion.button>
+                <motion.button
+                  onClick={() => onPlayQuran(s.id)}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-[10px] text-primary-foreground"
+                  whileTap={{ scale: 0.9 }}
+                  aria-label={`Listen ${s.name}`}
+                >
+                  ▶
+                </motion.button>
+              </div>
+            </div>
           ))}
         </div>
       </div>
