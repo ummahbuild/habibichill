@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/habibichill-logo.png";
+import SiteFooter from "@/components/SiteFooter";
 
 const guides = [
   {
@@ -317,18 +318,7 @@ const GuidesPage = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-8">
-        <div className="container mx-auto flex flex-col items-center gap-4 px-4 text-center text-sm text-muted-foreground md:flex-row md:justify-between">
-          <p>Made with ❤️ by <a href="https://ummah.build" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline">Ummah Build</a></p>
-          <div className="flex items-center gap-4">
-            <Link to="/blogs" className="transition-colors hover:text-foreground">Blog</Link>
-            <Link to="/guides" className="transition-colors hover:text-foreground">Guides</Link>
-            <Link to="/legal" className="transition-colors hover:text-foreground">Legal</Link>
-          </div>
-          <p>© {new Date().getFullYear()} HabibiChill.com</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 };

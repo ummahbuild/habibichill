@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getPostBySlug, getRelatedPosts } from "@/data/blogPosts";
 import logo from "@/assets/habibichill-logo.png";
+import SiteFooter from "@/components/SiteFooter";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -92,9 +93,12 @@ const BlogPost = () => {
         >
           <div className="mb-4 flex items-center gap-3">
             <span className="text-4xl">{post.emoji}</span>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+            <Link
+              to={`/blogs?category=${encodeURIComponent(post.category)}`}
+              className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary hover:bg-primary/20 transition-colors"
+            >
               {post.category}
-            </span>
+            </Link>
           </div>
           <h1 className="mb-4 font-heading text-3xl font-extrabold leading-tight text-foreground md:text-4xl">
             {post.title}
@@ -109,9 +113,13 @@ const BlogPost = () => {
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {post.tags.map((tag) => (
-              <span key={tag} className="rounded-full border border-border px-3 py-0.5 text-[11px] text-muted-foreground">
+              <Link
+                key={tag}
+                to={`/blogs?tag=${encodeURIComponent(tag)}`}
+                className="rounded-full border border-border px-3 py-0.5 text-[11px] text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors"
+              >
                 #{tag}
-              </span>
+              </Link>
             ))}
           </div>
         </motion.header>
@@ -159,17 +167,7 @@ const BlogPost = () => {
         )}
       </article>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-8">
-        <div className="container mx-auto flex flex-col items-center gap-4 px-4 text-center text-sm text-muted-foreground md:flex-row md:justify-between">
-          <p>Made with ❤️ by <a href="https://ummah.build" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline">Ummah Build</a></p>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="transition-colors hover:text-foreground">Home</Link>
-            <Link to="/blogs" className="transition-colors hover:text-foreground">Blog</Link>
-          </div>
-          <p>© {new Date().getFullYear()} HabibiChill.com</p>
-        </div>
-      </footer>
+      <SiteFooter />
 
       {/* JSON-LD */}
       <script

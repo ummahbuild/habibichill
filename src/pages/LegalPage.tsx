@@ -1,4 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
+import SiteFooter from "@/components/SiteFooter";
 
 const content: Record<string, { title: string; lastUpdated: string; sections: { heading: string; body: string }[] }> = {
   privacy: {
@@ -146,15 +147,8 @@ const LegalPage = () => {
           ))}
         </div>
 
-        <div className="mt-12 border-t border-border pt-6 text-center text-sm text-muted-foreground">
-          <p>
-            © {new Date().getFullYear()} HabibiChill.com — Made with ❤️ by{" "}
-            <a href="https://ummah.build" target="_blank" rel="noopener noreferrer" className="text-primary underline">
-              Ummah Build
-            </a>
-          </p>
-        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 };
