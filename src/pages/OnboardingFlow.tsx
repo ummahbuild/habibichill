@@ -66,6 +66,9 @@ const OnboardingFlow = () => {
           </button>
         ))}
       </div>
+      <button onClick={() => setStep(step + 1)} className="mt-4 text-xs text-muted-foreground hover:text-foreground">
+        Skip this step →
+      </button>
     </div>,
     // Reciter
     <div key="reciter" className="flex flex-col items-center text-center">
@@ -86,6 +89,9 @@ const OnboardingFlow = () => {
           </button>
         ))}
       </div>
+      <button onClick={() => setStep(step + 1)} className="mt-4 text-xs text-muted-foreground hover:text-foreground">
+        Skip this step →
+      </button>
     </div>,
     // Ready
     <div key="ready" className="flex flex-col items-center text-center">

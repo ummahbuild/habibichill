@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useApp } from "@/context/AppContext";
+import ReferenceTooltip from "@/components/ReferenceTooltip";
 
 const wisdoms = [
   { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "Qur'an 94:6", link: "https://quran.com/94/6" },
@@ -7,6 +9,8 @@ const wisdoms = [
   { arabic: "خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ", english: "Show forgiveness, enjoin what is good, and turn away from the ignorant.", ref: "Qur'an 7:199", link: "https://quran.com/7/199" },
   { arabic: "وَلَمَن صَبَرَ وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنْ عَزْمِ الْأُمُورِ", english: "And whoever is patient and forgives — indeed, that is of the matters requiring resolve.", ref: "Qur'an 42:43", link: "https://quran.com/42/43" },
   { arabic: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ فَإِذَا الَّذِي بَيْنَكَ وَبَيْنَهُ عَدَاوَةٌ كَأَنَّهُ وَلِيٌّ حَمِيمٌ", english: "Repel evil with that which is better; then the one between whom and you there was enmity will become a devoted friend.", ref: "Qur'an 41:34", link: "https://quran.com/41/34" },
+  { arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ", english: "Those who restrain their anger and pardon people.", ref: "Qur'an 3:134", link: "https://quran.com/3/134" },
+  { arabic: "وَإِذَا مَا غَضِبُوا هُمْ يَغْفِرُونَ", english: "And when they are angry, they forgive.", ref: "Qur'an 42:37", link: "https://quran.com/42/37" },
 ];
 
 const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];
@@ -24,7 +28,10 @@ interface HomeTabProps {
 
 const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing }: HomeTabProps) => {
   const { sabrPoints, streak, angerLog, moodLog, addMoodEntry } = useApp();
-  const todayWisdom = wisdoms[Math.floor(Date.now() / 86400000) % wisdoms.length];
+  const todayIndex = Math.floor(Date.now() / 86400000) % wisdoms.length;
+  const [wisdomIndex, setWisdomIndex] = useState(todayIndex);
+  const currentWisdom = wisdoms[wisdomIndex];
+  const wisdomDate = new Date(Date.now() - (todayIndex - wisdomIndex) * 86400000);
   const controlled = angerLog.filter((e) => e.controlled).length;
   const total = angerLog.length;
   const controlRate = total > 0 ? Math.round((controlled / total) * 100) : 0;
@@ -136,14 +143,46 @@ const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSi
         </div>
       </div>
 
-      {/* Daily Wisdom */}
+      {/* Daily Wisdom — swipeable */}
       <div className="mb-5 rounded-2xl bg-gradient-calm border border-border p-4">
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Daily Wisdom</p>
-        <p className="mb-2 font-arabic text-xl leading-relaxed text-foreground" dir="rtl">{todayWisdom.arabic}</p>
-        <p className="mb-2 text-sm text-muted-foreground italic">"{todayWisdom.english}"</p>
-        <a href={todayWisdom.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
-          {todayWisdom.ref} →
-        </a>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Daily Wisdom</p>
+          <p className="text-[10px] text-muted-foreground">
+            {wisdomDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            {wisdomIndex === todayIndex && " · Today"}
+          </p>
+        </div>
+        <p className="mb-2 font-arabic text-xl leading-relaxed text-foreground" dir="rtl">{currentWisdom.arabic}</p>
+        <p className="mb-2 text-sm text-muted-foreground italic">"{currentWisdom.english}"</p>
+        <ReferenceTooltip
+          reference={currentWisdom.ref}
+          arabic={currentWisdom.arabic}
+          english={currentWisdom.english}
+          link={currentWisdom.link}
+        >
+          <a href={currentWisdom.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+            {currentWisdom.ref} →
+          </a>
+        </ReferenceTooltip>
+        <div className="mt-3 flex items-center justify-between">
+          <button
+            onClick={() => setWisdomIndex((wisdomIndex - 1 + wisdoms.length) % wisdoms.length)}
+            className="rounded-lg px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
+          >
+            ← Previous
+          </button>
+          <div className="flex gap-1">
+            {wisdoms.map((_, i) => (
+              <div key={i} className={`h-1 rounded-full transition-all ${i === wisdomIndex ? "w-4 bg-primary" : "w-1.5 bg-border"}`} />
+            ))}
+          </div>
+          <button
+            onClick={() => setWisdomIndex((wisdomIndex + 1) % wisdoms.length)}
+            className="rounded-lg px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
+          >
+            Next →
+          </button>
+        </div>
       </div>
 
       {/* Recent activity mini */}
