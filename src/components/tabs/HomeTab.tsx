@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useApp } from "@/context/AppContext";
 import ReferenceTooltip from "@/components/ReferenceTooltip";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 const wisdoms = [
   { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "Qur'an 94:6", link: "https://quran.com/94/6" },

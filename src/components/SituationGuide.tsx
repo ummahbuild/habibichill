@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
 const situations = [
   {
@@ -93,6 +94,7 @@ interface SituationGuideProps {
 }
 
 const SituationGuide = ({ onClose }: SituationGuideProps) => {
+  useEscapeKey(onClose);
   const [selected, setSelected] = useState<string | null>(null);
   const situation = situations.find((s) => s.id === selected);
 

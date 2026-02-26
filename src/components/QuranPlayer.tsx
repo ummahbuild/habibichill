@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 const surahList = [
   { id: "1", name: "Al-Fatiha", desc: "The Opening", verses: 7 },
@@ -31,9 +32,21 @@ const QuranPlayer = ({ currentSurahId, onChangeSurah, onClose }: QuranPlayerProp
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const togglePlayRef = useRef(() => {});
+  const playNextRef = useRef(() => {});
+  const playPrevRef = useRef(() => {});
 
   const currentSurah = surahList.find((s) => s.id === currentSurahId) || surahList[0];
   const currentIndex = surahList.findIndex((s) => s.id === currentSurahId);
+
+  const shortcuts = useMemo(() => [
+    { key: " ", handler: () => togglePlayRef.current() },
+    { key: "Escape", handler: () => onClose() },
+    { key: "ArrowRight", handler: () => playNextRef.current() },
+    { key: "ArrowLeft", handler: () => playPrevRef.current() },
+  ], [onClose]);
+
+  useKeyboardShortcuts(shortcuts);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -47,24 +60,28 @@ const QuranPlayer = ({ currentSurahId, onChangeSurah, onClose }: QuranPlayerProp
     }
   }, [currentSurahId]);
 
-  const togglePlay = () => {
+  const togglePlay = useCallback(() => {
     if (!audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
     } else {
       audioRef.current.play().catch(() => {});
     }
-  };
+  }, [isPlaying]);
 
-  const playNext = () => {
+  const playNext = useCallback(() => {
     const nextIndex = (currentIndex + 1) % surahList.length;
     onChangeSurah(surahList[nextIndex].id);
-  };
+  }, [currentIndex, onChangeSurah]);
 
-  const playPrev = () => {
+  const playPrev = useCallback(() => {
     const prevIndex = (currentIndex - 1 + surahList.length) % surahList.length;
     onChangeSurah(surahList[prevIndex].id);
-  };
+  }, [currentIndex, onChangeSurah]);
+
+  useEffect(() => { togglePlayRef.current = togglePlay; }, [togglePlay]);
+  useEffect(() => { playNextRef.current = playNext; }, [playNext]);
+  useEffect(() => { playPrevRef.current = playPrev; }, [playPrev]);
 
   const handleTimeUpdate = () => {
     if (audioRef.current && audioRef.current.duration) {

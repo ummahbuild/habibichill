@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
 const phases = [
   { label: "Inhale", duration: 4, arabic: "بِسْمِ اللَّهِ", english: "In the name of Allah" },
@@ -13,6 +14,7 @@ interface BreathingExerciseProps {
 }
 
 const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
+  useEscapeKey(onClose);
   const [started, setStarted] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
