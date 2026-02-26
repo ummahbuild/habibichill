@@ -24,6 +24,10 @@ src/
 ├── components/
 │   ├── EmergencyFlow.tsx        # 5-step Sunnah anger protocol
 │   ├── QuranPlayer.tsx          # Sticky audio player with surah picker
+│   ├── DhikrCounter.tsx         # SubhanAllah/Alhamdulillah/Allahu Akbar counter
+│   ├── WuduGuide.tsx            # Step-by-step wudu guide
+│   ├── AngerJournal.tsx         # Anger journal with reflection prompts
+│   ├── SituationGuide.tsx       # Situation-based guidance (marriage, work, etc.)
 │   ├── NavLink.tsx              # Navigation link component
 │   ├── tabs/
 │   │   ├── HomeTab.tsx          # Dashboard with tools & wisdom
@@ -48,6 +52,7 @@ src/
 ### ✅ Done
 
 - [x] Landing page with SEO meta tags, JSON-LD, and AI engine optimization
+- [x] Social sharing meta image (habibichillmeta.png for OG/Twitter)
 - [x] PWA support with offline capability and installability
 - [x] "I'm Angry" emergency button with 5-step Sunnah protocol
 - [x] Center circle emergency button in bottom navigation bar
@@ -63,13 +68,14 @@ src/
 - [x] Prevention training (Learn tab) with lesson roadmap
 - [x] Achievement badges on Track tab
 - [x] Profile with social links and reset
+- [x] Dhikr counter (SubhanAllah, Alhamdulillah, Allahu Akbar with progress ring)
+- [x] Wudu step-by-step guide with 11 steps and dua
+- [x] Anger journal with 4-step reflection (trigger, situation, control, reflection)
+- [x] Situation-based guidance (Marriage, Online, Family, Workplace, Parenting, Traffic)
+- [x] Quick tools wired up on Home tab (Dhikr, Quran, Wudu, Journal)
 
 ### 📋 TODO
 
-- [ ] Anger journal with reflection prompts ("What triggered this?")
-- [ ] Situation-based guidance (marriage, workplace, parenting, etc.)
-- [ ] Dhikr counter tool with tally and target
-- [ ] Wudu step-by-step guide tool
 - [ ] Haptic feedback on emergency flow steps
 - [ ] Multiple Quran reciter options
 - [ ] Ramadan Mode with fasting-specific guidance
@@ -83,6 +89,8 @@ src/
 - [ ] Scholar content library with video/audio lectures
 - [ ] Multi-language support (Arabic, Urdu, Malay, Turkish)
 - [ ] Smart notifications (streak reminders, stress detection)
+- [ ] Silence timer tool
+- [ ] Pre-emptive calm reminders based on anger patterns
 
 ## Development
 

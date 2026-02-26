@@ -11,6 +11,10 @@ const wisdoms = [
 
 interface HomeTabProps {
   onPlayQuran: (surahId: string) => void;
+  onOpenDhikr: () => void;
+  onOpenWudu: () => void;
+  onOpenJournal: () => void;
+  onOpenSituations: () => void;
 }
 
 const quranSurahs = [
@@ -21,16 +25,16 @@ const quranSurahs = [
   { id: "112", name: "Surah Al-Ikhlas", desc: "Sincerity" },
 ];
 
-const quickTools = [
-  { emoji: "📿", label: "Dhikr" },
-  { emoji: "📖", label: "Quran" },
-  { emoji: "💧", label: "Wudu" },
-  { emoji: "📓", label: "Journal" },
-];
-
-const HomeTab = ({ onPlayQuran }: HomeTabProps) => {
+const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations }: HomeTabProps) => {
   const { sabrPoints, streak } = useApp();
   const todayWisdom = wisdoms[Math.floor(Date.now() / 86400000) % wisdoms.length];
+
+  const quickTools = [
+    { emoji: "📿", label: "Dhikr", action: onOpenDhikr },
+    { emoji: "📖", label: "Quran", action: () => onPlayQuran("55") },
+    { emoji: "💧", label: "Wudu", action: onOpenWudu },
+    { emoji: "📓", label: "Journal", action: onOpenJournal },
+  ];
 
   return (
     <div className="container mx-auto max-w-lg px-4 pt-6">
@@ -69,13 +73,26 @@ const HomeTab = ({ onPlayQuran }: HomeTabProps) => {
         <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick Tools</h2>
         <div className="grid grid-cols-4 gap-3">
           {quickTools.map((tool) => (
-            <button key={tool.label} className="flex flex-col items-center gap-1 rounded-xl border border-border bg-card p-3 transition-all hover:shadow-calm active:scale-95">
+            <button key={tool.label} onClick={tool.action} className="flex flex-col items-center gap-1 rounded-xl border border-border bg-card p-3 transition-all hover:shadow-calm active:scale-95">
               <span className="text-2xl">{tool.emoji}</span>
               <span className="text-xs font-medium text-card-foreground">{tool.label}</span>
             </button>
           ))}
         </div>
       </div>
+
+      {/* Situation Guide Banner */}
+      <button
+        onClick={onOpenSituations}
+        className="mb-6 flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:shadow-calm active:scale-[0.98]"
+      >
+        <span className="text-3xl">🎯</span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-foreground">Situation-Based Guidance</p>
+          <p className="text-xs text-muted-foreground">Marriage · Workplace · Parenting · Online · Traffic</p>
+        </div>
+        <span className="text-muted-foreground">→</span>
+      </button>
 
       {/* Daily Wisdom */}
       <div className="mb-6 rounded-2xl bg-gradient-calm border border-border p-5">
@@ -87,7 +104,7 @@ const HomeTab = ({ onPlayQuran }: HomeTabProps) => {
         </a>
       </div>
 
-      {/* Calm Quran - now with in-app player */}
+      {/* Calm Quran */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-4">
         <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick Play — Calming Quran</h2>
         <div className="flex flex-col gap-2">
