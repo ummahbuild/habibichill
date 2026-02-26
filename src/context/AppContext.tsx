@@ -20,6 +20,12 @@ interface AppContextType {
   addAngerEntry: (entry: Omit<AngerEntry, "id" | "date">) => void;
   settings: AppSettings;
   updateSettings: (settings: Partial<AppSettings>) => void;
+  bookmarks: Bookmark[];
+  addBookmark: (bookmark: Omit<Bookmark, "id" | "savedAt">) => void;
+  removeBookmark: (id: string) => void;
+  isBookmarked: (contentId: string) => boolean;
+  moodLog: MoodEntry[];
+  addMoodEntry: (mood: number) => void;
 }
 
 export interface AngerEntry {
@@ -30,6 +36,24 @@ export interface AngerEntry {
   controlled: boolean;
   situation: string;
   reflection?: string;
+}
+
+export interface Bookmark {
+  id: string;
+  savedAt: string;
+  type: "ayah" | "hadith" | "dua";
+  contentId: string;
+  title: string;
+  arabic?: string;
+  english: string;
+  source: string;
+  link?: string;
+}
+
+export interface MoodEntry {
+  id: string;
+  date: string;
+  mood: number; // 1-5
 }
 
 export interface AppSettings {
@@ -75,6 +99,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<AppSettings>(() => {
     const saved = localStorage.getItem("hc-settings");
     return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+  });
+
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
+    const saved = localStorage.getItem("hc-bookmarks");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [moodLog, setMoodLog] = useState<MoodEntry[]>(() => {
+    const saved = localStorage.getItem("hc-mood-log");
+    return saved ? JSON.parse(saved) : [];
   });
 
   const setAppState = (state: AppState) => {
@@ -124,6 +158,36 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const addBookmark = (bookmark: Omit<Bookmark, "id" | "savedAt">) => {
+    setBookmarks((prev) => {
+      if (prev.some((b) => b.contentId === bookmark.contentId)) return prev;
+      const next = [{ ...bookmark, id: crypto.randomUUID(), savedAt: new Date().toISOString() }, ...prev];
+      localStorage.setItem("hc-bookmarks", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const removeBookmark = (id: string) => {
+    setBookmarks((prev) => {
+      const next = prev.filter((b) => b.id !== id);
+      localStorage.setItem("hc-bookmarks", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const isBookmarked = (contentId: string) => bookmarks.some((b) => b.contentId === contentId);
+
+  const addMoodEntry = (mood: number) => {
+    const today = new Date().toISOString().slice(0, 10);
+    setMoodLog((prev) => {
+      // Replace today's entry if exists
+      const filtered = prev.filter((e) => e.date.slice(0, 10) !== today);
+      const next = [{ id: crypto.randomUUID(), date: new Date().toISOString(), mood }, ...filtered];
+      localStorage.setItem("hc-mood-log", JSON.stringify(next));
+      return next;
+    });
+  };
+
   useEffect(() => {
     if (settings.darkMode) {
       document.documentElement.classList.add("dark");
@@ -152,6 +216,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         addAngerEntry,
         settings,
         updateSettings,
+        bookmarks,
+        addBookmark,
+        removeBookmark,
+        isBookmarked,
+        moodLog,
+        addMoodEntry,
       }}
     >
       {children}

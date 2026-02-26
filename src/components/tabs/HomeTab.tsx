@@ -9,27 +9,37 @@ const wisdoms = [
   { arabic: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ فَإِذَا الَّذِي بَيْنَكَ وَبَيْنَهُ عَدَاوَةٌ كَأَنَّهُ وَلِيٌّ حَمِيمٌ", english: "Repel evil with that which is better; then the one between whom and you there was enmity will become a devoted friend.", ref: "Qur'an 41:34", link: "https://quran.com/41/34" },
 ];
 
+const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];
+const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
+
 interface HomeTabProps {
   onPlayQuran: (surahId: string) => void;
   onOpenDhikr: () => void;
   onOpenWudu: () => void;
   onOpenJournal: () => void;
   onOpenSituations: () => void;
+  onOpenSilenceTimer: () => void;
+  onOpenBreathing: () => void;
 }
 
-const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations }: HomeTabProps) => {
-  const { sabrPoints, streak, angerLog } = useApp();
+const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing }: HomeTabProps) => {
+  const { sabrPoints, streak, angerLog, moodLog, addMoodEntry } = useApp();
   const todayWisdom = wisdoms[Math.floor(Date.now() / 86400000) % wisdoms.length];
   const controlled = angerLog.filter((e) => e.controlled).length;
   const total = angerLog.length;
   const controlRate = total > 0 ? Math.round((controlled / total) * 100) : 0;
 
+  const todayMood = moodLog.find((e) => e.date.slice(0, 10) === new Date().toISOString().slice(0, 10));
+  const last7Moods = moodLog.slice(0, 7);
+
   const quickTools = [
     { emoji: "📿", label: "Dhikr", action: onOpenDhikr, color: "bg-primary/10" },
     { emoji: "📖", label: "Quran", action: () => onPlayQuran("55"), color: "bg-success/10" },
     { emoji: "💧", label: "Wudu", action: onOpenWudu, color: "bg-accent/10" },
-    { emoji: "📓", label: "Journal", action: onOpenJournal, color: "bg-secondary/10" },
-    { emoji: "🎯", label: "Situations", action: onOpenSituations, color: "bg-warning/10" },
+    { emoji: "🤫", label: "Silence", action: onOpenSilenceTimer, color: "bg-secondary/10" },
+    { emoji: "🌊", label: "Breathe", action: onOpenBreathing, color: "bg-warning/10" },
+    { emoji: "📓", label: "Journal", action: onOpenJournal, color: "bg-destructive/10" },
+    { emoji: "🎯", label: "Guides", action: onOpenSituations, color: "bg-muted" },
   ];
 
   const greetings = () => {
@@ -52,6 +62,40 @@ const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSi
         <div className="flex items-center gap-1 rounded-full bg-secondary/20 px-3 py-1 text-sm font-medium text-secondary">
           🔥 {streak}
         </div>
+      </div>
+
+      {/* Daily Mood Check-in */}
+      <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {todayMood ? "Today's Mood ✓" : "How are you feeling?"}
+        </p>
+        <div className="flex justify-between gap-1">
+          {moodEmojis.map((emoji, i) => (
+            <motion.button
+              key={i}
+              onClick={() => addMoodEntry(i + 1)}
+              className={`flex flex-1 flex-col items-center gap-1 rounded-xl p-2 transition-all ${
+                todayMood?.mood === i + 1
+                  ? "bg-primary/10 border border-primary/30 scale-105"
+                  : "border border-transparent hover:bg-muted"
+              }`}
+              whileTap={{ scale: 0.9 }}
+            >
+              <span className="text-2xl">{emoji}</span>
+              <span className="text-[9px] text-muted-foreground">{moodLabels[i]}</span>
+            </motion.button>
+          ))}
+        </div>
+        {last7Moods.length > 1 && (
+          <div className="mt-3 flex items-center gap-1">
+            <span className="text-[10px] text-muted-foreground mr-1">Week:</span>
+            {last7Moods.map((entry, i) => (
+              <span key={i} className="text-sm" title={new Date(entry.date).toLocaleDateString()}>
+                {moodEmojis[entry.mood - 1]}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Stats Row */}
@@ -77,7 +121,7 @@ const HomeTab = ({ onPlayQuran, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSi
       {/* Quick Tools */}
       <div className="mb-5">
         <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick Tools</h2>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {quickTools.map((tool) => (
             <motion.button
               key={tool.label}

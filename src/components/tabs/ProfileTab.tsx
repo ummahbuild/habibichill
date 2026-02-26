@@ -3,7 +3,7 @@ import { useApp } from "@/context/AppContext";
 import logo from "@/assets/habibichill-logo.png";
 
 const ProfileTab = () => {
-  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState } = useApp();
+  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog } = useApp();
   const controlled = angerLog.filter((e) => e.controlled).length;
   const total = angerLog.length;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -12,10 +12,12 @@ const ProfileTab = () => {
     const data = {
       exportDate: new Date().toISOString(),
       app: "HabibiChill",
-      version: "1.0",
+      version: "1.1",
       sabrPoints,
       streak,
       angerLog,
+      bookmarks,
+      moodLog,
       settings,
       completedLessons: JSON.parse(localStorage.getItem("hc-completed-lessons") || "[]"),
       dhikrCounts: JSON.parse(localStorage.getItem("hc-dhikr-counts") || "[0,0,0]"),
@@ -63,6 +65,8 @@ const ProfileTab = () => {
         if (data.settings) localStorage.setItem("hc-settings", JSON.stringify(data.settings));
         if (data.completedLessons) localStorage.setItem("hc-completed-lessons", JSON.stringify(data.completedLessons));
         if (data.dhikrCounts) localStorage.setItem("hc-dhikr-counts", JSON.stringify(data.dhikrCounts));
+        if (data.bookmarks) localStorage.setItem("hc-bookmarks", JSON.stringify(data.bookmarks));
+        if (data.moodLog) localStorage.setItem("hc-mood-log", JSON.stringify(data.moodLog));
 
         window.location.reload();
       } catch {
@@ -70,7 +74,6 @@ const ProfileTab = () => {
       }
     };
     reader.readAsText(file);
-    // reset input
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -81,6 +84,11 @@ const ProfileTab = () => {
     window.location.reload();
   };
 
+  // Insights
+  const controlRate = total > 0 ? Math.round((controlled / total) * 100) : 0;
+  const avgMood = moodLog.length > 0 ? (moodLog.reduce((s, e) => s + e.mood, 0) / moodLog.length).toFixed(1) : null;
+  const level = sabrPoints < 50 ? "🌱 Beginner" : sabrPoints < 150 ? "📚 Student" : sabrPoints < 300 ? "⭐ Practitioner" : "👑 Master";
+
   return (
     <div className="container mx-auto max-w-lg px-4 pt-6 pb-8">
       {/* User card */}
@@ -88,7 +96,28 @@ const ProfileTab = () => {
         <img src={logo} alt="Profile" className="h-14 w-14 rounded-full object-cover" />
         <div>
           <h1 className="font-heading text-lg font-bold text-foreground">HabibiChill User</h1>
-          <p className="text-sm text-muted-foreground">{controlled}/{total} controlled · {sabrPoints} SP · {streak} day streak</p>
+          <p className="text-sm text-muted-foreground">{level} · {sabrPoints} SP · {streak} day streak</p>
+        </div>
+      </div>
+
+      {/* Summary Stats */}
+      <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📈 Summary</h2>
+      <div className="mb-6 grid grid-cols-2 gap-2">
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <p className="font-heading text-2xl font-bold text-primary">{controlRate}%</p>
+          <p className="text-[10px] text-muted-foreground">Control Rate</p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <p className="font-heading text-2xl font-bold text-foreground">{total}</p>
+          <p className="text-[10px] text-muted-foreground">Total Incidents</p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <p className="font-heading text-2xl font-bold text-accent">{bookmarks.length}</p>
+          <p className="text-[10px] text-muted-foreground">Saved Items</p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <p className="font-heading text-2xl font-bold text-secondary">{avgMood || "—"}</p>
+          <p className="text-[10px] text-muted-foreground">Avg Mood</p>
         </div>
       </div>
 
@@ -101,7 +130,7 @@ const ProfileTab = () => {
         >
           <div className="text-left">
             <span className="text-sm font-medium text-foreground">Download Full Backup (JSON)</span>
-            <p className="text-xs text-muted-foreground">All data including settings, lessons, dhikr progress</p>
+            <p className="text-xs text-muted-foreground">All data including settings, bookmarks, mood log</p>
           </div>
           <span className="text-lg">💾</span>
         </button>
@@ -206,7 +235,7 @@ const ProfileTab = () => {
       </button>
 
       <p className="mt-6 pb-8 text-center text-xs text-muted-foreground">
-        HabibiChill v1.0 · Made with ❤️ by <a href="https://ummah.build" className="underline">Ummah Build</a>
+        HabibiChill v1.1 · Made with ❤️ by <a href="https://ummah.build" className="underline">Ummah Build</a>
       </p>
     </div>
   );
