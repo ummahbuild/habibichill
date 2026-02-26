@@ -11,27 +11,27 @@ const surahCollections = [
   {
     title: "🌿 For Calmness & Peace",
     surahs: [
-      { id: "55", name: "Ar-Rahman", arabic: "الرحمن", desc: "The Most Merciful — reminds you of Allah's countless blessings", verses: 78 },
-      { id: "93", name: "Ad-Duha", arabic: "الضحى", desc: "The Morning Hours — Allah's comfort during times of distress", verses: 11 },
-      { id: "94", name: "Ash-Sharh", arabic: "الشرح", desc: "The Relief — 'With hardship comes ease' repeated twice", verses: 8 },
-      { id: "36", name: "Ya-Sin", arabic: "يس", desc: "Heart of the Quran — recite for spiritual healing", verses: 83 },
+      { id: "55", name: "Ar-Rahman", arabic: "الرحمن", desc: "The Most Merciful — reminds you of Allah's countless blessings", verses: 78, benefit: "Gratitude & inner peace" },
+      { id: "93", name: "Ad-Duha", arabic: "الضحى", desc: "The Morning Hours — Allah's comfort during times of distress", verses: 11, benefit: "Comfort in sadness" },
+      { id: "94", name: "Ash-Sharh", arabic: "الشرح", desc: "The Relief — 'With hardship comes ease' repeated twice", verses: 8, benefit: "Hope & relief" },
+      { id: "36", name: "Ya-Sin", arabic: "يس", desc: "Heart of the Quran — recite for spiritual healing", verses: 83, benefit: "Spiritual healing" },
     ],
   },
   {
     title: "🛡️ For Protection & Refuge",
     surahs: [
-      { id: "1", name: "Al-Fatiha", arabic: "الفاتحة", desc: "The Opening — the greatest surah, a cure for the heart", verses: 7 },
-      { id: "112", name: "Al-Ikhlas", arabic: "الإخلاص", desc: "Sincerity — equals one-third of the Quran", verses: 4 },
-      { id: "113", name: "Al-Falaq", arabic: "الفلق", desc: "The Daybreak — seek refuge from all evil", verses: 5 },
-      { id: "114", name: "An-Nas", arabic: "الناس", desc: "Mankind — seek refuge from the whisperer", verses: 6 },
+      { id: "1", name: "Al-Fatiha", arabic: "الفاتحة", desc: "The Opening — the greatest surah, a cure for the heart", verses: 7, benefit: "Complete healing" },
+      { id: "112", name: "Al-Ikhlas", arabic: "الإخلاص", desc: "Sincerity — equals one-third of the Quran", verses: 4, benefit: "Purifying belief" },
+      { id: "113", name: "Al-Falaq", arabic: "الفلق", desc: "The Daybreak — seek refuge from all evil", verses: 5, benefit: "Protection from evil" },
+      { id: "114", name: "An-Nas", arabic: "الناس", desc: "Mankind — seek refuge from the whisperer", verses: 6, benefit: "Protection from waswas" },
     ],
   },
   {
     title: "💪 For Patience & Strength",
     surahs: [
-      { id: "67", name: "Al-Mulk", arabic: "الملك", desc: "The Sovereignty — protection from the punishment of the grave", verses: 30 },
-      { id: "56", name: "Al-Waqi'ah", arabic: "الواقعة", desc: "The Inevitable — recite for provision and contentment", verses: 96 },
-      { id: "73", name: "Al-Muzzammil", arabic: "المزمل", desc: "The Enshrouded One — on night prayer and patience", verses: 20 },
+      { id: "67", name: "Al-Mulk", arabic: "الملك", desc: "The Sovereignty — protection from the punishment of the grave", verses: 30, benefit: "Nightly protection" },
+      { id: "56", name: "Al-Waqi'ah", arabic: "الواقعة", desc: "The Inevitable — recite for provision and contentment", verses: 96, benefit: "Provision & wealth" },
+      { id: "73", name: "Al-Muzzammil", arabic: "المزمل", desc: "The Enshrouded One — on night prayer and patience", verses: 20, benefit: "Night prayer strength" },
     ],
   },
 ];
@@ -118,6 +118,11 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
   const [readingSurah, setReadingSurah] = useState<number | null>(null);
   const [verses, setVerses] = useState<QuranVerse[]>([]);
   const [loadingVerses, setLoadingVerses] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
+  const [lastPlayed, setLastPlayed] = useState<string | null>(() =>
+    localStorage.getItem("hc-last-played-surah")
+  );
 
   const subTabs: { id: SubTab; label: string; emoji: string }[] = [
     { id: "listen", label: "Listen", emoji: "🎧" },
@@ -127,6 +132,12 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
     { id: "duas", label: "Duas", emoji: "🤲" },
     { id: "saved", label: "Saved", emoji: "❤️" },
   ];
+
+  const handlePlayQuran = (surahId: string) => {
+    setLastPlayed(surahId);
+    localStorage.setItem("hc-last-played-surah", surahId);
+    onPlayQuran(surahId);
+  };
 
   const fetchVerses = useCallback(async (surahId: number) => {
     setLoadingVerses(true);
@@ -187,6 +198,9 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
     }
   };
 
+  const fontSizeClass = fontSize === "sm" ? "text-base" : fontSize === "lg" ? "text-2xl" : "text-xl";
+  const translationFontSize = fontSize === "sm" ? "text-xs" : fontSize === "lg" ? "text-base" : "text-sm";
+
   return (
     <div className="container mx-auto max-w-lg px-4 pt-6 pb-8">
       <h1 className="mb-2 font-heading text-xl font-bold text-foreground">Quran & Sunnah</h1>
@@ -214,32 +228,133 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
         {/* ── Listen Tab ── */}
         {subTab === "listen" && (
           <motion.div key="listen" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            {surahCollections.map((collection) => (
-              <div key={collection.title} className="mb-6">
-                <h2 className="mb-3 font-heading text-sm font-semibold text-foreground">{collection.title}</h2>
-                <div className="flex flex-col gap-2">
-                  {collection.surahs.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => onPlayQuran(s.id)}
-                      className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-all hover:shadow-calm active:scale-[0.98]"
+            {/* Last played quick resume */}
+            {lastPlayed && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-5 rounded-2xl border border-primary/20 bg-primary/5 p-4"
+              >
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary">Continue Listening</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                    <span className="font-arabic text-lg text-primary">
+                      {surahCollections.flatMap(c => c.surahs).find(s => s.id === lastPlayed)?.arabic || "📖"}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">
+                      Surah {surahCollections.flatMap(c => c.surahs).find(s => s.id === lastPlayed)?.name || `#${lastPlayed}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Mishary Alafasy</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <motion.button
+                      onClick={() => {
+                        setSubTab("read");
+                        setReadingSurah(Number(lastPlayed));
+                      }}
+                      className="flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                      whileTap={{ scale: 0.95 }}
                     >
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-                        <span className="font-arabic text-lg text-primary">{s.arabic}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground">Surah {s.name}</p>
-                        <p className="truncate text-xs text-muted-foreground">{s.desc}</p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">▶</span>
-                        <span className="text-[10px] text-muted-foreground">{s.verses} ayat</span>
-                      </div>
-                    </button>
-                  ))}
+                      📜 Read
+                    </motion.button>
+                    <motion.button
+                      onClick={() => handlePlayQuran(lastPlayed)}
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-calm"
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      ▶
+                    </motion.button>
+                  </div>
                 </div>
+              </motion.div>
+            )}
+
+            {/* Search */}
+            <div className="mb-4">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search surahs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card py-2.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">✕</button>
+                )}
               </div>
-            ))}
+            </div>
+
+            {surahCollections.map((collection) => {
+              const filteredSurahs = searchQuery
+                ? collection.surahs.filter(s =>
+                    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    s.arabic.includes(searchQuery) ||
+                    s.desc.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                : collection.surahs;
+
+              if (filteredSurahs.length === 0) return null;
+
+              return (
+                <div key={collection.title} className="mb-6">
+                  <h2 className="mb-3 font-heading text-sm font-semibold text-foreground">{collection.title}</h2>
+                  <div className="flex flex-col gap-2">
+                    {filteredSurahs.map((s) => (
+                      <div
+                        key={s.id}
+                        className={`rounded-xl border bg-card overflow-hidden transition-all hover:shadow-calm ${
+                          lastPlayed === s.id ? "border-primary/30" : "border-border"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 p-3.5">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+                            <span className="font-arabic text-lg text-primary">{s.arabic}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-foreground">Surah {s.name}</p>
+                              {lastPlayed === s.id && (
+                                <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[8px] font-medium text-primary">Last played</span>
+                              )}
+                            </div>
+                            <p className="truncate text-xs text-muted-foreground">{s.desc}</p>
+                            <div className="mt-1 flex items-center gap-2">
+                              <span className="rounded-full bg-accent/30 px-2 py-0.5 text-[9px] font-medium text-accent-foreground">{s.benefit}</span>
+                              <span className="text-[10px] text-muted-foreground">{s.verses} ayat</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-1.5 shrink-0">
+                            <motion.button
+                              onClick={() => handlePlayQuran(s.id)}
+                              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs shadow-calm"
+                              whileTap={{ scale: 0.9 }}
+                              aria-label={`Play Surah ${s.name}`}
+                            >
+                              ▶
+                            </motion.button>
+                            <motion.button
+                              onClick={() => {
+                                setSubTab("read");
+                                setReadingSurah(Number(s.id));
+                              }}
+                              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-muted text-xs transition-colors hover:bg-card"
+                              whileTap={{ scale: 0.9 }}
+                              aria-label={`Read Surah ${s.name}`}
+                            >
+                              📜
+                            </motion.button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </motion.div>
         )}
 
@@ -270,18 +385,43 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
               </>
             ) : (
               <>
-                <button onClick={() => { setReadingSurah(null); setVerses([]); }} className="mb-4 text-sm text-primary hover:underline">← Back to Surahs</button>
+                <div className="mb-4 flex items-center gap-2">
+                  <button onClick={() => { setReadingSurah(null); setVerses([]); }} className="text-sm text-primary hover:underline">← Back</button>
+                  <div className="flex-1" />
+                  {/* Font size controls */}
+                  <div className="flex items-center gap-1 rounded-lg border border-border bg-muted p-0.5">
+                    {(["sm", "md", "lg"] as const).map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setFontSize(size)}
+                        className={`rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
+                          fontSize === size ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                        }`}
+                      >
+                        {size === "sm" ? "A" : size === "md" ? "A+" : "A++"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="font-heading text-lg font-bold text-foreground">
                     {readingSurahs.find((s) => s.id === readingSurah)?.name}
+                    <span className="ml-2 font-arabic text-muted-foreground">{readingSurahs.find((s) => s.id === readingSurah)?.arabic}</span>
                   </h2>
                   <button
-                    onClick={() => onPlayQuran(String(readingSurah))}
+                    onClick={() => handlePlayQuran(String(readingSurah))}
                     className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
                   >
                     🎧 Listen
                   </button>
                 </div>
+
+                {/* Verse count indicator */}
+                {verses.length > 0 && (
+                  <p className="mb-3 text-xs text-muted-foreground">{verses.length} verses loaded</p>
+                )}
+
                 {loadingVerses ? (
                   <div className="flex flex-col items-center gap-3 py-12">
                     <motion.span animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="text-3xl">📖</motion.span>
@@ -289,13 +429,19 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
+                    {/* Bismillah for non-Fatiha surahs */}
+                    {readingSurah !== 1 && readingSurah !== 9 && (
+                      <div className="rounded-2xl border border-border bg-gradient-calm p-4 text-center">
+                        <p className="font-arabic text-xl text-foreground" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                        <p className="mt-1 text-xs text-muted-foreground italic">In the name of Allah, the Most Gracious, the Most Merciful</p>
+                      </div>
+                    )}
                     {verses.map((v) => (
                       <div key={v.number} className="rounded-2xl border border-border bg-card p-4">
                         <div className="mb-2 flex items-start justify-between">
                           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">{v.number}</span>
                           <button
                             onClick={() => {
-                              const surah = readingSurahs.find((s) => s.id === readingSurah);
                               toggleBookmarkAyah({
                                 arabic: v.arabic,
                                 english: v.translation,
@@ -308,10 +454,41 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
                             {isBookmarked(`ayah-${readingSurah}:${v.number}`) ? "❤️" : "🤍"}
                           </button>
                         </div>
-                        <p className="mb-3 font-arabic text-xl leading-[2.2] text-foreground" dir="rtl">{v.arabic}</p>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{v.translation}</p>
+                        <p className={`mb-3 font-arabic ${fontSizeClass} leading-[2.2] text-foreground`} dir="rtl">{v.arabic}</p>
+                        <p className={`${translationFontSize} text-muted-foreground leading-relaxed`}>{v.translation}</p>
                       </div>
                     ))}
+
+                    {/* Navigation between surahs */}
+                    {verses.length > 0 && (
+                      <div className="flex items-center justify-between pt-4">
+                        {(() => {
+                          const idx = readingSurahs.findIndex(s => s.id === readingSurah);
+                          const prev = idx > 0 ? readingSurahs[idx - 1] : null;
+                          const next = idx < readingSurahs.length - 1 ? readingSurahs[idx + 1] : null;
+                          return (
+                            <>
+                              {prev ? (
+                                <button
+                                  onClick={() => setReadingSurah(prev.id)}
+                                  className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
+                                >
+                                  ← {prev.name}
+                                </button>
+                              ) : <div />}
+                              {next ? (
+                                <button
+                                  onClick={() => setReadingSurah(next.id)}
+                                  className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
+                                >
+                                  {next.name} →
+                                </button>
+                              ) : <div />}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
                 )}
               </>
