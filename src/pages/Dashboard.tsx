@@ -3,8 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import HomeTab from "@/components/tabs/HomeTab";
 import QuranSunnahTab from "@/components/tabs/QuranSunnahTab";
 import LearnTab from "@/components/tabs/LearnTab";
-import TrackTab from "@/components/tabs/TrackTab";
-import ProfileTab from "@/components/tabs/ProfileTab";
+import MeTab from "@/components/tabs/MeTab";
 import EmergencyFlow from "@/components/EmergencyFlow";
 import QuranPlayer from "@/components/QuranPlayer";
 import DhikrCounter from "@/components/DhikrCounter";
@@ -18,8 +17,7 @@ const tabs = [
   { id: "home", label: "Home", icon: "🏠" },
   { id: "quran", label: "Quran", icon: "📖" },
   { id: "learn", label: "Learn", icon: "🧠" },
-  { id: "track", label: "Track", icon: "📊" },
-  { id: "profile", label: "Profile", icon: "👤" },
+  { id: "me", label: "Me", icon: "👤" },
 ];
 
 const Dashboard = () => {
@@ -59,13 +57,12 @@ const Dashboard = () => {
               <QuranSunnahTab onPlayQuran={(surahId) => setPlayingSurah(surahId)} />
             )}
             {activeTab === "learn" && <LearnTab />}
-            {activeTab === "track" && <TrackTab />}
-            {activeTab === "profile" && <ProfileTab />}
+            {activeTab === "me" && <MeTab />}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Quran Player - sticky above navbar */}
+      {/* Quran Player */}
       <AnimatePresence>
         {playingSurah && (
           <QuranPlayer
@@ -76,7 +73,7 @@ const Dashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* Bottom Tab Bar with center emergency button */}
+      {/* Bottom Tab Bar */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md safe-area-bottom"
         aria-label="App navigation"
@@ -98,7 +95,7 @@ const Dashboard = () => {
               )}
               <button
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors ${
+                className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium transition-colors ${
                   activeTab === tab.id ? "text-primary" : "text-muted-foreground"
                 }`}
                 aria-label={tab.label}
