@@ -5,6 +5,8 @@ import ReferenceTooltip from "@/components/ReferenceTooltip";
 
 interface QuranSunnahTabProps {
   onPlayQuran: (surahId: string) => void;
+  initialReadSurah?: number | null;
+  onClearInitialRead?: () => void;
 }
 
 /* ── Surah collection with themes ── */
@@ -112,11 +114,11 @@ const readingSurahs = [
   { id: 114, name: "An-Nas", arabic: "الناس", verses: 6 },
 ];
 
-const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
-  const { bookmarks, addBookmark, removeBookmark, isBookmarked } = useApp();
-  const [subTab, setSubTab] = useState<SubTab>("listen");
+const QuranSunnahTab = ({ onPlayQuran, initialReadSurah, onClearInitialRead }: QuranSunnahTabProps) => {
+  const { bookmarks, addBookmark, removeBookmark, isBookmarked, angerLog, moodLog, onboardingData } = useApp();
+  const [subTab, setSubTab] = useState<SubTab>(() => initialReadSurah ? "read" : "listen");
   const [expandedHadith, setExpandedHadith] = useState<number | null>(null);
-  const [readingSurah, setReadingSurah] = useState<number | null>(null);
+  const [readingSurah, setReadingSurah] = useState<number | null>(initialReadSurah ?? null);
   const [verses, setVerses] = useState<QuranVerse[]>([]);
   const [loadingVerses, setLoadingVerses] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -124,6 +126,78 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
   const [lastPlayed, setLastPlayed] = useState<string | null>(() =>
     localStorage.getItem("hc-last-played-surah")
   );
+
+  // Handle incoming read navigation from other tabs
+  useEffect(() => {
+    if (initialReadSurah) {
+      setSubTab("read");
+      setReadingSurah(initialReadSurah);
+      onClearInitialRead?.();
+    }
+  }, [initialReadSurah, onClearInitialRead]);
+
+  // --- Personalized Recommendations ---
+  const getRecommendations = () => {
+    const hour = new Date().getHours();
+    const recentTriggers = angerLog.slice(0, 10).map(e => e.trigger.toLowerCase());
+    const recentMood = moodLog.length > 0 ? moodLog[0].mood : 3;
+    const topTrigger = onboardingData.topTrigger?.toLowerCase() || "";
+    const recs: { type: "surah" | "hadith" | "dua"; reason: string; id: string; name: string; emoji: string }[] = [];
+
+    // Mood-based
+    if (recentMood >= 4) {
+      recs.push({ type: "surah", reason: "You're feeling low — this surah brings comfort", id: "93", name: "Surah Ad-Duha", emoji: "☀️" });
+      recs.push({ type: "dua", reason: "A dua for relief during difficult times", id: "dua-relief", name: "Dua of Yunus (AS)", emoji: "🤲" });
+    }
+    if (recentMood <= 2) {
+      recs.push({ type: "surah", reason: "Alhamdulillah — listen in gratitude", id: "55", name: "Surah Ar-Rahman", emoji: "🌿" });
+    }
+
+    // Trigger-based
+    const hasRelationshipTrigger = recentTriggers.some(t => t.includes("family") || t.includes("marriage") || t.includes("relationship")) || topTrigger.includes("family");
+    const hasWorkTrigger = recentTriggers.some(t => t.includes("work") || t.includes("stress")) || topTrigger.includes("work");
+    const hasOnlineTrigger = recentTriggers.some(t => t.includes("online") || t.includes("argument")) || topTrigger.includes("online");
+
+    if (hasRelationshipTrigger) {
+      recs.push({ type: "hadith", reason: "For patience in family matters", id: "hadith-strength", name: "Hadith on True Strength", emoji: "💪" });
+      recs.push({ type: "surah", reason: "For tranquility in relationships", id: "94", name: "Surah Ash-Sharh", emoji: "💚" });
+    }
+    if (hasWorkTrigger) {
+      recs.push({ type: "surah", reason: "For patience during work stress", id: "67", name: "Surah Al-Mulk", emoji: "🛡️" });
+      recs.push({ type: "dua", reason: "Ask Allah for ease", id: "dua-ease", name: "Dua for Ease", emoji: "🤲" });
+    }
+    if (hasOnlineTrigger) {
+      recs.push({ type: "hadith", reason: "The Prophet ﷺ said: be silent", id: "hadith-silence", name: "Hadith on Silence", emoji: "🤫" });
+    }
+
+    // Time-based
+    if (hour >= 20 || hour < 5) {
+      recs.push({ type: "surah", reason: "Recommended before sleep", id: "67", name: "Surah Al-Mulk", emoji: "🛡️" });
+    }
+    if (hour >= 5 && hour < 8) {
+      recs.push({ type: "surah", reason: "Start your morning with light", id: "93", name: "Surah Ad-Duha", emoji: "☀️" });
+    }
+
+    // Anger frequency
+    const recentAnger = angerLog.filter(e => {
+      const d = new Date(e.date);
+      return Date.now() - d.getTime() < 7 * 86400000;
+    });
+    if (recentAnger.length >= 3) {
+      recs.push({ type: "surah", reason: "You've had a tough week — find peace", id: "55", name: "Surah Ar-Rahman", emoji: "🌿" });
+      recs.push({ type: "hadith", reason: "Reminder: the strong restrain anger", id: "hadith-strong", name: "Hadith on Strength", emoji: "💪" });
+    }
+
+    // Deduplicate by id
+    const seen = new Set<string>();
+    return recs.filter(r => {
+      if (seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    }).slice(0, 4);
+  };
+
+  const recommendations = getRecommendations();
 
   const subTabs: { id: SubTab; label: string; emoji: string }[] = [
     { id: "listen", label: "Listen", emoji: "🎧" },
@@ -270,6 +344,51 @@ const QuranSunnahTab = ({ onPlayQuran }: QuranSunnahTabProps) => {
                   </div>
                 </div>
               </motion.div>
+            )}
+
+            {/* Personalized Recommendations */}
+            {recommendations.length > 0 && (
+              <div className="mb-5">
+                <h2 className="mb-3 font-heading text-sm font-semibold text-foreground">✨ Recommended for You</h2>
+                <div className="flex flex-col gap-2">
+                  {recommendations.map((rec) => (
+                    <motion.button
+                      key={rec.id}
+                      onClick={() => {
+                        if (rec.type === "surah") {
+                          handlePlayQuran(rec.id);
+                        } else if (rec.type === "hadith") {
+                          setSubTab("sunnah");
+                        } else {
+                          setSubTab("duas");
+                        }
+                      }}
+                      className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3 text-left transition-all hover:bg-primary/10"
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span className="text-xl">{rec.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">{rec.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{rec.reason}</p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        {rec.type === "surah" && (
+                          <>
+                            <span
+                              onClick={(e) => { e.stopPropagation(); setSubTab("read"); setReadingSurah(Number(rec.id)); }}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-[10px] hover:bg-muted cursor-pointer"
+                            >📜</span>
+                            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-[10px] text-primary-foreground">▶</span>
+                          </>
+                        )}
+                        {rec.type !== "surah" && (
+                          <span className="text-xs text-primary font-medium">View →</span>
+                        )}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
             )}
 
             {/* Search */}

@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [showSituations, setShowSituations] = useState(false);
   const [showSilenceTimer, setShowSilenceTimer] = useState(false);
   const [showBreathing, setShowBreathing] = useState(false);
+  const [initialReadSurah, setInitialReadSurah] = useState<number | null>(null);
 
   const shortcuts = useMemo(() => [
     { key: "f", handler: () => setShowEmergency(true) },
@@ -56,6 +57,10 @@ const Dashboard = () => {
             {activeTab === "home" && (
               <HomeTab
                 onPlayQuran={(surahId) => setPlayingSurah(surahId)}
+                onNavigateToRead={(surahId) => {
+                  setInitialReadSurah(surahId);
+                  setActiveTab("quran");
+                }}
                 onOpenDhikr={() => setShowDhikr(true)}
                 onOpenWudu={() => setShowWudu(true)}
                 onOpenJournal={() => setShowJournal(true)}
@@ -65,7 +70,11 @@ const Dashboard = () => {
               />
             )}
             {activeTab === "quran" && (
-              <QuranSunnahTab onPlayQuran={(surahId) => setPlayingSurah(surahId)} />
+              <QuranSunnahTab
+                onPlayQuran={(surahId) => setPlayingSurah(surahId)}
+                initialReadSurah={initialReadSurah}
+                onClearInitialRead={() => setInitialReadSurah(null)}
+              />
             )}
             {activeTab === "learn" && <LearnTab />}
             {activeTab === "me" && <MeTab />}
