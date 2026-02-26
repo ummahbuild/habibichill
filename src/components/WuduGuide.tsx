@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import HadithTooltip from "@/components/HadithTooltip";
+import wuduHands from "@/assets/wudu-hands.png";
+import wuduMouth from "@/assets/wudu-mouth.png";
+import wuduArms from "@/assets/wudu-arms.png";
+import wuduHead from "@/assets/wudu-head.png";
+import wuduFeet from "@/assets/wudu-feet.png";
 
 interface WuduStep {
   title: string;
@@ -8,8 +14,11 @@ interface WuduStep {
   transliteration?: string;
   desc: string;
   icon: string;
+  image?: string;
   sunnah?: string;
+  sunnahShort?: string;
   sunnahLink?: string;
+  sunnahNarrator?: string;
   tips?: string;
 }
 
@@ -20,8 +29,10 @@ const wuduSteps: WuduStep[] = [
     transliteration: "Nawaytu al-wuḍū'",
     desc: "Make the intention in your heart to perform wudu for the sake of Allah. The intention does not need to be spoken aloud — it is in the heart.",
     icon: "🤲",
-    sunnah: "\"Actions are judged by intentions.\" — Sahih al-Bukhari 1",
+    sunnah: "Actions are judged by intentions.",
+    sunnahShort: "Sahih al-Bukhari 1",
     sunnahLink: "https://sunnah.com/bukhari:1",
+    sunnahNarrator: "Narrated by Umar ibn al-Khattab (رضي الله عنه)",
     tips: "The intention distinguishes between washing for cleanliness and performing wudu as an act of worship.",
   },
   {
@@ -30,14 +41,17 @@ const wuduSteps: WuduStep[] = [
     transliteration: "Bismillāh",
     desc: "Say 'Bismillah' (In the name of Allah) before beginning. This is recommended (mustahabb) by the majority of scholars.",
     icon: "🗣️",
-    sunnah: "\"There is no wudu for the one who does not mention the name of Allah.\" — Sunan Abu Dawud 101",
+    sunnah: "There is no wudu for the one who does not mention the name of Allah.",
+    sunnahShort: "Sunan Abu Dawud 101",
     sunnahLink: "https://sunnah.com/abudawud:101",
   },
   {
     title: "Wash Hands (×3)",
     desc: "Wash both hands up to the wrists three times. Start with the right hand, then the left. Ensure water reaches between the fingers.",
     icon: "🖐️",
-    sunnah: "The Prophet ﷺ used to wash his hands three times at the start of wudu. — Sahih al-Bukhari 159",
+    image: wuduHands,
+    sunnah: "The Prophet ﷺ used to wash his hands three times at the start of wudu.",
+    sunnahShort: "Sahih al-Bukhari 159",
     sunnahLink: "https://sunnah.com/bukhari:159",
     tips: "Interlock your fingers to ensure water passes between them. Remove rings if they prevent water from reaching the skin.",
   },
@@ -47,7 +61,9 @@ const wuduSteps: WuduStep[] = [
     transliteration: "Al-Maḍmaḍah",
     desc: "Take a handful of water, swirl it thoroughly around the mouth, then spit it out. Repeat three times.",
     icon: "👄",
-    sunnah: "The Prophet ﷺ used to rinse his mouth and nose with the same handful of water. — Sahih al-Bukhari 191",
+    image: wuduMouth,
+    sunnah: "The Prophet ﷺ used to rinse his mouth and nose with the same handful of water.",
+    sunnahShort: "Sahih al-Bukhari 191",
     sunnahLink: "https://sunnah.com/bukhari:191",
   },
   {
@@ -56,21 +72,24 @@ const wuduSteps: WuduStep[] = [
     transliteration: "Al-Istinshāq",
     desc: "Sniff water gently into the nostrils using the right hand, then blow it out using the left hand. Repeat three times.",
     icon: "👃",
-    sunnah: "\"When one of you performs wudu, let him sniff water into his nose and then blow it out.\" — Sahih Muslim 237",
+    sunnah: "When one of you performs wudu, let him sniff water into his nose and then blow it out.",
+    sunnahShort: "Sahih Muslim 237",
     sunnahLink: "https://sunnah.com/muslim:237",
     tips: "Be gentle — don't sniff too hard. Use the left hand to blow the water out.",
   },
   {
     title: "Wash Face (×3)",
-    desc: "Wash the entire face three times — from the hairline to the chin vertically, and from ear to ear horizontally. Ensure water covers every part including the eyebrows.",
+    desc: "Wash the entire face three times — from the hairline to the chin vertically, and from ear to ear horizontally.",
     icon: "😊",
     tips: "Run your wet fingers through your beard if you have one (khilāl). This is sunnah.",
   },
   {
     title: "Wash Arms (×3)",
-    desc: "Wash the right arm from fingertips to the elbow (inclusive) three times, then repeat with the left arm. Ensure water covers every part.",
+    desc: "Wash the right arm from fingertips to the elbow (inclusive) three times, then repeat with the left arm.",
     icon: "💪",
-    sunnah: "The Prophet ﷺ used to wash his arms up to and including the elbows. — Sahih Muslim 246",
+    image: wuduArms,
+    sunnah: "The Prophet ﷺ used to wash his arms up to and including the elbows.",
+    sunnahShort: "Sahih Muslim 246",
     sunnahLink: "https://sunnah.com/muslim:246",
     tips: "Don't forget the elbow — it must be included in the washing. Rotate the arm to cover all sides.",
   },
@@ -80,7 +99,9 @@ const wuduSteps: WuduStep[] = [
     transliteration: "Al-Masḥ",
     desc: "Wet both hands and wipe over the entire head once — starting from the forehead to the back of the head, then back to the front.",
     icon: "🧑",
-    sunnah: "The Prophet ﷺ wiped his head from the front to the back and then back again. — Sahih al-Bukhari 185",
+    image: wuduHead,
+    sunnah: "The Prophet ﷺ wiped his head from the front to the back and then back again.",
+    sunnahShort: "Sahih al-Bukhari 185",
     sunnahLink: "https://sunnah.com/bukhari:185",
     tips: "This is done only once, unlike the other washing steps. Use fresh water for this.",
   },
@@ -88,14 +109,17 @@ const wuduSteps: WuduStep[] = [
     title: "Wipe Ears (×1)",
     desc: "Using the same wetness from wiping the head, insert the index fingers into the ear openings and wipe the backs of the ears with the thumbs.",
     icon: "👂",
-    sunnah: "\"The ears are part of the head.\" — Sunan Abu Dawud 134",
+    sunnah: "The ears are part of the head.",
+    sunnahShort: "Sunan Abu Dawud 134",
     sunnahLink: "https://sunnah.com/abudawud:134",
   },
   {
     title: "Wash Feet (×3)",
     desc: "Wash the right foot up to and including the ankle three times, then the left foot. Ensure water reaches between the toes.",
     icon: "🦶",
-    sunnah: "The Prophet ﷺ said: \"Woe to the heels from the Hellfire!\" — Sahih al-Bukhari 165",
+    image: wuduFeet,
+    sunnah: "Woe to the heels from the Hellfire!",
+    sunnahShort: "Sahih al-Bukhari 165",
     sunnahLink: "https://sunnah.com/bukhari:165",
     tips: "Use the little finger of the left hand to wash between the toes. Don't neglect the heels and ankles.",
   },
@@ -105,7 +129,8 @@ const wuduSteps: WuduStep[] = [
     transliteration: "Ash-hadu an lā ilāha illallāhu waḥdahu lā sharīka lah, wa ash-hadu anna Muḥammadan 'abduhu wa rasūluh",
     desc: "I testify that there is no god but Allah alone, with no partner, and I testify that Muhammad is His servant and messenger.",
     icon: "✨",
-    sunnah: "\"Whoever performs wudu and says this, the eight gates of Paradise are opened for him.\" — Sahih Muslim 234",
+    sunnah: "Whoever performs wudu and says this, the eight gates of Paradise are opened for him.",
+    sunnahShort: "Sahih Muslim 234",
     sunnahLink: "https://sunnah.com/muslim:234",
   },
 ];
@@ -121,10 +146,6 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
   const [completed, setCompleted] = useState(false);
   const step = wuduSteps[currentStep];
 
-  const handleComplete = () => {
-    setCompleted(true);
-  };
-
   return (
     <motion.div
       className="fixed inset-0 z-50 overflow-y-auto bg-background/95 backdrop-blur-sm"
@@ -138,13 +159,7 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
         <AnimatePresence mode="wait">
           {completed ? (
             <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-              <motion.span
-                className="mb-4 block text-6xl"
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 0.5 }}
-              >
-                💧
-              </motion.span>
+              <motion.span className="mb-4 block text-6xl" animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 0.5 }}>💧</motion.span>
               <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">Wudu Complete!</h2>
               <p className="mb-4 text-sm text-muted-foreground">May Allah accept your purification</p>
               <div className="mb-6 rounded-2xl bg-gradient-calm border border-border p-4">
@@ -153,13 +168,9 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
                 </p>
                 <p className="mb-1 text-xs font-medium text-primary italic">Allāhumma-j'alnī minat-tawwābīna wa-j'alnī minal-mutaṭahhirīn</p>
                 <p className="mb-2 text-sm text-muted-foreground italic">"O Allah, make me among those who repent and make me among those who purify themselves."</p>
-                <a href="https://sunnah.com/tirmidhi:55" target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
-                  Tirmidhi 55 →
-                </a>
+                <a href="https://sunnah.com/tirmidhi:55" target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">Tirmidhi 55 →</a>
               </div>
-              <button onClick={onClose} className="w-full rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95">
-                Done ✨
-              </button>
+              <button onClick={onClose} className="w-full rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95">Done ✨</button>
             </motion.div>
           ) : (
             <motion.div key="steps">
@@ -175,7 +186,12 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
 
               <AnimatePresence mode="wait">
                 <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                  <span className="mb-4 block text-5xl">{step.icon}</span>
+                  {/* Step image or icon */}
+                  {step.image ? (
+                    <img src={step.image} alt={step.title} className="mx-auto mb-4 h-32 w-32 rounded-2xl object-cover border border-border" loading="lazy" />
+                  ) : (
+                    <span className="mb-4 block text-5xl">{step.icon}</span>
+                  )}
                   <h2 className="mb-3 font-heading text-2xl font-bold text-foreground">{step.title}</h2>
 
                   {/* Arabic + transliteration */}
@@ -198,29 +214,28 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
                     </div>
                   )}
 
-                  {/* Sunnah reference */}
+                  {/* Sunnah reference with hover tooltip */}
                   {step.sunnah && (
                     <div className="mb-4">
-                      <button
-                        onClick={() => setShowDetails(!showDetails)}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      <HadithTooltip
+                        source={step.sunnahShort || ""}
+                        text={step.sunnah}
+                        link={step.sunnahLink}
                       >
-                        📚 Sunnah Reference {showDetails ? "▲" : "▼"}
-                      </button>
+                        <button
+                          onClick={() => setShowDetails(!showDetails)}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          📚 {step.sunnahShort} {showDetails ? "▲" : "▼"}
+                        </button>
+                      </HadithTooltip>
                       <AnimatePresence>
                         {showDetails && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
+                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                             <div className="mt-2 rounded-xl border border-border bg-card p-3 text-left">
-                              <p className="text-xs text-foreground italic">{step.sunnah}</p>
+                              <p className="text-xs text-foreground italic">"{step.sunnah}"</p>
                               {step.sunnahLink && (
-                                <a href={step.sunnahLink} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-primary underline">
-                                  View on Sunnah.com →
-                                </a>
+                                <a href={step.sunnahLink} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-primary underline">View on Sunnah.com →</a>
                               )}
                             </div>
                           </motion.div>
@@ -248,7 +263,7 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
                   </button>
                 ) : (
                   <button
-                    onClick={handleComplete}
+                    onClick={() => setCompleted(true)}
                     className="flex-1 rounded-xl bg-primary py-3 text-sm font-medium text-primary-foreground transition-all hover:scale-105 active:scale-95"
                   >
                     Complete Wudu ✨
