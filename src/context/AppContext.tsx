@@ -25,7 +25,7 @@ interface AppContextType {
   removeBookmark: (id: string) => void;
   isBookmarked: (contentId: string) => boolean;
   moodLog: MoodEntry[];
-  addMoodEntry: (mood: number) => void;
+  addMoodEntry: (mood: number, note?: string) => void;
 }
 
 export interface AngerEntry {
@@ -56,6 +56,8 @@ export interface MoodEntry {
   id: string;
   date: string;
   mood: number; // 1-5
+  note?: string;
+  timeOfDay?: string; // "morning" | "afternoon" | "evening" | "night"
 }
 
 export interface AppSettings {
@@ -179,12 +181,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const isBookmarked = (contentId: string) => bookmarks.some((b) => b.contentId === contentId);
 
-  const addMoodEntry = (mood: number) => {
-    const today = new Date().toISOString().slice(0, 10);
+  const addMoodEntry = (mood: number, note?: string) => {
+    const now = new Date();
+    const hour = now.getHours();
+    const timeOfDay = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 17 ? "afternoon" : hour < 21 ? "evening" : "night";
     setMoodLog((prev) => {
-      // Replace today's entry if exists
-      const filtered = prev.filter((e) => e.date.slice(0, 10) !== today);
-      const next = [{ id: crypto.randomUUID(), date: new Date().toISOString(), mood }, ...filtered];
+      const next = [{ id: crypto.randomUUID(), date: now.toISOString(), mood, note, timeOfDay }, ...prev];
       localStorage.setItem("hc-mood-log", JSON.stringify(next));
       return next;
     });

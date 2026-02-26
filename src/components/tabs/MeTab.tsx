@@ -1,11 +1,11 @@
 import { useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp, AngerEntry } from "@/context/AppContext";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend } from "recharts";
 import { format, subDays, startOfDay, parseISO, eachDayOfInterval } from "date-fns";
 import logo from "@/assets/habibichill-logo.png";
 
-type SubTab = "progress" | "journal" | "settings";
+type SubTab = "progress" | "mood" | "journal" | "settings";
 
 const achievements = [
   { name: "First Control", desc: "Controlled anger for the first time", icon: "🌱", threshold: 1 },
@@ -23,6 +23,8 @@ const CHART_COLORS = {
 };
 
 const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];
+const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
+const timeOfDayEmojis: Record<string, string> = { morning: "☀️", afternoon: "🌤️", evening: "🌅", night: "🌙" };
 
 const MeTab = () => {
   const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog } = useApp();
@@ -82,8 +84,56 @@ const MeTab = () => {
     return msgs;
   }, [angerLog, controlled, total, streak, triggerData]);
 
-  // Mood trend (last 7)
+  // Mood trend (last 7 unique entries)
   const last7Moods = moodLog.slice(0, 7);
+
+  // Mood daily averages (last 14 days)
+  const moodDailyData = useMemo(() => {
+    const today = startOfDay(new Date());
+    const days = eachDayOfInterval({ start: subDays(today, 13), end: today });
+    return days.map((day) => {
+      const dayStr = format(day, "yyyy-MM-dd");
+      const dayEntries = moodLog.filter((e) => e.date.slice(0, 10) === dayStr);
+      const avg = dayEntries.length > 0 ? dayEntries.reduce((s, e) => s + e.mood, 0) / dayEntries.length : null;
+      return { day: format(day, "dd/MM"), avg: avg ? Math.round(avg * 10) / 10 : null, count: dayEntries.length };
+    });
+  }, [moodLog]);
+
+  // Today's mood timeline
+  const todayMoodTimeline = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    return moodLog
+      .filter((e) => e.date.slice(0, 10) === todayStr)
+      .reverse()
+      .map((e) => ({
+        time: new Date(e.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        mood: e.mood,
+        note: e.note,
+        timeOfDay: e.timeOfDay,
+      }));
+  }, [moodLog]);
+
+  // Time-of-day mood averages
+  const timeOfDayData = useMemo(() => {
+    const buckets: Record<string, number[]> = { morning: [], afternoon: [], evening: [], night: [] };
+    moodLog.forEach((e) => {
+      const tod = e.timeOfDay || "morning";
+      if (buckets[tod]) buckets[tod].push(e.mood);
+    });
+    return Object.entries(buckets).map(([period, moods]) => ({
+      period: period.charAt(0).toUpperCase() + period.slice(1),
+      emoji: timeOfDayEmojis[period],
+      avg: moods.length > 0 ? Math.round((moods.reduce((s, m) => s + m, 0) / moods.length) * 10) / 10 : null,
+      count: moods.length,
+    }));
+  }, [moodLog]);
+
+  // Mood distribution
+  const moodDistribution = useMemo(() => {
+    const counts = [0, 0, 0, 0, 0];
+    moodLog.forEach((e) => { if (e.mood >= 1 && e.mood <= 5) counts[e.mood - 1]++; });
+    return counts.map((count, i) => ({ name: moodLabels[i], emoji: moodEmojis[i], value: count }));
+  }, [moodLog]);
 
   // Export/Import handlers
   const handleExportJSON = () => {
@@ -167,6 +217,7 @@ const MeTab = () => {
 
   const subTabs: { id: SubTab; label: string; emoji: string }[] = [
     { id: "progress", label: "Progress", emoji: "📊" },
+    { id: "mood", label: "Mood", emoji: "🧠" },
     { id: "journal", label: "Journal", emoji: "📋" },
     { id: "settings", label: "Settings", emoji: "⚙️" },
   ];
@@ -356,6 +407,161 @@ const MeTab = () => {
                 );
               })}
             </div>
+          </motion.div>
+        )}
+
+        {/* ── Mood Analytics ── */}
+        {subTab === "mood" && (
+          <motion.div key="mood" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            {moodLog.length === 0 ? (
+              <div className="rounded-2xl border border-border bg-card p-6 text-center">
+                <p className="text-3xl mb-2">🧠</p>
+                <p className="text-muted-foreground">No mood entries yet. Check in on the Home tab throughout the day.</p>
+              </div>
+            ) : (
+              <>
+                {/* Today's Timeline */}
+                <div className="group relative mb-3">
+                  <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">📅 Today's Mood Timeline</h2>
+                  <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    <p className="text-[10px] text-muted-foreground">Every mood check-in you've logged today, plotted by time. Helps you see how your mood shifts throughout the day.</p>
+                  </div>
+                </div>
+                <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+                  {todayMoodTimeline.length > 0 ? (
+                    <>
+                      <ResponsiveContainer width="100%" height={160}>
+                        <LineChart data={todayMoodTimeline}>
+                          <XAxis dataKey="time" tick={{ fontSize: 10, fill: "hsl(200, 10%, 45%)" }} axisLine={false} tickLine={false} />
+                          <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 10, fill: "hsl(200, 10%, 45%)" }} axisLine={false} tickLine={false} width={20} />
+                          <Tooltip
+                            contentStyle={{ background: "hsl(220, 15%, 10%)", border: "none", borderRadius: 12, fontSize: 12, color: "#fff" }}
+                            formatter={(value: number) => [moodEmojis[value - 1] + " " + moodLabels[value - 1], "Mood"]}
+                          />
+                          <Line type="monotone" dataKey="mood" stroke={CHART_COLORS.primary} strokeWidth={2.5} dot={{ fill: CHART_COLORS.primary, r: 5 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      <div className="mt-3 flex flex-col gap-1.5">
+                        {todayMoodTimeline.map((entry, i) => (
+                          <div key={i} className="flex items-center gap-2 rounded-lg border border-border bg-background p-2">
+                            <span className="text-lg">{moodEmojis[entry.mood - 1]}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-foreground">{moodLabels[entry.mood - 1]}</span>
+                                <span className="text-[10px] text-muted-foreground">{entry.time}</span>
+                                {entry.timeOfDay && <span className="text-[10px]">{timeOfDayEmojis[entry.timeOfDay]}</span>}
+                              </div>
+                              {entry.note && <p className="text-[10px] text-muted-foreground truncate">"{entry.note}"</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="py-6 text-center text-sm text-muted-foreground">No mood check-ins today. Tap a mood emoji on the Home tab.</p>
+                  )}
+                </div>
+
+                {/* 14-Day Mood Trend */}
+                <div className="group relative mb-3">
+                  <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">📈 14-Day Mood Trend</h2>
+                  <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    <p className="text-[10px] text-muted-foreground">Daily average mood over 2 weeks. Higher = better mood. Track how your emotional state changes over time.</p>
+                  </div>
+                </div>
+                <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+                  <ResponsiveContainer width="100%" height={160}>
+                    <AreaChart data={moodDailyData.filter((d) => d.avg !== null)}>
+                      <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(200, 10%, 45%)" }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 10, fill: "hsl(200, 10%, 45%)" }} axisLine={false} tickLine={false} width={20} />
+                      <Tooltip
+                        contentStyle={{ background: "hsl(220, 15%, 10%)", border: "none", borderRadius: 12, fontSize: 12, color: "#fff" }}
+                        formatter={(value: number) => [value.toFixed(1) + " avg", "Mood"]}
+                      />
+                      <Area type="monotone" dataKey="avg" name="Avg Mood" stroke={CHART_COLORS.primary} fill={CHART_COLORS.primary} fillOpacity={0.15} strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                  <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
+                    <span>😢 1 = Struggling</span>
+                    <span>😊 5 = Great</span>
+                  </div>
+                </div>
+
+                {/* Time-of-Day Breakdown */}
+                <div className="group relative mb-3">
+                  <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">🕐 Time-of-Day Patterns</h2>
+                  <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    <p className="text-[10px] text-muted-foreground">Shows your average mood at different times of day. Helps identify when you tend to feel best or worst.</p>
+                  </div>
+                </div>
+                <div className="mb-5 grid grid-cols-4 gap-2">
+                  {timeOfDayData.map((t) => (
+                    <div key={t.period} className="rounded-xl border border-border bg-card p-3 text-center">
+                      <p className="text-lg">{t.emoji}</p>
+                      <p className="text-[10px] font-medium text-foreground">{t.period}</p>
+                      <p className="font-heading text-lg font-bold text-primary">
+                        {t.avg !== null ? t.avg : "—"}
+                      </p>
+                      <p className="text-[8px] text-muted-foreground">{t.count} entries</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Mood Distribution */}
+                <div className="group relative mb-3">
+                  <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">🎯 Mood Distribution</h2>
+                  <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    <p className="text-[10px] text-muted-foreground">How often you feel each mood level. A healthy distribution skews toward Great/Good.</p>
+                  </div>
+                </div>
+                <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+                  <div className="flex flex-col gap-2">
+                    {moodDistribution.map((m) => {
+                      const maxVal = Math.max(...moodDistribution.map((d) => d.value), 1);
+                      const pct = Math.round((m.value / maxVal) * 100);
+                      return (
+                        <div key={m.name} className="flex items-center gap-2">
+                          <span className="text-lg w-7 text-center">{m.emoji}</span>
+                          <span className="w-16 text-xs text-foreground">{m.name}</span>
+                          <div className="flex-1 h-4 rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary/60 transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="w-8 text-right text-xs font-medium text-muted-foreground">{m.value}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Full Mood Log */}
+                <div className="group relative mb-3">
+                  <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground cursor-help">📝 Complete Mood Log</h2>
+                  <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-1 w-56 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    <p className="text-[10px] text-muted-foreground">Every mood entry you've ever logged, with exact times, notes, and context.</p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {moodLog.slice(0, 50).map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5">
+                      <span className="text-xl">{moodEmojis[entry.mood - 1]}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-foreground">{moodLabels[entry.mood - 1]}</span>
+                          {entry.timeOfDay && <span className="text-[10px]">{timeOfDayEmojis[entry.timeOfDay || "morning"]}</span>}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">
+                          {new Date(entry.date).toLocaleDateString()} · {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        {entry.note && <p className="text-[10px] text-muted-foreground italic truncate">"{entry.note}"</p>}
+                      </div>
+                    </div>
+                  ))}
+                  {moodLog.length > 50 && (
+                    <p className="text-center text-[10px] text-muted-foreground py-2">Showing latest 50 of {moodLog.length} entries</p>
+                  )}
+                </div>
+              </>
+            )}
           </motion.div>
         )}
 
