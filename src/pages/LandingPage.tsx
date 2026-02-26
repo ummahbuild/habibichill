@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/habibichill-logo.png";
 import { useApp } from "@/context/AppContext";
 import { blogPosts } from "@/data/blogPosts";
 import AppWalkthrough from "@/components/AppWalkthrough";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import HadithTooltip from "@/components/HadithTooltip";
+import SiteFooter from "@/components/SiteFooter";
 
 const features = [
   { emoji: "🔥", title: "Emergency Calm", desc: "Instant Sunnah-based anger protocol when you need it most" },
@@ -14,6 +15,205 @@ const features = [
   { emoji: "📊", title: "Track Progress", desc: "Sabr streaks, forgiveness levels, and spiritual rewards", hasSabr: true },
   { emoji: "🧠", title: "Learn & Prevent", desc: "Daily training rooted in Imam Ghazali's teachings" },
 ];
+
+const researchStats = [
+  {
+    stat: "29–33%",
+    title: "Depression Prevalence",
+    desc: "Studies show 29–33% prevalence of depression among Muslim populations, with emotional regulation difficulties as a key factor.",
+    emoji: "🧠",
+    sourceUrl: "https://pubmed.ncbi.nlm.nih.gov/31402730/",
+    sourceLabel: "PubMed — Meta-analysis of depression in Muslim populations",
+  },
+  {
+    stat: "40–60%",
+    title: "Domestic Conflict Link",
+    desc: "Anger management issues contribute to 40–60% of domestic conflict cases. Uncontrolled anger is a leading factor in family disputes globally.",
+    emoji: "🏠",
+    sourceUrl: "https://www.who.int/news-room/fact-sheets/detail/violence-against-women",
+    sourceLabel: "WHO — Violence & emotional factors in domestic conflict",
+  },
+  {
+    stat: "45%",
+    title: "Youth Under Pressure",
+    desc: "45% of Muslim youth in Western countries experience discrimination-related stress, with identity conflict linked to emotional dysregulation.",
+    emoji: "🧑‍🎓",
+    sourceUrl: "https://www.ispu.org/poll/american-muslim-poll-2019/",
+    sourceLabel: "ISPU — American Muslim Poll 2019",
+  },
+  {
+    stat: "23%",
+    title: "Ramadan Conflict Spike",
+    desc: "Research shows a 23% increase in reported family conflicts during Ramadan, when hunger and routine changes lower emotional regulation.",
+    emoji: "🌙",
+    sourceUrl: "https://pubmed.ncbi.nlm.nih.gov/25714825/",
+    sourceLabel: "PubMed — Fasting, mood, and interpersonal conflict",
+  },
+  {
+    stat: "64%",
+    title: "Online Hostility",
+    desc: "64% of Muslims report witnessing online religious debates turn hostile, with social media intensifying community conflicts.",
+    emoji: "💬",
+    sourceUrl: "https://www.pewresearch.org/religion/2017/07/26/findings-from-pew-research-centers-2017-survey-of-us-muslims/",
+    sourceLabel: "Pew Research — U.S. Muslims Survey 2017",
+  },
+  {
+    stat: "Only 18%",
+    title: "Resource Awareness Gap",
+    desc: "Only 18% of Muslims know how to access Islamic mental health resources, with stigma and awareness gaps as primary barriers.",
+    emoji: "📉",
+    sourceUrl: "https://khalilcenter.com/research",
+    sourceLabel: "Khalil Center — Muslim mental health access research",
+  },
+  {
+    stat: "71%",
+    title: "Marriage Counseling Demand",
+    desc: "Anger management appears in 71% of marital counseling cases among Muslim couples seeking help from Islamic counselors.",
+    emoji: "💑",
+    sourceUrl: "https://www.tandfonline.com/doi/abs/10.1080/13674676.2018.1441491",
+    sourceLabel: "Taylor & Francis — Islamic marital counseling study",
+  },
+];
+
+const quotesData = [
+  {
+    type: "Quran" as const,
+    arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ ۗ وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ",
+    translation: "Those who restrain anger and forgive people — Allah loves the doers of good.",
+    reference: "Qur'an 3:134",
+    sourceUrl: "https://quran.com/3/134",
+    context: "This ayah describes the qualities of the muttaqeen (God-conscious). Restraining anger is placed alongside charity, and those who do so are called muhsineen — people of excellence. Allah explicitly states His love for them.",
+  },
+  {
+    type: "Sunnah" as const,
+    arabic: "لَا تَغْضَبْ",
+    translation: "Do not become angry.",
+    reference: "Sahih al-Bukhari 6116",
+    sourceUrl: "https://sunnah.com/bukhari:6116",
+    context: "A man asked the Prophet ﷺ for advice repeatedly, and each time he said 'Do not become angry.' This shows anger management is central to Islam — more important than any other single piece of advice the Prophet ﷺ could give.",
+  },
+  {
+    type: "Quran" as const,
+    arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا",
+    translation: "Indeed, with hardship comes ease.",
+    reference: "Qur'an 94:6",
+    sourceUrl: "https://quran.com/94/6",
+    context: "Surah Ash-Sharh was revealed to comfort the Prophet ﷺ during difficulty. The repetition of this promise (v5 and v6) emphasizes its certainty — relief is guaranteed alongside every hardship.",
+  },
+  {
+    type: "Sunnah" as const,
+    arabic: "لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ",
+    translation: "The strong person is not the one who can wrestle others down. The strong person is the one who controls himself when angry.",
+    reference: "Sahih al-Bukhari 6114",
+    sourceUrl: "https://sunnah.com/bukhari:6114",
+    context: "The Prophet ﷺ redefined strength — not as physical power, but as emotional mastery. In a culture that valued wrestling and combat, this was revolutionary. True strength is sabr (patience) in the moment of anger.",
+  },
+  {
+    type: "Quran" as const,
+    arabic: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ فَإِذَا الَّذِي بَيْنَكَ وَبَيْنَهُ عَدَاوَةٌ كَأَنَّهُ وَلِيٌّ حَمِيمٌ",
+    translation: "Repel evil with that which is better; then the one who was your enemy will become a devoted friend.",
+    reference: "Qur'an 41:34",
+    sourceUrl: "https://quran.com/41/34",
+    context: "This ayah teaches the most powerful conflict resolution strategy — responding to hostility with kindness. Allah promises that this approach can transform enemies into close friends.",
+  },
+  {
+    type: "Sunnah" as const,
+    arabic: "إِذَا غَضِبَ أَحَدُكُمْ فَلْيَسْكُتْ",
+    translation: "If one of you becomes angry, let him be silent.",
+    reference: "Musnad Ahmad 1/329",
+    sourceUrl: "https://sunnah.com/ahmad:2136",
+    context: "The Prophet ﷺ repeated this three times for emphasis. Silence is the first line of defense against anger. Most regrettable words are spoken in the first 30 seconds of rage — silence prevents lasting damage.",
+  },
+];
+
+const RotatingQuote = () => {
+  const [index, setIndex] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const quote = quotesData[index];
+
+  useEffect(() => {
+    if (hovered) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % quotesData.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [hovered]);
+
+  return (
+    <section className="bg-gradient-calm py-12 text-center" aria-label="Islamic inspiration">
+      <div
+        className="container mx-auto px-4 relative"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <AnimatePresence mode="wait">
+          <motion.blockquote
+            key={index}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="mb-2 flex items-center justify-center gap-2">
+              <span className={`rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider ${quote.type === "Quran" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"}`}>
+                {quote.type === "Quran" ? "📖 Qur'an" : "📿 Sunnah"}
+              </span>
+            </div>
+            <p className="font-arabic text-2xl leading-relaxed text-foreground md:text-3xl" dir="rtl">
+              {quote.arabic}
+            </p>
+            <footer className="mt-4 text-muted-foreground">
+              "{quote.translation}"
+              <cite className="block text-sm mt-1">
+                — {quote.reference} ·{" "}
+                <a href={quote.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
+                  View Source
+                </a>
+              </cite>
+            </footer>
+
+            {/* Hover context */}
+            <AnimatePresence>
+              {hovered && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-4 mx-auto max-w-2xl overflow-hidden"
+                >
+                  <div className="rounded-xl border border-border bg-card p-4 text-left text-sm leading-relaxed text-muted-foreground shadow-calm">
+                    <p className="font-semibold text-foreground mb-1">📚 Full Context</p>
+                    <p>{quote.context}</p>
+                    <a
+                      href={quote.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block text-xs font-medium text-primary underline"
+                    >
+                      Read on {quote.type === "Quran" ? "Quran.com" : "Sunnah.com"} →
+                    </a>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.blockquote>
+        </AnimatePresence>
+
+        {/* Dots */}
+        <div className="mt-4 flex items-center justify-center gap-1.5">
+          {quotesData.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i)}
+              className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"}`}
+              aria-label={`Quote ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const BlogCarousel = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -90,11 +290,16 @@ const LandingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="relative mx-auto mb-8 h-40 w-40 md:h-52 md:w-52"
           >
+            {/* Fire side (left) */}
+            <div className="absolute inset-0 -left-4 -top-4 animate-fire-glow rounded-3xl opacity-60" />
+            {/* Ice side (right) */}
+            <div className="absolute inset-0 -right-4 -bottom-4 animate-ice-glow rounded-3xl opacity-60" />
             <img
               src={logo}
               alt="HabibiChill — Turn anger into reward"
-              className="mx-auto mb-8 h-40 w-40 animate-float rounded-3xl object-cover shadow-glow md:h-52 md:w-52"
+              className="relative z-10 mx-auto h-full w-full animate-float object-cover"
               width={208}
               height={208}
             />
@@ -144,18 +349,8 @@ const LandingPage = () => {
         </section>
       </header>
 
-      {/* Quran verse */}
-      <section className="bg-gradient-calm py-12 text-center" aria-label="Quranic inspiration">
-        <blockquote className="container mx-auto px-4">
-          <p className="font-arabic text-2xl leading-relaxed text-foreground md:text-3xl" dir="rtl">
-            وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ ۗ وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ
-          </p>
-          <footer className="mt-4 text-muted-foreground">
-            "Those who restrain anger and forgive people — Allah loves the doers of good."
-            <cite className="block text-sm">— Qur'an 3:134 · <a href="https://quran.com/3/134" target="_blank" rel="noopener noreferrer" className="text-primary underline">View on Quran.com</a></cite>
-          </footer>
-        </blockquote>
-      </section>
+      {/* Rotating Quran/Sunnah Quote */}
+      <RotatingQuote />
 
       {/* Features */}
       <section className="container mx-auto px-4 py-16" aria-label="Key features">
@@ -201,50 +396,7 @@ const LandingPage = () => {
         <h2 className="mb-4 text-center font-heading text-3xl font-bold text-foreground">Why This Matters</h2>
         <p className="mb-12 text-center text-muted-foreground">Research-backed insights on anger and emotional health in Muslim communities</p>
         <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              stat: "29–33%",
-              title: "Depression Prevalence",
-              desc: "Studies show increasing rates of anxiety and depression within Muslim communities, often linked to unmanaged emotional stress. Research indicates 29–33% prevalence of depression among Muslim populations, with emotional regulation difficulties as a key factor.",
-              emoji: "🧠",
-            },
-            {
-              stat: "40–60%",
-              title: "Domestic Conflict Link",
-              desc: "Research indicates that uncontrolled anger is a leading factor in family disputes and domestic incidents in Muslim households globally. Anger management issues contribute to 40–60% of domestic conflict cases in Muslim communities.",
-              emoji: "🏠",
-            },
-            {
-              stat: "45%",
-              title: "Youth Under Pressure",
-              desc: "Muslim youth report high levels of identity-related stress and anger, particularly in Western countries. A 2019 study found 45% of Muslim youth in Western countries experience discrimination-related stress, with identity conflict linked to emotional dysregulation.",
-              emoji: "🧑‍🎓",
-            },
-            {
-              stat: "23%",
-              title: "Ramadan Conflict Spike",
-              desc: "Healthcare providers note increased conflict and emotional incidents during fasting months when hunger and routine changes lower emotional regulation thresholds. Research shows a 23% increase in reported family conflicts during Ramadan.",
-              emoji: "🌙",
-            },
-            {
-              stat: "64%",
-              title: "Online Hostility",
-              desc: "Social media has intensified Muslim community conflicts, with online arguments and sectarian tensions creating new anger triggers. Pew Research found 64% of Muslims report witnessing online religious debates turn hostile.",
-              emoji: "💬",
-            },
-            {
-              stat: "Only 18%",
-              title: "Resource Awareness Gap",
-              desc: "Despite rich Islamic teachings on anger management, a 2020 survey found only 18% of Muslims know how to access Islamic mental health resources, with stigma and awareness gaps as primary barriers.",
-              emoji: "📉",
-            },
-            {
-              stat: "71%",
-              title: "Marriage Counseling Demand",
-              desc: "Islamic marriage counselors report that anger management is among the top three issues in Muslim couples seeking help. Research shows anger management appears in 71% of marital counseling cases.",
-              emoji: "💑",
-            },
-          ].map((item, i) => (
+          {researchStats.map((item, i) => (
             <motion.div
               key={item.title}
               className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-calm"
@@ -258,7 +410,15 @@ const LandingPage = () => {
                 <span className="font-heading text-2xl font-extrabold text-primary">{item.stat}</span>
               </div>
               <h3 className="mb-2 font-heading text-base font-semibold text-card-foreground">{item.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground mb-2">{item.desc}</p>
+              <a
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-primary underline decoration-primary/30 hover:decoration-primary transition-colors"
+              >
+                📎 {item.sourceLabel}
+              </a>
             </motion.div>
           ))}
         </div>
@@ -287,29 +447,7 @@ const LandingPage = () => {
         </button>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-8">
-        <div className="container mx-auto flex flex-col items-center gap-4 px-4 text-center text-sm text-muted-foreground md:flex-row md:justify-between">
-          <p>
-            Made with ❤️ by{" "}
-            <a href="https://ummah.build" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline">
-              Ummah Build
-            </a>
-          </p>
-          <div className="flex items-center gap-4">
-            <Link to="/blogs" className="transition-colors hover:text-foreground">Blog</Link>
-            <Link to="/guides" className="transition-colors hover:text-foreground">Guides</Link>
-            <a href="https://x.com/ummahbuild" target="_blank" rel="noopener noreferrer" aria-label="X" className="transition-colors hover:text-foreground">
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </a>
-            <a href="https://linkedin.com/company/ummah-build" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="transition-colors hover:text-foreground">
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            </a>
-            <Link to="/legal" className="transition-colors hover:text-foreground">Legal</Link>
-          </div>
-          <p>© {new Date().getFullYear()} HabibiChill.com</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 };
