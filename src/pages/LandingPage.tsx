@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import logo from "@/assets/habibichill-logo.png";
 import { useApp } from "@/context/AppContext";
 import { blogPosts } from "@/data/blogPosts";
+import AppWalkthrough from "@/components/AppWalkthrough";
 
 const features = [
   { emoji: "🔥", title: "Emergency Calm", desc: "Instant Sunnah-based anger protocol when you need it most" },
@@ -177,6 +178,9 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* App Walkthrough */}
+      <AppWalkthrough />
+
       {/* Problem section */}
       <section className="bg-gradient-calm py-16" aria-label="The problem">
         <div className="container mx-auto max-w-3xl px-4 text-center">
@@ -292,6 +296,7 @@ const LandingPage = () => {
           </p>
           <div className="flex items-center gap-4">
             <Link to="/blogs" className="transition-colors hover:text-foreground">Blog</Link>
+            <Link to="/guides" className="transition-colors hover:text-foreground">Guides</Link>
             <a href="https://x.com/ummahbuild" target="_blank" rel="noopener noreferrer" aria-label="X" className="transition-colors hover:text-foreground">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
