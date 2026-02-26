@@ -1,6 +1,9 @@
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "@/assets/habibichill-logo.png";
 import { useApp } from "@/context/AppContext";
+import { blogPosts } from "@/data/blogPosts";
 
 const features = [
   { emoji: "🔥", title: "Emergency Calm", desc: "Instant Sunnah-based anger protocol when you need it most" },
@@ -8,6 +11,56 @@ const features = [
   { emoji: "📊", title: "Track Progress", desc: "Sabr streaks, forgiveness levels, and spiritual rewards" },
   { emoji: "🧠", title: "Learn & Prevent", desc: "Daily training rooted in Imam Ghazali's teachings" },
 ];
+
+const BlogCarousel = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let paused = false;
+    el.addEventListener("mouseenter", () => { paused = true; });
+    el.addEventListener("mouseleave", () => { paused = false; });
+    const interval = setInterval(() => {
+      if (paused || !el) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (el.scrollLeft >= maxScroll) {
+        el.scrollLeft = 0;
+      } else {
+        el.scrollLeft += 1;
+      }
+    }, 30);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      ref={scrollRef}
+      className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
+      style={{ scrollBehavior: "auto" }}
+    >
+      {blogPosts.map((post) => (
+        <Link
+          key={post.slug}
+          to={`/blogs/${post.slug}`}
+          className="group flex-shrink-0 w-72 rounded-2xl border border-border bg-card p-5 transition-all hover:shadow-calm hover:border-primary/30"
+        >
+          <div className="mb-2 flex items-center gap-2">
+            <span className="text-2xl">{post.emoji}</span>
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
+              {post.category}
+            </span>
+          </div>
+          <h3 className="mb-1 font-heading text-sm font-bold text-card-foreground group-hover:text-primary transition-colors line-clamp-2">
+            {post.title}
+          </h3>
+          <p className="mb-2 text-xs text-muted-foreground line-clamp-2">{post.excerpt}</p>
+          <span className="text-[10px] text-muted-foreground">{post.readTime} read</span>
+        </Link>
+      ))}
+    </div>
+  );
+};
 
 const LandingPage = () => {
   const { setAppState } = useApp();
@@ -205,6 +258,17 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Blog Carousel */}
+      <section className="container mx-auto px-4 py-16" aria-label="Latest articles">
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="font-heading text-3xl font-bold text-foreground">Latest Articles</h2>
+          <Link to="/blogs" className="rounded-xl bg-primary/10 px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+            See All Posts →
+          </Link>
+        </div>
+        <BlogCarousel />
+      </section>
+
       {/* CTA */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h2 className="mb-4 font-heading text-3xl font-bold text-foreground">Ready to Master Your Emotions?</h2>
@@ -227,12 +291,14 @@ const LandingPage = () => {
             </a>
           </p>
           <div className="flex items-center gap-4">
+            <Link to="/blogs" className="transition-colors hover:text-foreground">Blog</Link>
             <a href="https://x.com/ummahbuild" target="_blank" rel="noopener noreferrer" aria-label="X" className="transition-colors hover:text-foreground">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
             <a href="https://linkedin.com/company/ummah-build" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="transition-colors hover:text-foreground">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
             </a>
+            <Link to="/legal" className="transition-colors hover:text-foreground">Legal</Link>
           </div>
           <p>© {new Date().getFullYear()} HabibiChill.com</p>
         </div>

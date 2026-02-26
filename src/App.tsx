@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "@/context/AppContext";
 import Index from "./pages/Index";
 import LegalPage from "./pages/LegalPage";
+import BlogList from "./pages/BlogList";
+import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,6 +21,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/blogs" element={<BlogList />} />
+            <Route path="/blogs/:slug" element={<BlogPost />} />
             <Route path="/privacy" element={<LegalPage />} />
             <Route path="/terms" element={<LegalPage />} />
             <Route path="/legal" element={<LegalPage />} />
