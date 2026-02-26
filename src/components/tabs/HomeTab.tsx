@@ -39,8 +39,10 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const total = angerLog.length;
   const controlRate = total > 0 ? Math.round((controlled / total) * 100) : 0;
 
-  const todayMood = moodLog.find((e) => e.date.slice(0, 10) === new Date().toISOString().slice(0, 10));
+  const todayMoods = moodLog.filter((e) => e.date.slice(0, 10) === new Date().toISOString().slice(0, 10));
+  const latestTodayMood = todayMoods.length > 0 ? todayMoods[0] : null;
   const last7Moods = moodLog.slice(0, 7);
+  const [moodNote, setMoodNote] = useState("");
 
   const quickTools = [
     { emoji: "📿", label: "Dhikr", action: onOpenDhikr, color: "bg-primary/10" },
@@ -76,16 +78,26 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
 
       {/* Daily Mood Check-in */}
       <div className="mb-5 rounded-2xl border border-border bg-card p-4">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {todayMood ? "Today's Mood ✓" : "How are you feeling?"}
-        </p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {latestTodayMood ? `Mood Check-in (${todayMoods.length} today)` : "How are you feeling?"}
+          </p>
+          {todayMoods.length > 0 && (
+            <span className="text-[9px] text-muted-foreground">
+              Last: {new Date(todayMoods[0].date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+        </div>
         <div className="flex justify-between gap-1">
           {moodEmojis.map((emoji, i) => (
             <motion.button
               key={i}
-              onClick={() => addMoodEntry(i + 1)}
+              onClick={() => {
+                addMoodEntry(i + 1, moodNote || undefined);
+                setMoodNote("");
+              }}
               className={`flex flex-1 flex-col items-center gap-1 rounded-xl p-2 transition-all ${
-                todayMood?.mood === i + 1
+                latestTodayMood?.mood === i + 1
                   ? "bg-primary/10 border border-primary/30 scale-105"
                   : "border border-transparent hover:bg-muted"
               }`}
@@ -96,11 +108,18 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
             </motion.button>
           ))}
         </div>
+        <input
+          type="text"
+          value={moodNote}
+          onChange={(e) => setMoodNote(e.target.value)}
+          placeholder="What's on your mind? (optional)"
+          className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        />
         {last7Moods.length > 1 && (
           <div className="mt-3 flex items-center gap-1">
-            <span className="text-[10px] text-muted-foreground mr-1">Week:</span>
+            <span className="text-[10px] text-muted-foreground mr-1">Recent:</span>
             {last7Moods.map((entry, i) => (
-              <span key={i} className="text-sm" title={new Date(entry.date).toLocaleDateString()}>
+              <span key={i} className="text-sm" title={`${new Date(entry.date).toLocaleString()}${entry.note ? ` — ${entry.note}` : ""}`}>
                 {moodEmojis[entry.mood - 1]}
               </span>
             ))}
