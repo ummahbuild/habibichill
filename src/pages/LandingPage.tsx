@@ -5,11 +5,13 @@ import logo from "@/assets/habibichill-logo.png";
 import { useApp } from "@/context/AppContext";
 import { blogPosts } from "@/data/blogPosts";
 import AppWalkthrough from "@/components/AppWalkthrough";
+import ArabicTooltip from "@/components/ArabicTooltip";
+import HadithTooltip from "@/components/HadithTooltip";
 
 const features = [
   { emoji: "🔥", title: "Emergency Calm", desc: "Instant Sunnah-based anger protocol when you need it most" },
   { emoji: "📿", title: "Dhikr & Quran", desc: "Calming recitations and remembrance at your fingertips" },
-  { emoji: "📊", title: "Track Progress", desc: "Sabr streaks, forgiveness levels, and spiritual rewards" },
+  { emoji: "📊", title: "Track Progress", desc: "Sabr streaks, forgiveness levels, and spiritual rewards", hasSabr: true },
   { emoji: "🧠", title: "Learn & Prevent", desc: "Daily training rooted in Imam Ghazali's teachings" },
 ];
 
@@ -114,7 +116,7 @@ const LandingPage = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            The Muslim Anger & Emotional Mastery App. Manage anger using Qur'an, Sunnah, and Islamic psychology — in real time.
+            The Muslim Anger & Emotional Mastery App. Manage anger using Qur'an, <ArabicTooltip term="sunnah">Sunnah</ArabicTooltip>, and Islamic psychology — in real time.
           </motion.p>
 
           <motion.div
@@ -276,7 +278,7 @@ const LandingPage = () => {
       {/* CTA */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h2 className="mb-4 font-heading text-3xl font-bold text-foreground">Ready to Master Your Emotions?</h2>
-        <p className="mb-8 text-muted-foreground">Join the movement. Start your sabr journey today.</p>
+        <p className="mb-8 text-muted-foreground">Join the movement. Start your <ArabicTooltip term="sabr">sabr</ArabicTooltip> journey today.</p>
         <button
           onClick={() => setAppState("onboarding")}
           className="rounded-2xl bg-primary px-8 py-4 font-heading text-lg font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95"

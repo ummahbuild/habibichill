@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useApp } from "@/context/AppContext";
 import ReferenceTooltip from "@/components/ReferenceTooltip";
+import ArabicTooltip from "@/components/ArabicTooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 const wisdoms = [
@@ -111,7 +112,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
       <div className="mb-5 grid grid-cols-3 gap-2">
         <div className="rounded-xl border border-border bg-card p-3 text-center">
           <p className="font-heading text-2xl font-bold text-primary">{sabrPoints}</p>
-          <p className="text-[10px] text-muted-foreground">Sabr Points</p>
+          <p className="text-[10px] text-muted-foreground"><ArabicTooltip term="sabr">Sabr</ArabicTooltip> Points</p>
         </div>
         <div className="rounded-xl border border-border bg-card p-3 text-center">
           <p className="font-heading text-2xl font-bold text-success">{controlRate}%</p>
