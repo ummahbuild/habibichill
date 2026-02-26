@@ -137,6 +137,74 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Research Stats */}
+      <section className="container mx-auto px-4 py-16" aria-label="Research and statistics">
+        <h2 className="mb-4 text-center font-heading text-3xl font-bold text-foreground">Why This Matters</h2>
+        <p className="mb-12 text-center text-muted-foreground">Research-backed insights on anger and emotional health in Muslim communities</p>
+        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              stat: "29–33%",
+              title: "Depression Prevalence",
+              desc: "Studies show increasing rates of anxiety and depression within Muslim communities, often linked to unmanaged emotional stress. Research indicates 29–33% prevalence of depression among Muslim populations, with emotional regulation difficulties as a key factor.",
+              emoji: "🧠",
+            },
+            {
+              stat: "40–60%",
+              title: "Domestic Conflict Link",
+              desc: "Research indicates that uncontrolled anger is a leading factor in family disputes and domestic incidents in Muslim households globally. Anger management issues contribute to 40–60% of domestic conflict cases in Muslim communities.",
+              emoji: "🏠",
+            },
+            {
+              stat: "45%",
+              title: "Youth Under Pressure",
+              desc: "Muslim youth report high levels of identity-related stress and anger, particularly in Western countries. A 2019 study found 45% of Muslim youth in Western countries experience discrimination-related stress, with identity conflict linked to emotional dysregulation.",
+              emoji: "🧑‍🎓",
+            },
+            {
+              stat: "23%",
+              title: "Ramadan Conflict Spike",
+              desc: "Healthcare providers note increased conflict and emotional incidents during fasting months when hunger and routine changes lower emotional regulation thresholds. Research shows a 23% increase in reported family conflicts during Ramadan.",
+              emoji: "🌙",
+            },
+            {
+              stat: "64%",
+              title: "Online Hostility",
+              desc: "Social media has intensified Muslim community conflicts, with online arguments and sectarian tensions creating new anger triggers. Pew Research found 64% of Muslims report witnessing online religious debates turn hostile.",
+              emoji: "💬",
+            },
+            {
+              stat: "Only 18%",
+              title: "Resource Awareness Gap",
+              desc: "Despite rich Islamic teachings on anger management, a 2020 survey found only 18% of Muslims know how to access Islamic mental health resources, with stigma and awareness gaps as primary barriers.",
+              emoji: "📉",
+            },
+            {
+              stat: "71%",
+              title: "Marriage Counseling Demand",
+              desc: "Islamic marriage counselors report that anger management is among the top three issues in Muslim couples seeking help. Research shows anger management appears in 71% of marital counseling cases.",
+              emoji: "💑",
+            },
+          ].map((item, i) => (
+            <motion.div
+              key={item.title}
+              className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-calm"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07 }}
+            >
+              <div className="mb-3 flex items-center gap-3">
+                <span className="text-3xl">{item.emoji}</span>
+                <span className="font-heading text-2xl font-extrabold text-primary">{item.stat}</span>
+              </div>
+              <h3 className="mb-2 font-heading text-base font-semibold text-card-foreground">{item.title}</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h2 className="mb-4 font-heading text-3xl font-bold text-foreground">Ready to Master Your Emotions?</h2>
