@@ -80,6 +80,7 @@ const steps: StepData[] = [
 ];
 
 const emojis = ["😐", "😠", "😡", "🤬", "😤"];
+const tacticOptions = ["Stayed Silent", "Deep Breathing", "Changed Position", "Said A'udhu Billah", "Made Wudu", "Dhikr", "Quran Recitation", "Walked Away", "Made Dua"];
 
 interface EmergencyFlowProps {
   onClose: () => void;
@@ -88,19 +89,26 @@ interface EmergencyFlowProps {
 const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
   const { addAngerEntry } = useApp();
   useEscapeKey(onClose);
-  const [phase, setPhase] = useState<"intensity" | "steps" | "checkin" | "reward">("intensity");
+  const [phase, setPhase] = useState<"intensity" | "steps" | "checkin" | "reward" | "journal">("intensity");
   const [intensity, setIntensity] = useState(3);
   const [currentStep, setCurrentStep] = useState(0);
   const [showHadithDetail, setShowHadithDetail] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const startTimeRef = useRef<number>(Date.now());
+
+  // Journal fields
+  const [journalTrigger, setJournalTrigger] = useState("");
+  const [journalSituation, setJournalSituation] = useState("");
+  const [tacticsUsed, setTacticsUsed] = useState<string[]>([]);
+  const [journalReflection, setJournalReflection] = useState("");
 
   const handleIntensitySelect = (level: number) => {
     setIntensity(level);
     setPhase("steps");
+    startTimeRef.current = Date.now();
   };
 
   const nextStep = () => {
-    // Stop any playing audio
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -125,11 +133,48 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
   const handleCheckin = (feeling: number) => {
     if (feeling <= 2) {
       setPhase("reward");
-      addAngerEntry({ trigger: "Emergency", intensity, controlled: true, situation: "Emergency flow" });
     } else {
       setCurrentStep(0);
       setPhase("steps");
     }
+  };
+
+  const toggleTactic = (tactic: string) => {
+    setTacticsUsed((prev) =>
+      prev.includes(tactic) ? prev.filter((t) => t !== tactic) : [...prev, tactic]
+    );
+  };
+
+  const handleJournalSave = () => {
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+    addAngerEntry({
+      trigger: journalTrigger || "Emergency",
+      situation: journalSituation || journalTrigger || "Emergency flow",
+      intensity,
+      controlled: true,
+      reflection: journalReflection,
+      tacticsUsed,
+      durationSeconds,
+    });
+    onClose();
+  };
+
+  const handleSkipJournal = () => {
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+    addAngerEntry({
+      trigger: "Emergency",
+      intensity,
+      controlled: true,
+      situation: "Emergency flow",
+      durationSeconds,
+    });
+    onClose();
+  };
+
+  const durationSoFar = Math.round((Date.now() - startTimeRef.current) / 1000);
+  const formatDuration = (s: number) => {
+    if (s < 60) return `${s}s`;
+    return `${Math.floor(s / 60)}m ${s % 60}s`;
   };
 
   const step = steps[currentStep];
@@ -186,7 +231,6 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
               <span className="mb-4 block text-6xl">{step.icon}</span>
               <h2 className="mb-3 font-heading text-3xl font-bold text-foreground">{step.instruction}</h2>
 
-              {/* Arabic with transliteration and translation */}
               {step.arabic && (
                 <div className="mb-4 rounded-2xl bg-gradient-calm border border-border p-4">
                   <p className="mb-2 font-arabic text-2xl leading-relaxed text-foreground" dir="rtl">{step.arabic}</p>
@@ -209,7 +253,6 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
 
               <p className="mb-4 text-sm text-muted-foreground">{step.desc}</p>
 
-              {/* Breathing circle for step 2 */}
               {currentStep === 1 && (
                 <div className="mx-auto mb-6 flex flex-col items-center justify-center">
                   <motion.div
@@ -218,17 +261,12 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     style={{ width: 120, height: 120 }}
                   />
-                  <motion.p
-                    className="mt-3 text-sm font-medium text-primary"
-                    animate={{ opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                  >
+                  <motion.p className="mt-3 text-sm font-medium text-primary" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 4, repeat: Infinity }}>
                     Breathe...
                   </motion.p>
                 </div>
               )}
 
-              {/* Hadith source - always visible */}
               {step.hadithSource && (
                 <div className="mb-4">
                   <button
@@ -237,30 +275,15 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
                   >
                     📚 {step.hadithSource} {showHadithDetail ? "▲" : "▼"}
                   </button>
-
                   <AnimatePresence>
                     {showHadithDetail && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                      >
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                         <div className="mt-2 rounded-xl border border-border bg-card p-4 text-left">
-                          {step.hadithNarrator && (
-                            <p className="mb-1 text-xs font-semibold text-primary">{step.hadithNarrator}</p>
-                          )}
-                          {step.hadithBook && (
-                            <p className="mb-2 text-xs text-muted-foreground">{step.hadithBook}</p>
-                          )}
+                          {step.hadithNarrator && <p className="mb-1 text-xs font-semibold text-primary">{step.hadithNarrator}</p>}
+                          {step.hadithBook && <p className="mb-2 text-xs text-muted-foreground">{step.hadithBook}</p>}
                           <p className="text-sm text-foreground leading-relaxed">{step.hadithFull}</p>
                           {step.hadithLink && (
-                            <a
-                              href={step.hadithLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mt-2 inline-block text-xs text-primary underline"
-                            >
+                            <a href={step.hadithLink} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-primary underline">
                               View full hadith on Sunnah.com →
                             </a>
                           )}
@@ -296,13 +319,7 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
 
           {phase === "reward" && (
             <motion.div key="reward" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-              <motion.span
-                className="mb-4 block text-6xl"
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 0.5 }}
-              >
-                🌟
-              </motion.span>
+              <motion.span className="mb-4 block text-6xl" animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 0.5 }}>🌟</motion.span>
               <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">You controlled your anger!</h2>
               <div className="mb-4 rounded-2xl bg-gradient-calm border border-border p-4">
                 <p className="mb-2 font-arabic text-lg leading-relaxed text-foreground" dir="rtl">
@@ -321,14 +338,110 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
                   </a>
                 </p>
               </div>
-              <div className="my-6 rounded-xl bg-primary/10 p-4">
+
+              {/* Time taken */}
+              <div className="mb-4 rounded-xl border border-border bg-card p-3">
+                <p className="text-xs text-muted-foreground">⏱️ Time to calm down</p>
+                <p className="font-heading text-xl font-bold text-primary">{formatDuration(durationSoFar)}</p>
+              </div>
+
+              <div className="my-4 rounded-xl bg-primary/10 p-4">
                 <span className="text-2xl font-bold text-primary">+10 Sabr Points 🌟</span>
               </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSkipJournal}
+                  className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={() => setPhase("journal")}
+                  className="flex-1 rounded-xl bg-primary px-6 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95"
+                >
+                  📓 Journal This
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {phase === "journal" && (
+            <motion.div key="journal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="text-center">
+              <h2 className="mb-1 font-heading text-xl font-bold text-foreground">📓 Quick Journal</h2>
+              <p className="mb-4 text-xs text-muted-foreground">Log what happened — it helps you grow</p>
+
+              {/* Trigger */}
+              <div className="mb-3 text-left">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">What triggered you?</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Work stress", "Family", "Online", "Traffic", "Parenting", "Relationship", "Other"].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setJournalTrigger(t)}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                        journalTrigger === t ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Situation */}
+              <div className="mb-3 text-left">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">What happened?</label>
+                <textarea
+                  value={journalSituation}
+                  onChange={(e) => setJournalSituation(e.target.value)}
+                  placeholder="Brief description..."
+                  className="w-full rounded-xl border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                  rows={2}
+                />
+              </div>
+
+              {/* Tactics Used */}
+              <div className="mb-3 text-left">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tactics you used</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {tacticOptions.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => toggleTactic(t)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all ${
+                        tacticsUsed.includes(t) ? "bg-success text-white" : "border border-border bg-card text-foreground"
+                      }`}
+                    >
+                      {tacticsUsed.includes(t) ? "✓ " : ""}{t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Time logged */}
+              <div className="mb-3 rounded-xl border border-border bg-card p-2.5 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">⏱️ Time logged</span>
+                <span className="text-sm font-bold text-primary">{formatDuration(Math.round((Date.now() - startTimeRef.current) / 1000))}</span>
+              </div>
+
+              {/* Reflection */}
+              <div className="mb-4 text-left">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reflection (optional)</label>
+                <textarea
+                  value={journalReflection}
+                  onChange={(e) => setJournalReflection(e.target.value)}
+                  placeholder="What would you do differently?"
+                  className="w-full rounded-xl border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                  rows={2}
+                />
+              </div>
+
               <button
-                onClick={onClose}
-                className="w-full rounded-xl bg-primary px-6 py-4 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95"
+                onClick={handleJournalSave}
+                className="w-full rounded-xl bg-primary px-6 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95"
               >
-                Return Home
+                Save Entry · +10 SP 🌟
               </button>
             </motion.div>
           )}
