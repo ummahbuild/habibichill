@@ -5,11 +5,21 @@ const wisdoms = [
   { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "Qur'an 94:6", link: "https://quran.com/94/6" },
   { arabic: "وَاصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ", english: "Be patient, for Allah does not waste the reward of those who do good.", ref: "Qur'an 11:115", link: "https://quran.com/11/115" },
   { arabic: "خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ", english: "Show forgiveness, enjoin what is good, and turn away from the ignorant.", ref: "Qur'an 7:199", link: "https://quran.com/7/199" },
+  { arabic: "وَلَمَن صَبَرَ وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنْ عَزْمِ الْأُمُورِ", english: "And whoever is patient and forgives — indeed, that is of the matters requiring resolve.", ref: "Qur'an 42:43", link: "https://quran.com/42/43" },
+  { arabic: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ فَإِذَا الَّذِي بَيْنَكَ وَبَيْنَهُ عَدَاوَةٌ كَأَنَّهُ وَلِيٌّ حَمِيمٌ", english: "Repel evil with that which is better; then the one between whom and you there was enmity will become a devoted friend.", ref: "Qur'an 41:34", link: "https://quran.com/41/34" },
 ];
 
 interface HomeTabProps {
-  onEmergency: () => void;
+  onPlayQuran: (surahId: string) => void;
 }
+
+const quranSurahs = [
+  { id: "55", name: "Surah Ar-Rahman", desc: "The Most Merciful" },
+  { id: "67", name: "Surah Al-Mulk", desc: "The Sovereignty" },
+  { id: "36", name: "Surah Ya-Sin", desc: "Heart of the Quran" },
+  { id: "1", name: "Surah Al-Fatiha", desc: "The Opening" },
+  { id: "112", name: "Surah Al-Ikhlas", desc: "Sincerity" },
+];
 
 const quickTools = [
   { emoji: "📿", label: "Dhikr" },
@@ -18,7 +28,7 @@ const quickTools = [
   { emoji: "📓", label: "Journal" },
 ];
 
-const HomeTab = ({ onEmergency }: HomeTabProps) => {
+const HomeTab = ({ onPlayQuran }: HomeTabProps) => {
   const { sabrPoints, streak } = useApp();
   const todayWisdom = wisdoms[Math.floor(Date.now() / 86400000) % wisdoms.length];
 
@@ -34,20 +44,6 @@ const HomeTab = ({ onEmergency }: HomeTabProps) => {
           🔥 {streak} day streak
         </div>
       </div>
-
-      {/* Emergency Button */}
-      <motion.button
-        onClick={onEmergency}
-        className="mb-6 w-full rounded-2xl bg-destructive p-6 text-center shadow-lg transition-shadow hover:shadow-xl"
-        whileTap={{ scale: 0.97 }}
-        aria-label="I'm Angry — Start emergency calming protocol"
-      >
-        <div className="animate-pulse-gentle">
-          <span className="mb-2 block text-4xl">🔥</span>
-          <span className="font-heading text-2xl font-bold text-destructive-foreground">I'm Angry</span>
-          <p className="mt-1 text-sm text-destructive-foreground/80">Tap for instant Sunnah calm</p>
-        </div>
-      </motion.button>
 
       {/* Sabr Score */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-4">
@@ -91,28 +87,22 @@ const HomeTab = ({ onEmergency }: HomeTabProps) => {
         </a>
       </div>
 
-      {/* Calm Quran */}
+      {/* Calm Quran - now with in-app player */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-4">
         <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick Play — Calming Quran</h2>
         <div className="flex flex-col gap-2">
-          {[
-            { name: "Surah Ar-Rahman", ref: "55", desc: "The Most Merciful" },
-            { name: "Surah Al-Mulk", ref: "67", desc: "The Sovereignty" },
-            { name: "Surah Ya-Sin", ref: "36", desc: "Heart of the Quran" },
-          ].map((s) => (
-            <a
-              key={s.ref}
-              href={`https://quran.com/${s.ref}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted"
+          {quranSurahs.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => onPlayQuran(s.id)}
+              className="flex items-center justify-between rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted text-left"
             >
               <div>
                 <p className="text-sm font-medium text-foreground">{s.name}</p>
                 <p className="text-xs text-muted-foreground">{s.desc}</p>
               </div>
-              <span className="text-primary">▶</span>
-            </a>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-sm">▶</span>
+            </button>
           ))}
         </div>
       </div>

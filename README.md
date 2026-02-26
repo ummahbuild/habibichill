@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
+# HabibiChill — Turn Anger Into Reward
 
-## Project info
+The Muslim Anger & Emotional Mastery App. Manage anger using Qur'an, Sunnah, and Islamic psychology — in real time.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Website:** [HabibiChill.com](https://habibichill.com)  
+**Made by:** [Ummah Build](https://ummah.build) · [X](https://x.com/ummahbuild) · [LinkedIn](https://linkedin.com/company/ummah-build)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- React 18 + TypeScript
+- Vite + PWA (offline-first)
+- Tailwind CSS + shadcn/ui
+- Framer Motion animations
+- 100% client-side, no backend
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## File Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+src/
+├── assets/
+│   └── habibichill-logo.png
+├── components/
+│   ├── EmergencyFlow.tsx        # 5-step Sunnah anger protocol
+│   ├── QuranPlayer.tsx          # Sticky audio player with surah picker
+│   ├── NavLink.tsx              # Navigation link component
+│   ├── tabs/
+│   │   ├── HomeTab.tsx          # Dashboard with tools & wisdom
+│   │   ├── LearnTab.tsx         # Prevention training lessons
+│   │   ├── TrackTab.tsx         # Progress tracking & achievements
+│   │   └── ProfileTab.tsx       # Settings & accessibility
+│   └── ui/                     # shadcn/ui components
+├── context/
+│   └── AppContext.tsx           # Global state (localStorage persistence)
+├── pages/
+│   ├── Index.tsx                # Router/state switcher
+│   ├── LandingPage.tsx          # SEO-optimized landing page
+│   ├── OnboardingFlow.tsx       # 6-step personalization
+│   ├── Dashboard.tsx            # Main app shell + navbar
+│   └── NotFound.tsx
+├── index.css                    # Design tokens & theme
+└── main.tsx                     # App entry
+```
 
-**Use your preferred IDE**
+## Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### ✅ Done
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- [x] Landing page with SEO meta tags, JSON-LD, and AI engine optimization
+- [x] PWA support with offline capability and installability
+- [x] "I'm Angry" emergency button with 5-step Sunnah protocol
+- [x] Center circle emergency button in bottom navigation bar
+- [x] Breathing exercise with animated circle
+- [x] Quran & hadith references with source links (quran.com, sunnah.com)
+- [x] Sticky Quran audio player with play/pause/next/prev and surah picker
+- [x] Sabr points & streak gamification system
+- [x] Anger log tracking with controlled/uncontrolled outcomes
+- [x] 6-step onboarding flow with personalization
+- [x] Dark mode, font size, reduced motion, high contrast settings
+- [x] Mobile-responsive design throughout
+- [x] Daily wisdom with rotating Quranic verses
+- [x] Prevention training (Learn tab) with lesson roadmap
+- [x] Achievement badges on Track tab
+- [x] Profile with social links and reset
 
-Follow these steps:
+### 📋 TODO
+
+- [ ] Anger journal with reflection prompts ("What triggered this?")
+- [ ] Situation-based guidance (marriage, workplace, parenting, etc.)
+- [ ] Dhikr counter tool with tally and target
+- [ ] Wudu step-by-step guide tool
+- [ ] Haptic feedback on emergency flow steps
+- [ ] Multiple Quran reciter options
+- [ ] Ramadan Mode with fasting-specific guidance
+- [ ] Marriage Mode with couples tools
+- [ ] Weekly anger pattern analytics charts
+- [ ] Export journal as PDF
+- [ ] Apple Watch / wearable quick actions
+- [ ] Lock screen widget support
+- [ ] AI Islamic coaching companion (non-fatwa)
+- [ ] Community challenges (Ramadan No-Anger, Forgiveness Friday)
+- [ ] Scholar content library with video/audio lectures
+- [ ] Multi-language support (Arabic, Urdu, Malay, Turkish)
+- [ ] Smart notifications (streak reminders, stress detection)
+
+## Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## License
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+© 2025 HabibiChill.com — Made with ❤️ by [Ummah Build](https://ummah.build)
