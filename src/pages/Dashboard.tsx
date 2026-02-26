@@ -11,6 +11,8 @@ import DhikrCounter from "@/components/DhikrCounter";
 import WuduGuide from "@/components/WuduGuide";
 import AngerJournal from "@/components/AngerJournal";
 import SituationGuide from "@/components/SituationGuide";
+import SilenceTimer from "@/components/SilenceTimer";
+import BreathingExercise from "@/components/BreathingExercise";
 
 const tabs = [
   { id: "home", label: "Home", icon: "🏠" },
@@ -28,6 +30,8 @@ const Dashboard = () => {
   const [showWudu, setShowWudu] = useState(false);
   const [showJournal, setShowJournal] = useState(false);
   const [showSituations, setShowSituations] = useState(false);
+  const [showSilenceTimer, setShowSilenceTimer] = useState(false);
+  const [showBreathing, setShowBreathing] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-24">
@@ -47,6 +51,8 @@ const Dashboard = () => {
                 onOpenWudu={() => setShowWudu(true)}
                 onOpenJournal={() => setShowJournal(true)}
                 onOpenSituations={() => setShowSituations(true)}
+                onOpenSilenceTimer={() => setShowSilenceTimer(true)}
+                onOpenBreathing={() => setShowBreathing(true)}
               />
             )}
             {activeTab === "quran" && (
@@ -112,6 +118,8 @@ const Dashboard = () => {
         {showWudu && <WuduGuide onClose={() => setShowWudu(false)} />}
         {showJournal && <AngerJournal onClose={() => setShowJournal(false)} />}
         {showSituations && <SituationGuide onClose={() => setShowSituations(false)} />}
+        {showSilenceTimer && <SilenceTimer onClose={() => setShowSilenceTimer(false)} />}
+        {showBreathing && <BreathingExercise onClose={() => setShowBreathing(false)} />}
       </AnimatePresence>
     </div>
   );
