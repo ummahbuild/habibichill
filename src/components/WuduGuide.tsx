@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
 interface WuduStep {
   title: string;
@@ -114,6 +115,7 @@ interface WuduGuideProps {
 }
 
 const WuduGuide = ({ onClose }: WuduGuideProps) => {
+  useEscapeKey(onClose);
   const [currentStep, setCurrentStep] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const [completed, setCompleted] = useState(false);

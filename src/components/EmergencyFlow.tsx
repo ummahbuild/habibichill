@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
+import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
 interface StepData {
   instruction: string;
@@ -86,6 +87,7 @@ interface EmergencyFlowProps {
 
 const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
   const { addAngerEntry } = useApp();
+  useEscapeKey(onClose);
   const [phase, setPhase] = useState<"intensity" | "steps" | "checkin" | "reward">("intensity");
   const [intensity, setIntensity] = useState(3);
   const [currentStep, setCurrentStep] = useState(0);

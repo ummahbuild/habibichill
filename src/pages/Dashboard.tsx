@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import HomeTab from "@/components/tabs/HomeTab";
 import QuranSunnahTab from "@/components/tabs/QuranSunnahTab";
 import LearnTab from "@/components/tabs/LearnTab";
@@ -30,6 +31,16 @@ const Dashboard = () => {
   const [showSituations, setShowSituations] = useState(false);
   const [showSilenceTimer, setShowSilenceTimer] = useState(false);
   const [showBreathing, setShowBreathing] = useState(false);
+
+  const shortcuts = useMemo(() => [
+    { key: "f", handler: () => setShowEmergency(true) },
+    { key: "1", handler: () => setActiveTab("home") },
+    { key: "2", handler: () => setActiveTab("quran") },
+    { key: "3", handler: () => setActiveTab("learn") },
+    { key: "4", handler: () => setActiveTab("me") },
+  ], []);
+
+  useKeyboardShortcuts(shortcuts);
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-24">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
 const motivations = [
   { arabic: "إِذَا غَضِبَ أَحَدُكُمْ فَلْيَسْكُتْ", english: "If any of you becomes angry, let him keep silent.", source: "Musnad Ahmad 2136", link: "https://sunnah.com/ahmad:2136" },
@@ -22,6 +23,7 @@ interface SilenceTimerProps {
 }
 
 const SilenceTimer = ({ onClose }: SilenceTimerProps) => {
+  useEscapeKey(onClose);
   const [phase, setPhase] = useState<"select" | "running" | "done">("select");
   const [totalSeconds, setTotalSeconds] = useState(120);
   const [remaining, setRemaining] = useState(0);

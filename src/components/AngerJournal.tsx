@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
+import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
 interface AngerJournalProps {
   onClose: () => void;
@@ -9,6 +10,7 @@ interface AngerJournalProps {
 const triggers = ["Work stress", "Family dispute", "Online argument", "Traffic", "Parenting", "Relationship", "Financial", "Other"];
 
 const AngerJournal = ({ onClose }: AngerJournalProps) => {
+  useEscapeKey(onClose);
   const { addAngerEntry } = useApp();
   const [step, setStep] = useState(0);
   const [trigger, setTrigger] = useState("");

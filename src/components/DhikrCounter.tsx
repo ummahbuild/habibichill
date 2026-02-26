@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
 const dhikrs = [
   {
@@ -36,6 +37,7 @@ interface DhikrCounterProps {
 }
 
 const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
+  useEscapeKey(onClose);
   const [activeIndex, setActiveIndex] = useState(0);
   const [counts, setCounts] = useState<number[]>(() => {
     const saved = localStorage.getItem("hc-dhikr-counts");
