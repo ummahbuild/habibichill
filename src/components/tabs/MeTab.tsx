@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp, AngerEntry } from "@/context/AppContext";
 import { useTerminology } from "@/hooks/use-terminology";
@@ -36,6 +37,7 @@ const MeTab = () => {
   const [editMoodValue, setEditMoodValue] = useState(3);
   const [editMoodNote, setEditMoodNote] = useState("");
   const [subTab, setSubTab] = useState<SubTab>("progress");
+  const [selectedAchievement, setSelectedAchievement] = useState<typeof achievements[number] | null>(null);
   const controlled = angerLog.filter((e) => e.controlled).length;
   const total = angerLog.length;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -411,13 +413,41 @@ const MeTab = () => {
               {achievements.map((a) => {
                 const unlocked = sabrPoints >= a.threshold || controlled >= a.threshold;
                 return (
-                  <div key={a.name} className={`flex flex-col items-center gap-1 rounded-xl border p-3 text-center ${unlocked ? "border-secondary/30 bg-secondary/5" : "border-border bg-card opacity-40"}`}>
+                  <button key={a.name} onClick={() => setSelectedAchievement(a)}
+                    className={`flex flex-col items-center gap-1 rounded-xl border p-3 text-center transition-all active:scale-95 ${unlocked ? "border-secondary/30 bg-secondary/5" : "border-border bg-card opacity-40"}`}>
                     <span className="text-2xl">{a.icon}</span>
                     <p className="text-xs font-medium text-foreground">{a.name}</p>
-                  </div>
+                  </button>
                 );
               })}
             </div>
+
+            {/* Achievement Detail Dialog */}
+            <Dialog open={!!selectedAchievement} onOpenChange={(open) => !open && setSelectedAchievement(null)}>
+              <DialogContent className="max-w-xs">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-base">
+                    <span className="text-2xl">{selectedAchievement?.icon}</span>
+                    {selectedAchievement?.name}
+                  </DialogTitle>
+                </DialogHeader>
+                {selectedAchievement && (() => {
+                  const unlocked = sabrPoints >= selectedAchievement.threshold || controlled >= selectedAchievement.threshold;
+                  return (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">{selectedAchievement.desc}</p>
+                      <div className="rounded-lg border border-border bg-muted/50 p-3">
+                        <p className="text-xs text-muted-foreground mb-1">Requirement</p>
+                        <p className="text-sm font-medium text-foreground">Reach {selectedAchievement.threshold} points or controlled incidents</p>
+                      </div>
+                      <div className={`rounded-lg p-3 text-center text-sm font-medium ${unlocked ? "bg-secondary/10 text-secondary" : "bg-muted text-muted-foreground"}`}>
+                        {unlocked ? "✅ Unlocked!" : `🔒 Locked — ${Math.max(0, selectedAchievement.threshold - Math.max(sabrPoints, controlled))} more to go`}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </DialogContent>
+            </Dialog>
           </motion.div>
         )}
 
