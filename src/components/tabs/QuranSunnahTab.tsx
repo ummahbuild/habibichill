@@ -7,6 +7,7 @@ interface QuranSunnahTabProps {
   onPlayQuran: (surahId: string) => void;
   initialReadSurah?: number | null;
   onClearInitialRead?: () => void;
+  playingSurahId?: string | null;
 }
 
 /* ── Surah collection with themes ── */
@@ -114,7 +115,7 @@ const readingSurahs = [
   { id: 114, name: "An-Nas", arabic: "الناس", verses: 6 },
 ];
 
-const QuranSunnahTab = ({ onPlayQuran, initialReadSurah, onClearInitialRead }: QuranSunnahTabProps) => {
+const QuranSunnahTab = ({ onPlayQuran, initialReadSurah, onClearInitialRead, playingSurahId }: QuranSunnahTabProps) => {
   const { bookmarks, addBookmark, removeBookmark, isBookmarked, angerLog, moodLog, onboardingData } = useApp();
   const [subTab, setSubTab] = useState<SubTab>(() => initialReadSurah ? "read" : "listen");
   const [expandedHadith, setExpandedHadith] = useState<number | null>(null);
@@ -135,6 +136,18 @@ const QuranSunnahTab = ({ onPlayQuran, initialReadSurah, onClearInitialRead }: Q
       onClearInitialRead?.();
     }
   }, [initialReadSurah, onClearInitialRead]);
+
+  // Auto-scroll to currently playing surah in listen tab
+  useEffect(() => {
+    if (playingSurahId && subTab === "listen") {
+      setTimeout(() => {
+        const el = document.querySelector(`[data-surah-id="${playingSurahId}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 200);
+    }
+  }, [playingSurahId, subTab]);
 
   // --- Personalized Recommendations ---
   const getRecommendations = () => {
@@ -426,8 +439,9 @@ const QuranSunnahTab = ({ onPlayQuran, initialReadSurah, onClearInitialRead }: Q
                     {filteredSurahs.map((s) => (
                       <div
                         key={s.id}
+                        data-surah-id={s.id}
                         className={`rounded-xl border bg-card overflow-hidden transition-all hover:shadow-calm ${
-                          lastPlayed === s.id ? "border-primary/30" : "border-border"
+                          playingSurahId === s.id ? "border-primary ring-2 ring-primary/20" : lastPlayed === s.id ? "border-primary/30" : "border-border"
                         }`}
                       >
                         <div className="flex items-center gap-3 p-3.5">
@@ -437,7 +451,10 @@ const QuranSunnahTab = ({ onPlayQuran, initialReadSurah, onClearInitialRead }: Q
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-semibold text-foreground">Surah {s.name}</p>
-                              {lastPlayed === s.id && (
+                              {playingSurahId === s.id && (
+                                <span className="rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-medium text-primary-foreground animate-pulse-gentle">▶ Playing</span>
+                              )}
+                              {lastPlayed === s.id && playingSurahId !== s.id && (
                                 <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[8px] font-medium text-primary">Last played</span>
                               )}
                             </div>
