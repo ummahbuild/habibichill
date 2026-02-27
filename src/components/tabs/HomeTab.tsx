@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useApp, AngerEntry } from "@/context/AppContext";
 import { useTerminology } from "@/hooks/use-terminology";
+import { useIsMobile } from "@/hooks/use-mobile";
 import ReferenceTooltip from "@/components/ReferenceTooltip";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -118,8 +119,10 @@ const EntryDetail = ({ entry, onClose }: { entry: AngerEntry; onClose: () => voi
 const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing, onOpenPrayer }: HomeTabProps) => {
   const { sabrPoints, streak, angerLog, moodLog, addMoodEntry } = useApp();
   const t = useTerminology();
+  const isMobile = useIsMobile();
   const todayIndex = Math.floor(Date.now() / 86400000) % wisdoms.length;
   const [wisdomIndex, setWisdomIndex] = useState(todayIndex);
+  const [wisdomDir, setWisdomDir] = useState(0); // -1 left, 1 right for animation direction
   const currentWisdom = wisdoms[wisdomIndex];
   const wisdomDate = new Date(Date.now() - (todayIndex - wisdomIndex) * 86400000);
   const controlled = angerLog.filter((e) => e.controlled).length;
@@ -134,6 +137,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [showQuranMenu, setShowQuranMenu] = useState(false);
   const [showMoodHistory, setShowMoodHistory] = useState(false);
+  const [statPopup, setStatPopup] = useState<string | null>(null); // for mobile tap-to-popup
 
   const quickTools = [
     { emoji: "🕌", label: "Prayer", action: onOpenPrayer, color: "bg-primary/10" },
@@ -144,6 +148,23 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
     { emoji: "📓", label: "Journal", action: onOpenJournal, color: "bg-destructive/10" },
     { emoji: "🎯", label: "Guides", action: onOpenSituations, color: "bg-muted" },
   ];
+
+  // Wisdom swipe & nav helpers
+  const goWisdomPrev = useCallback(() => {
+    setWisdomDir(-1);
+    setWisdomIndex((prev) => (prev - 1 + wisdoms.length) % wisdoms.length);
+  }, []);
+  const goWisdomNext = useCallback(() => {
+    setWisdomDir(1);
+    setWisdomIndex((prev) => (prev + 1) % wisdoms.length);
+  }, []);
+
+  const handleWisdomSwipe = useCallback((_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (Math.abs(info.offset.x) > 50) {
+      if (info.offset.x > 0) goWisdomPrev();
+      else goWisdomNext();
+    }
+  }, [goWisdomPrev, goWisdomNext]);
 
   const greetings = () => {
     const hour = new Date().getHours();
@@ -156,6 +177,13 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
 
   const handleEntryClick = (id: string) => {
     setExpandedEntry((prev) => (prev === id ? null : id));
+  };
+
+  // Stat popup data
+  const statData: Record<string, { title: string; desc: string }> = {
+    sabr: { title: "Patience Rewards", desc: `Earn +10 points each time you control your anger using the CHILL flow. The Prophet ﷺ said the strong person controls themselves in anger. You have ${sabrPoints} points.` },
+    control: { title: "Anger Control Rate", desc: `Percentage of anger episodes where you successfully controlled yourself (${controlled}/${total} logged). Higher is better — aim for 80%+.` },
+    rank: { title: "Your Rank", desc: sabrPoints < 50 ? "🌱 Beginner (0–49 SP) → Keep using the CHILL flow to level up to Student!" : sabrPoints < 150 ? "📚 Student (50–149 SP) → You're building habits. Practitioner rank at 150 SP." : sabrPoints < 300 ? "⭐ Practitioner (150–299 SP) → Impressive self-control! Master rank at 300 SP." : "👑 Master (300+ SP) → You've achieved mastery over anger. Keep inspiring others!" },
   };
 
   // Anger-relevant surahs for quick read gallery
@@ -274,51 +302,46 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
         </Dialog>
       </div>
 
-      {/* Stats Row */}
+      {/* Stats Row — tooltip on desktop, tap popup on mobile */}
       <div className="mb-5 grid grid-cols-3 gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="rounded-xl border border-border bg-card p-3 text-center cursor-help">
-              <p className="font-heading text-2xl font-bold text-primary">{sabrPoints}</p>
-              <p className="text-[10px] text-muted-foreground">{t.islamic ? <ArabicTooltip term="sabr">Sabr</ArabicTooltip> : "Patience"} Points</p>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-[200px] text-center">
-            <p className="text-xs font-medium">Patience Rewards</p>
-            <p className="text-[10px] text-muted-foreground">Earn +10 points each time you control your anger using the CHILL flow. The Prophet ﷺ said the strong person controls themselves in anger.</p>
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="rounded-xl border border-border bg-card p-3 text-center cursor-help">
-              <p className="font-heading text-2xl font-bold text-success">{controlRate}%</p>
-              <p className="text-[10px] text-muted-foreground">Control Rate</p>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-[200px] text-center">
-            <p className="text-xs font-medium">Anger Control Rate</p>
-            <p className="text-[10px] text-muted-foreground">Percentage of anger episodes where you successfully controlled yourself ({controlled}/{total} logged). Higher is better — aim for 80%+.</p>
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="rounded-xl border border-border bg-card p-3 text-center cursor-help">
-              <p className="font-heading text-2xl font-bold text-foreground">
-                {sabrPoints < 50 ? "🌱" : sabrPoints < 150 ? "📚" : sabrPoints < 300 ? "⭐" : "👑"}
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {sabrPoints < 50 ? "Beginner" : sabrPoints < 150 ? "Student" : sabrPoints < 300 ? "Practitioner" : "Master"}
-              </p>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-[200px] text-center">
-            <p className="text-xs font-medium">Your Rank</p>
-            <p className="text-[10px] text-muted-foreground">
-              {sabrPoints < 50 ? "🌱 Beginner (0–49 SP) → Keep using the CHILL flow to level up to Student!" : sabrPoints < 150 ? "📚 Student (50–149 SP) → You're building habits. Practitioner rank at 150 SP." : sabrPoints < 300 ? "⭐ Practitioner (150–299 SP) → Impressive self-control! Master rank at 300 SP." : "👑 Master (300+ SP) → You've achieved mastery over anger. Keep inspiring others!"}
-            </p>
-          </TooltipContent>
-        </Tooltip>
+        {[
+          { key: "sabr", value: sabrPoints, color: "text-primary", label: t.islamic ? <ArabicTooltip term="sabr">Sabr</ArabicTooltip> : "Patience", suffix: " Points" },
+          { key: "control", value: `${controlRate}%`, color: "text-success", label: "Control Rate", suffix: "" },
+          { key: "rank", value: sabrPoints < 50 ? "🌱" : sabrPoints < 150 ? "📚" : sabrPoints < 300 ? "⭐" : "👑", color: "text-foreground", label: sabrPoints < 50 ? "Beginner" : sabrPoints < 150 ? "Student" : sabrPoints < 300 ? "Practitioner" : "Master", suffix: "" },
+        ].map((stat) => {
+          const card = (
+            <motion.div
+              key={stat.key}
+              onClick={() => isMobile && setStatPopup(stat.key)}
+              className="rounded-xl border border-border bg-card p-3 text-center cursor-help active:scale-95 transition-transform"
+              whileTap={{ scale: 0.95 }}
+            >
+              <p className={`font-heading text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              <p className="text-[10px] text-muted-foreground">{stat.label}{stat.suffix}</p>
+            </motion.div>
+          );
+          // Desktop: hover tooltip. Mobile: tap opens dialog
+          if (isMobile) return <div key={stat.key}>{card}</div>;
+          return (
+            <Tooltip key={stat.key}>
+              <TooltipTrigger asChild>{card}</TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[200px] text-center">
+                <p className="text-xs font-medium">{statData[stat.key].title}</p>
+                <p className="text-[10px] text-muted-foreground">{statData[stat.key].desc}</p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
       </div>
+      {/* Mobile stat popup */}
+      <Dialog open={!!statPopup} onOpenChange={(open) => !open && setStatPopup(null)}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle className="text-base">{statPopup && statData[statPopup]?.title}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground leading-relaxed">{statPopup && statData[statPopup]?.desc}</p>
+        </DialogContent>
+      </Dialog>
 
       {/* Quick Tools */}
       <div className="mb-5">
@@ -373,8 +396,8 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
         </div>
       </div>
 
-      {/* Daily Wisdom */}
-      <div className="mb-5 rounded-2xl bg-gradient-calm border border-border p-4">
+      {/* Daily Wisdom — swipeable on mobile */}
+      <div className="mb-5 rounded-2xl bg-gradient-calm border border-border p-4 overflow-hidden">
         <div className="flex items-center justify-between mb-1">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Daily Wisdom</p>
           <p className="text-[10px] text-muted-foreground">
@@ -382,20 +405,42 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
             {wisdomIndex === todayIndex && " · Today"}
           </p>
         </div>
-        <p className="mb-2 font-arabic text-xl leading-relaxed text-foreground" dir="rtl">{currentWisdom.arabic}</p>
-        <p className="mb-2 text-sm text-muted-foreground italic">"{currentWisdom.english}"</p>
-        <ReferenceTooltip reference={currentWisdom.ref} arabic={currentWisdom.arabic} english={currentWisdom.english} link={currentWisdom.link}>
-          <a href={currentWisdom.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">{currentWisdom.ref} →</a>
-        </ReferenceTooltip>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={wisdomIndex}
+            initial={{ opacity: 0, x: wisdomDir * 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: wisdomDir * -60 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            drag={isMobile ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.3}
+            onDragEnd={handleWisdomSwipe}
+            className="touch-pan-y"
+          >
+            <p className="mb-2 font-arabic text-xl leading-relaxed text-foreground" dir="rtl">{currentWisdom.arabic}</p>
+            <p className="mb-2 text-sm text-muted-foreground italic">"{currentWisdom.english}"</p>
+            <ReferenceTooltip reference={currentWisdom.ref} arabic={currentWisdom.arabic} english={currentWisdom.english} link={currentWisdom.link}>
+              <a href={currentWisdom.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">{currentWisdom.ref} →</a>
+            </ReferenceTooltip>
+          </motion.div>
+        </AnimatePresence>
         <div className="mt-3 flex items-center justify-between">
-          <button onClick={() => setWisdomIndex((wisdomIndex - 1 + wisdoms.length) % wisdoms.length)} className="rounded-lg px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">← Previous</button>
+          <button onClick={goWisdomPrev} className="rounded-lg px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">← Previous</button>
           <div className="flex gap-1">
-            {wisdoms.map((_, i) => (
-              <div key={i} className={`h-1 rounded-full transition-all ${i === wisdomIndex ? "w-4 bg-primary" : "w-1.5 bg-border"}`} />
-            ))}
+            {wisdoms.slice(
+              Math.max(0, wisdomIndex - 3),
+              Math.min(wisdoms.length, wisdomIndex + 4)
+            ).map((_, i) => {
+              const idx = Math.max(0, wisdomIndex - 3) + i;
+              return <div key={idx} className={`h-1 rounded-full transition-all ${idx === wisdomIndex ? "w-4 bg-primary" : "w-1.5 bg-border"}`} />;
+            })}
           </div>
-          <button onClick={() => setWisdomIndex((wisdomIndex + 1) % wisdoms.length)} className="rounded-lg px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">Next →</button>
+          <button onClick={goWisdomNext} className="rounded-lg px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">Next →</button>
         </div>
+        {isMobile && (
+          <p className="mt-2 text-center text-[9px] text-muted-foreground/50">Swipe left or right for more</p>
+        )}
       </div>
 
       {/* Recent activity — expandable on double click */}
