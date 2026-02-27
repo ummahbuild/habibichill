@@ -66,10 +66,14 @@ const MeTab = () => {
     return Object.entries(counts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5);
   }, [angerLog]);
 
-  // Intensity trend
+  // Intensity trend — starts from onboarding date
   const intensityData = useMemo(() => {
     const today = startOfDay(new Date());
-    const days = eachDayOfInterval({ start: subDays(today, 13), end: today });
+    const onboardedAt = localStorage.getItem("hc-onboarded-at");
+    const start = onboardedAt ? startOfDay(parseISO(onboardedAt)) : subDays(today, 13);
+    // Cap to a reasonable max of 90 days
+    const cappedStart = start < subDays(today, 90) ? subDays(today, 90) : start;
+    const days = eachDayOfInterval({ start: cappedStart, end: today });
     return days.map((day) => {
       const dayStr = format(day, "yyyy-MM-dd");
       const dayEntries = angerLog.filter((e) => format(parseISO(e.date), "yyyy-MM-dd") === dayStr);
