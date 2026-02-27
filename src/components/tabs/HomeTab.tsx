@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp, AngerEntry } from "@/context/AppContext";
 import { useTerminology } from "@/hooks/use-terminology";
@@ -128,6 +128,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const latestTodayMood = todayMoods.length > 0 ? todayMoods[0] : null;
   const last7Moods = moodLog.slice(0, 7);
   const [moodNote, setMoodNote] = useState("");
+  const [showNoteInput, setShowNoteInput] = useState(false);
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [showQuranMenu, setShowQuranMenu] = useState(false);
 
@@ -192,7 +193,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
           {moodEmojis.map((emoji, i) => (
             <motion.button
               key={i}
-              onClick={() => { addMoodEntry(i + 1, moodNote || undefined); setMoodNote(""); }}
+              onClick={() => { addMoodEntry(i + 1, moodNote || undefined); setMoodNote(""); setShowNoteInput(false); }}
               className={`flex flex-1 flex-col items-center gap-1 rounded-xl p-2 transition-all ${
                 latestTodayMood?.mood === i + 1 ? "bg-primary/10 border border-primary/30 scale-105" : "border border-transparent hover:bg-muted"
               }`}
@@ -203,17 +204,37 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
             </motion.button>
           ))}
         </div>
-        <input type="text" value={moodNote} onChange={(e) => setMoodNote(e.target.value)}
-          placeholder="What's on your mind? (optional)"
-          className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-        />
+        {/* Toggle note input */}
+        <label className="mt-3 flex items-center gap-2 cursor-pointer select-none">
+          <input type="checkbox" checked={showNoteInput} onChange={(e) => setShowNoteInput(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
+          <span className="text-xs text-muted-foreground">Add a note — what's on your mind?</span>
+        </label>
+        <AnimatePresence>
+          {showNoteInput && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+              <input type="text" value={moodNote} onChange={(e) => setMoodNote(e.target.value)}
+                placeholder="What's on your mind?"
+                className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                autoFocus
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         {last7Moods.length > 1 && (
           <div className="mt-3 flex items-center gap-1">
             <span className="text-[10px] text-muted-foreground mr-1">Recent:</span>
             {last7Moods.map((entry, i) => (
-              <span key={i} className="text-sm" title={`${new Date(entry.date).toLocaleString()}${entry.note ? ` — ${entry.note}` : ""}`}>
-                {moodEmojis[entry.mood - 1]}
-              </span>
+              <Tooltip key={i}>
+                <TooltipTrigger asChild>
+                  <span className="text-sm cursor-default">
+                    {moodEmojis[entry.mood - 1]}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[200px]">
+                  <p className="text-xs font-medium">{moodLabels[entry.mood - 1]} · {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                  {entry.note && <p className="text-xs text-muted-foreground italic mt-0.5">"{entry.note}"</p>}
+                </TooltipContent>
+              </Tooltip>
             ))}
           </div>
         )}
