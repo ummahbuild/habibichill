@@ -901,21 +901,21 @@ const MeTab = () => {
             {/* Support */}
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🛟 Support</h2>
             <div className="mb-5 flex flex-col gap-2">
-              <a href="https://github.com/ummah-build/habibichill/issues/new?template=bug_report.md" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+              <a href="https://github.com/codingshot/habibichill/issues/new?template=bug_report.md" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
                 <div className="text-left">
                   <span className="text-sm font-medium text-foreground">🐛 Report a Bug</span>
                   <p className="text-xs text-muted-foreground">Found something broken? Let us know</p>
                 </div>
                 <span className="text-muted-foreground">→</span>
               </a>
-              <a href="https://github.com/ummah-build/habibichill/issues/new?template=feature_request.md" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+              <a href="https://github.com/codingshot/habibichill/issues/new?template=feature_request.md" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
                 <div className="text-left">
                   <span className="text-sm font-medium text-foreground">💡 Request a Feature</span>
                   <p className="text-xs text-muted-foreground">Suggest improvements or new tools</p>
                 </div>
                 <span className="text-muted-foreground">→</span>
               </a>
-              <a href="https://github.com/ummah-build/habibichill/issues" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+              <a href="https://github.com/codingshot/habibichill/issues" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
                 <div className="text-left">
                   <span className="text-sm font-medium text-foreground">📋 View Open Issues</span>
                   <p className="text-xs text-muted-foreground">See what's being worked on</p>
@@ -935,7 +935,7 @@ const MeTab = () => {
                 <span className="text-sm font-medium text-foreground">Follow on X</span>
                 <span className="text-muted-foreground">→</span>
               </a>
-              <a href="https://github.com/ummah-build/habibichill" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+              <a href="https://github.com/codingshot/habibichill" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
                 <span className="text-sm font-medium text-foreground">⭐ Star on GitHub</span>
                 <span className="text-muted-foreground">→</span>
               </a>
