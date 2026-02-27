@@ -11,8 +11,9 @@ import SiteFooter from "@/components/SiteFooter";
 
 const features = [
   { emoji: "🔥", title: "Emergency Calm", desc: "Instant Sunnah-based anger protocol when you need it most" },
-  { emoji: "📿", title: "Dhikr & Quran", desc: "Calming recitations and remembrance at your fingertips" },
-  { emoji: "📊", title: "Track Progress", desc: "Sabr streaks, forgiveness levels, and spiritual rewards", hasSabr: true },
+  { emoji: "📿", title: "Dhikr & Quran", desc: "6 reciters, full text, transliteration & remembrance tools" },
+  { emoji: "🕌", title: "Prayer Times", desc: "Auto-detect location, track salah, journal your prayers" },
+  { emoji: "📊", title: "Track Everything", desc: "Activity logs, prayer stats, mood trends & sabr streaks", hasSabr: true },
   { emoji: "🧠", title: "Learn & Prevent", desc: "Daily training rooted in Imam Ghazali's teachings" },
 ];
 
