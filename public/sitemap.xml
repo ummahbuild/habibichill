@@ -15,6 +15,103 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <!-- Blog Posts -->
+  <url>
+    <loc>https://habibichill.com/blogs/launching-habibichill-anger-management-for-muslims</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/prophet-muhammad-anger-management-hadith</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/quran-verses-patience-anger-control</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/islamic-psychology-anger-imam-ghazali</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/how-to-use-habibichill-complete-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/wudu-anger-management-science-sunnah</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/silence-anger-management-hadith-neuroscience</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/dhikr-remembrance-anxiety-anger-relief</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/breathing-exercises-islamic-anger-management</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/emergency-chill-flow-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/dhikr-counter-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/quran-player-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/tracking-progress-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/home-dashboard-daily-tools-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/daily-training-learn-tab-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/prayer-times-tracking-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/activity-logging-progress-tracking-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/quran-reciter-selection-feature-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/islamic-prayer-anger-connection-salah-calm</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <!-- Legal -->
   <url>
     <loc>https://habibichill.com/privacy</loc>
     <changefreq>monthly</changefreq>
@@ -29,5 +126,10 @@
     <loc>https://habibichill.com/legal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/contribute</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>

@@ -174,6 +174,75 @@ const guides = [
       },
     ],
   },
+  {
+    id: "prayer-times",
+    title: "Prayer Times & Salah Tracking",
+    emoji: "🕌",
+    description: "Auto-detect your location, view daily prayer times, and log each salah with an optional journal.",
+    steps: [
+      {
+        title: "Open Prayer Times",
+        description: "Tap the 🕌 Prayer quick tool on the home screen. The app auto-detects your city using your IP address and loads today's prayer times instantly.",
+        tip: "No GPS permission needed — IP-based detection works everywhere.",
+      },
+      {
+        title: "Customize Location & Method",
+        description: "Tap the ⚙️ settings icon to search for a different city or change the calculation method (ISNA, MWL, Umm Al-Qura, Egyptian Authority, and 10+ more).",
+        tip: "Your location and method preference are saved automatically.",
+      },
+      {
+        title: "Mark Prayers & Journal",
+        description: "Tap 'Mark ✓' next to each prayer when you complete it. A dialog lets you add a quick reflection and shows which calming tools you used today.",
+        tip: "This creates a powerful link between your calming practices and prayer quality.",
+      },
+      {
+        title: "View Prayer Stats",
+        description: "Go to Me tab → Progress to see your prayer tracking stats: total logged, days active, average per day, and per-prayer breakdown.",
+        tip: "Consistent Fajr tracking is a great accountability tool!",
+      },
+    ],
+  },
+  {
+    id: "activity-tracking",
+    title: "Activity Logging & Progress Stats",
+    emoji: "📋",
+    description: "Every calming tool you use is automatically logged — see your complete spiritual wellness journey.",
+    steps: [
+      {
+        title: "Automatic Logging",
+        description: "Every time you open breathing, dhikr, wudu, silence timer, Quran listening/reading, or mood check-in, the app automatically records the activity with a timestamp.",
+        tip: "No extra taps needed — just use the tools and your activity is tracked.",
+      },
+      {
+        title: "View Activity Breakdown",
+        description: "Go to Me tab → Progress → Activity Log to see a visual breakdown of which tools you use most. A bar chart shows relative usage across all tool types.",
+        tip: "Try to diversify — if you only use breathing, try dhikr or silence for variety.",
+      },
+      {
+        title: "Export Your Data",
+        description: "All activity logs, prayer logs, and mood entries are included when you export your data from Me tab → Settings → Export Data.",
+        tip: "Regular backups keep your progress safe — export monthly.",
+      },
+    ],
+  },
+  {
+    id: "reciter-selection",
+    title: "Choosing Your Quran Reciter",
+    emoji: "🎙️",
+    description: "Switch between 6 world-class reciters and read surah text with transliteration and translation.",
+    steps: [
+      {
+        title: "Change Reciter",
+        description: "While playing any surah in the Quran Player, tap the reciter name below the surah title. A dropdown shows all 6 available reciters: Mishary al-Afasy, Abdul Basit, As-Sudais, Al-Hudhaify, Al-Minshawi, and Muhammad Ayyub.",
+        tip: "Your reciter preference is saved automatically for next time.",
+      },
+      {
+        title: "Read Surah Text",
+        description: "Tap the 📜 script icon in the player to open the full surah text page. See Arabic (Uthmani), transliteration, and English translation verse by verse.",
+        tip: "Use the Share button on the surah page to share specific surahs with friends.",
+      },
+    ],
+  },
 ];
 
 const GuidesPage = () => {
