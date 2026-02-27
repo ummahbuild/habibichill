@@ -88,7 +88,7 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -102,7 +102,7 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/98 backdrop-blur-sm px-6 text-center"
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background px-6 text-center"
           >
             <span className="mb-4 text-6xl">📿</span>
             <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">Dhikr Counter</h2>
