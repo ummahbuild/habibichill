@@ -13,6 +13,7 @@ import AngerJournal from "@/components/AngerJournal";
 import SituationGuide from "@/components/SituationGuide";
 import SilenceTimer from "@/components/SilenceTimer";
 import BreathingExercise from "@/components/BreathingExercise";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 const tabs = [
   { id: "home", label: "Home", icon: "🏠" },
@@ -129,6 +130,8 @@ const Dashboard = () => {
           ))}
         </div>
       </nav>
+
+      <PwaInstallPrompt />
 
       <AnimatePresence>
         {showEmergency && <EmergencyFlow onClose={() => setShowEmergency(false)} />}
