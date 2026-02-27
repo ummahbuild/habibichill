@@ -75,6 +75,7 @@ const Dashboard = () => {
                 onPlayQuran={(surahId) => setPlayingSurah(surahId)}
                 initialReadSurah={initialReadSurah}
                 onClearInitialRead={() => setInitialReadSurah(null)}
+                playingSurahId={playingSurah}
               />
             )}
             {activeTab === "learn" && <LearnTab />}
