@@ -1,16 +1,8 @@
 import { useMemo, useRef } from "react";
 import { useApp, AngerEntry } from "@/context/AppContext";
+import { useTerminology } from "@/hooks/use-terminology";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { format, subDays, startOfDay, parseISO, eachDayOfInterval } from "date-fns";
-
-const achievements = [
-  { name: "First Control", desc: "Controlled anger for the first time", icon: "🌱", threshold: 1 },
-  { name: "Sabr Student", desc: "Earned 50 sabr points", icon: "📚", threshold: 50 },
-  { name: "Silence Warrior", desc: "Stayed silent 5 times", icon: "🤫", threshold: 5 },
-  { name: "Wudu Champion", desc: "Made wudu during anger", icon: "💧", threshold: 3 },
-  { name: "Forgiveness Level 1", desc: "Forgave in 3 situations", icon: "🕊️", threshold: 3 },
-  { name: "Sabr Master", desc: "Earned 300 sabr points", icon: "⭐", threshold: 300 },
-];
 
 const CHART_COLORS = {
   controlled: "hsl(160, 84%, 39%)",
@@ -20,6 +12,17 @@ const CHART_COLORS = {
 
 const TrackTab = () => {
   const { sabrPoints, streak, angerLog } = useApp();
+  const t = useTerminology();
+
+  const achievements = [
+    { name: "First Control", desc: "Controlled anger for the first time", icon: "🌱", threshold: 1 },
+    { name: `${t.sabr} Student`, desc: `Earned 50 ${t.sabrPoints.toLowerCase()}`, icon: "📚", threshold: 50 },
+    { name: "Silence Warrior", desc: "Stayed silent 5 times", icon: "🤫", threshold: 5 },
+    { name: `${t.wudu} Champion`, desc: `Used ${t.wudu.toLowerCase()} during anger`, icon: "💧", threshold: 3 },
+    { name: "Forgiveness Level 1", desc: "Forgave in 3 situations", icon: "🕊️", threshold: 3 },
+    { name: `${t.sabr} Master`, desc: `Earned 300 ${t.sabrPoints.toLowerCase()}`, icon: "⭐", threshold: 300 },
+  ];
+
   const controlled = angerLog.filter((e) => e.controlled).length;
   const total = angerLog.length;
 
@@ -98,7 +101,7 @@ const TrackTab = () => {
       <div className="mb-6 grid grid-cols-2 gap-3">
         <div className="rounded-2xl border border-border bg-card p-4 text-center">
           <p className="font-heading text-3xl font-bold text-primary">{sabrPoints}</p>
-          <p className="text-xs text-muted-foreground">Sabr Points</p>
+          <p className="text-xs text-muted-foreground">{t.sabrPoints}</p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4 text-center">
           <p className="font-heading text-3xl font-bold text-secondary">🔥 {streak}</p>

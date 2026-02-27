@@ -6,6 +6,7 @@ interface OnboardingData {
   topTrigger: string;
   reciter: string;
   notifications: boolean;
+  isMuslim: boolean;
 }
 
 interface AppContextType {
@@ -86,7 +87,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const [onboardingData, setOnboardingDataInternal] = useState<OnboardingData>(() => {
     const saved = localStorage.getItem("hc-onboarding");
-    return saved ? JSON.parse(saved) : { topTrigger: "", reciter: "", notifications: false };
+    return saved ? JSON.parse(saved) : { topTrigger: "", reciter: "", notifications: false, isMuslim: true };
   });
 
   const [sabrPoints, setSabrPoints] = useState(() => {
