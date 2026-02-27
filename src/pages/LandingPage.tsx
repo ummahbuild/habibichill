@@ -270,18 +270,26 @@ const BlogCarousel = () => {
     const el = scrollRef.current;
     if (!el) return;
     let paused = false;
+    let animId: number;
+    let lastTime = 0;
+    
     el.addEventListener("mouseenter", () => { paused = true; });
     el.addEventListener("mouseleave", () => { paused = false; });
-    const interval = setInterval(() => {
-      if (paused || !el) return;
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (el.scrollLeft >= maxScroll) {
-        el.scrollLeft = 0;
-      } else {
-        el.scrollLeft += 1;
+    
+    const tick = (time: number) => {
+      if (!paused && time - lastTime >= 33) { // ~30fps cap
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (el.scrollLeft >= maxScroll) {
+          el.scrollLeft = 0;
+        } else {
+          el.scrollLeft += 1;
+        }
+        lastTime = time;
       }
-    }, 30);
-    return () => clearInterval(interval);
+      animId = requestAnimationFrame(tick);
+    };
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
   }, []);
 
   return (
@@ -350,6 +358,8 @@ const LandingPage = () => {
               className="relative z-10 mx-auto h-full w-full animate-float object-cover"
               width={208}
               height={208}
+              loading="eager"
+              fetchPriority="high"
             />
           </motion.div>
 

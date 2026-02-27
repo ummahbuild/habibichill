@@ -1,19 +1,21 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import HomeTab from "@/components/tabs/HomeTab";
-import QuranSunnahTab from "@/components/tabs/QuranSunnahTab";
-import LearnTab from "@/components/tabs/LearnTab";
-import MeTab from "@/components/tabs/MeTab";
-import EmergencyFlow from "@/components/EmergencyFlow";
-import QuranPlayer from "@/components/QuranPlayer";
-import DhikrCounter from "@/components/DhikrCounter";
-import WuduGuide from "@/components/WuduGuide";
-import AngerJournal from "@/components/AngerJournal";
-import SituationGuide from "@/components/SituationGuide";
-import SilenceTimer from "@/components/SilenceTimer";
-import BreathingExercise from "@/components/BreathingExercise";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+
+// Lazy-load heavy tab content and modals
+const QuranSunnahTab = lazy(() => import("@/components/tabs/QuranSunnahTab"));
+const LearnTab = lazy(() => import("@/components/tabs/LearnTab"));
+const MeTab = lazy(() => import("@/components/tabs/MeTab"));
+const EmergencyFlow = lazy(() => import("@/components/EmergencyFlow"));
+const QuranPlayer = lazy(() => import("@/components/QuranPlayer"));
+const DhikrCounter = lazy(() => import("@/components/DhikrCounter"));
+const WuduGuide = lazy(() => import("@/components/WuduGuide"));
+const AngerJournal = lazy(() => import("@/components/AngerJournal"));
+const SituationGuide = lazy(() => import("@/components/SituationGuide"));
+const SilenceTimer = lazy(() => import("@/components/SilenceTimer"));
+const BreathingExercise = lazy(() => import("@/components/BreathingExercise"));
 
 const tabs = [
   { id: "home", label: "Home", icon: "🏠" },
@@ -21,6 +23,12 @@ const tabs = [
   { id: "learn", label: "Learn", icon: "🧠" },
   { id: "me", label: "Me", icon: "👤" },
 ];
+
+const TabFallback = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -71,15 +79,25 @@ const Dashboard = () => {
               />
             )}
             {activeTab === "quran" && (
-              <QuranSunnahTab
-                onPlayQuran={(surahId) => setPlayingSurah(surahId)}
-                initialReadSurah={initialReadSurah}
-                onClearInitialRead={() => setInitialReadSurah(null)}
-                playingSurahId={playingSurah}
-              />
+              <Suspense fallback={<TabFallback />}>
+                <QuranSunnahTab
+                  onPlayQuran={(surahId) => setPlayingSurah(surahId)}
+                  initialReadSurah={initialReadSurah}
+                  onClearInitialRead={() => setInitialReadSurah(null)}
+                  playingSurahId={playingSurah}
+                />
+              </Suspense>
             )}
-            {activeTab === "learn" && <LearnTab />}
-            {activeTab === "me" && <MeTab />}
+            {activeTab === "learn" && (
+              <Suspense fallback={<TabFallback />}>
+                <LearnTab />
+              </Suspense>
+            )}
+            {activeTab === "me" && (
+              <Suspense fallback={<TabFallback />}>
+                <MeTab />
+              </Suspense>
+            )}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -87,11 +105,13 @@ const Dashboard = () => {
       {/* Quran Player */}
       <AnimatePresence>
         {playingSurah && (
-          <QuranPlayer
-            currentSurahId={playingSurah}
-            onChangeSurah={setPlayingSurah}
-            onClose={() => setPlayingSurah(null)}
-          />
+          <Suspense fallback={null}>
+            <QuranPlayer
+              currentSurahId={playingSurah}
+              onChangeSurah={setPlayingSurah}
+              onClose={() => setPlayingSurah(null)}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
@@ -134,15 +154,17 @@ const Dashboard = () => {
 
       <PwaInstallPrompt />
 
-      <AnimatePresence>
-        {showEmergency && <EmergencyFlow onClose={() => setShowEmergency(false)} />}
-        {showDhikr && <DhikrCounter onClose={() => setShowDhikr(false)} />}
-        {showWudu && <WuduGuide onClose={() => setShowWudu(false)} />}
-        {showJournal && <AngerJournal onClose={() => setShowJournal(false)} />}
-        {showSituations && <SituationGuide onClose={() => setShowSituations(false)} />}
-        {showSilenceTimer && <SilenceTimer onClose={() => setShowSilenceTimer(false)} />}
-        {showBreathing && <BreathingExercise onClose={() => setShowBreathing(false)} />}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {showEmergency && <EmergencyFlow onClose={() => setShowEmergency(false)} />}
+          {showDhikr && <DhikrCounter onClose={() => setShowDhikr(false)} />}
+          {showWudu && <WuduGuide onClose={() => setShowWudu(false)} />}
+          {showJournal && <AngerJournal onClose={() => setShowJournal(false)} />}
+          {showSituations && <SituationGuide onClose={() => setShowSituations(false)} />}
+          {showSilenceTimer && <SilenceTimer onClose={() => setShowSilenceTimer(false)} />}
+          {showBreathing && <BreathingExercise onClose={() => setShowBreathing(false)} />}
+        </AnimatePresence>
+      </Suspense>
     </div>
   );
 };
