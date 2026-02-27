@@ -722,7 +722,13 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSkipJournal} className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted">Skip</button>
-                <button onClick={() => setPhase("journal")} className="flex-1 rounded-xl bg-primary px-6 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95">📓 Journal This</button>
+                <button onClick={() => {
+                  // Pre-populate tactics based on completed steps
+                  const stepToTactic: Record<number, string> = { 0: "Stayed Silent", 1: "Deep Breathing", 2: "Changed Position", 3: "Said A'udhu Billah", 4: "Made Wudu" };
+                  const auto = Array.from(stepCompleted).map((i) => stepToTactic[i]).filter(Boolean);
+                  setTacticsUsed(auto);
+                  setPhase("journal");
+                }} className="flex-1 rounded-xl bg-primary px-6 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95">📓 Journal This</button>
               </div>
             </motion.div>
           )}
