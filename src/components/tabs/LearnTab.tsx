@@ -545,6 +545,8 @@ const lessons: Lesson[] = [
   },
 ];
 
+const categories = ["All", ...Array.from(new Set(lessons.map((l) => l.category)))];
+
 const LearnTab = () => {
   const [openLessonId, setOpenLessonId] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
@@ -552,6 +554,7 @@ const LearnTab = () => {
     return saved ? JSON.parse(saved) : [1, 2];
   });
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     localStorage.setItem("hc-completed-lessons", JSON.stringify(completedLessons));
@@ -560,6 +563,8 @@ const LearnTab = () => {
   const openLesson = lessons.find((l) => l.id === openLessonId);
   const nextLessonIndex = completedLessons.length;
   const nextLesson = lessons[nextLessonIndex] || lessons[0];
+  const filteredLessons = activeCategory === "All" ? lessons : lessons.filter((l) => l.category === activeCategory);
+  const progress = Math.round((completedLessons.length / lessons.length) * 100);
 
   const markComplete = (id: number) => {
     if (!completedLessons.includes(id)) {
@@ -582,61 +587,146 @@ const LearnTab = () => {
 
   return (
     <div className="container mx-auto max-w-lg px-4 pt-6 pb-8">
-      <h1 className="mb-2 font-heading text-xl font-bold text-foreground">Daily Training</h1>
-      <p className="mb-6 text-sm text-muted-foreground">Prevention through education — Quran, Hadith & practical wisdom</p>
+      {/* Header with progress */}
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="mb-1 font-heading text-xl font-bold text-foreground">Daily Training</h1>
+          <p className="text-sm text-muted-foreground">Quran, Hadith & practical wisdom</p>
+        </div>
+        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+          <svg className="h-14 w-14 -rotate-90" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" className="stroke-muted" />
+            <circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" className="stroke-primary"
+              strokeLinecap="round"
+              strokeDasharray={`${2 * Math.PI * 24}`}
+              strokeDashoffset={`${2 * Math.PI * 24 * (1 - progress / 100)}`}
+              style={{ transition: "stroke-dashoffset 0.5s ease" }}
+            />
+          </svg>
+          <span className="absolute text-xs font-bold text-foreground">{progress}%</span>
+        </div>
+      </div>
 
-      {/* Today's lesson */}
-      <div className="mb-6 rounded-2xl bg-gradient-calm border border-border p-5">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Today's Lesson</p>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-2xl">{nextLesson.emoji}</span>
-          <h2 className="font-heading text-lg font-bold text-foreground">{nextLesson.title}</h2>
+      {/* Continue Learning Card */}
+      <motion.div
+        className="mb-6 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-calm"
+        whileHover={{ scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <div className="p-5">
+          <div className="mb-1 flex items-center gap-2">
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+              {completedLessons.includes(nextLesson.id) ? "Review" : "Up Next"}
+            </span>
+            <span className="text-[10px] text-muted-foreground">{nextLesson.duration}</span>
+          </div>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-3xl">{nextLesson.emoji}</span>
+            <div>
+              <h2 className="font-heading text-lg font-bold text-foreground leading-tight">{nextLesson.title}</h2>
+              <p className="text-xs text-muted-foreground">{nextLesson.category}</p>
+            </div>
+          </div>
+          <p className="mb-4 text-xs text-muted-foreground line-clamp-2">{nextLesson.content.intro}</p>
+          <button
+            onClick={() => setOpenLessonId(nextLesson.id)}
+            className="w-full rounded-xl bg-primary px-4 py-3 font-heading text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.02] active:scale-95"
+          >
+            {completedLessons.includes(nextLesson.id) ? "Review Lesson →" : "Start Lesson →"}
+          </button>
         </div>
-        <p className="mb-3 text-sm text-muted-foreground">{nextLesson.duration} · {nextLesson.category}</p>
-        <div className="h-2 overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(completedLessons.length / lessons.length) * 100}%` }} />
+        {/* Mini progress bar */}
+        <div className="h-1 bg-muted">
+          <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">{completedLessons.length} / {lessons.length} lessons completed</p>
-        <button
-          onClick={() => setOpenLessonId(nextLesson.id)}
-          className="mt-3 w-full rounded-xl bg-primary px-4 py-3 font-heading font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
-        >
-          {completedLessons.includes(nextLesson.id) ? "Review Lesson" : "Start Lesson"}
-        </button>
+      </motion.div>
+
+      {/* Category Filters */}
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+              activeCategory === cat
+                ? "bg-primary text-primary-foreground shadow-calm"
+                : "border border-border bg-card text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       {/* Learning Path */}
-      <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Learning Path</h2>
-      <div className="flex flex-col gap-3">
-        {lessons.map((lesson) => {
+      <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        {activeCategory === "All" ? "All Lessons" : activeCategory}
+        <span className="ml-1.5 text-xs font-normal">({filteredLessons.length})</span>
+      </h2>
+      <div className="flex flex-col gap-2.5">
+        {filteredLessons.map((lesson, idx) => {
           const isCompleted = completedLessons.includes(lesson.id);
           const isNext = lesson.id === nextLesson.id;
           return (
-            <button
+            <motion.button
               key={lesson.id}
               onClick={() => setOpenLessonId(lesson.id)}
-              className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+              className={`group flex items-center gap-3.5 rounded-xl border p-4 text-left transition-all ${
                 isCompleted
-                  ? "border-success/30 bg-success/5"
+                  ? "border-success/20 bg-success/5 hover:border-success/40"
                   : isNext
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-card opacity-60"
+                    ? "border-primary/30 bg-primary/5 hover:border-primary/50"
+                    : "border-border bg-card hover:border-muted-foreground/30"
               }`}
+              whileTap={{ scale: 0.98 }}
             >
-              <div className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${
-                isCompleted ? "bg-success text-success-foreground" : isNext ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              {/* Number/icon circle */}
+              <div className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-bold transition-all ${
+                isCompleted
+                  ? "bg-success text-success-foreground"
+                  : isNext
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
               }`}>
-                {isCompleted ? "✓" : lesson.emoji}
+                {isCompleted ? (
+                  <span className="text-sm">✓</span>
+                ) : (
+                  <span>{lesson.emoji}</span>
+                )}
+                {isNext && !isCompleted && (
+                  <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-background bg-secondary animate-pulse" />
+                )}
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">{lesson.title}</p>
-                <p className="text-xs text-muted-foreground">{lesson.duration} · {lesson.category}</p>
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground leading-tight">{lesson.title}</p>
+                <div className="mt-0.5 flex items-center gap-2">
+                  <span className="text-[10px] text-muted-foreground">{lesson.duration}</span>
+                  <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                  <span className={`text-[10px] font-medium ${isCompleted ? "text-success" : "text-muted-foreground"}`}>
+                    {isCompleted ? "Completed" : lesson.category}
+                  </span>
+                </div>
               </div>
-              <span className="text-xs text-muted-foreground">→</span>
-            </button>
+              {/* Arrow */}
+              <span className="text-sm text-muted-foreground transition-transform group-hover:translate-x-0.5">→</span>
+            </motion.button>
           );
         })}
       </div>
+
+      {/* Completion message */}
+      {completedLessons.length === lessons.length && (
+        <motion.div
+          className="mt-6 rounded-2xl border border-success/30 bg-success/5 p-5 text-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <span className="mb-2 block text-3xl">🏆</span>
+          <h3 className="font-heading text-base font-bold text-foreground">All Lessons Complete!</h3>
+          <p className="mt-1 text-xs text-muted-foreground">MāshāAllah! Review any lesson to deepen your understanding.</p>
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -660,28 +750,46 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
     >
-      <button onClick={onBack} className="mb-4 text-sm text-primary hover:underline">← Back to lessons</button>
+      <button onClick={onBack} className="mb-4 flex items-center gap-1 text-sm text-primary hover:underline">
+        <span>←</span> Back to lessons
+      </button>
 
       {/* Header */}
-      <div className="mb-6 text-center">
-        <span className="mb-2 block text-4xl">{lesson.emoji}</span>
-        <h1 className="mb-1 font-heading text-2xl font-bold text-foreground">{lesson.title}</h1>
-        <p className="text-sm text-muted-foreground">{lesson.duration} · {lesson.category}</p>
+      <div className="mb-6">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">{lesson.category}</span>
+          <span className="text-xs text-muted-foreground">{lesson.duration}</span>
+          {completed && <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">✓ Done</span>}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-4xl">{lesson.emoji}</span>
+          <h1 className="font-heading text-2xl font-bold text-foreground leading-tight">{lesson.title}</h1>
+        </div>
       </div>
 
       {/* Intro */}
-      <p className="mb-6 text-sm leading-relaxed text-foreground">{content.intro}</p>
+      <div className="mb-6 rounded-2xl border border-border bg-card p-4">
+        <p className="text-sm leading-relaxed text-foreground">{content.intro}</p>
+      </div>
 
       {/* Sections (expandable) */}
       <div className="mb-6 flex flex-col gap-2">
-        {content.sections.map((section) => (
-          <div key={section.heading} className="rounded-xl border border-border bg-card overflow-hidden">
+        {content.sections.map((section, idx) => (
+          <div key={section.heading} className={`rounded-xl border overflow-hidden transition-colors ${
+            expandedSection === section.heading ? "border-primary/30 bg-primary/5" : "border-border bg-card"
+          }`}>
             <button
               onClick={() => onToggleSection(section.heading)}
-              className="flex w-full items-center justify-between p-4 text-left"
+              className="flex w-full items-center gap-3 p-4 text-left"
             >
-              <h3 className="text-sm font-semibold text-foreground">{section.heading}</h3>
-              <span className="text-xs text-muted-foreground">{expandedSection === section.heading ? "▲" : "▼"}</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">{idx + 1}</span>
+              <h3 className="flex-1 text-sm font-semibold text-foreground">{section.heading}</h3>
+              <motion.span
+                className="text-xs text-muted-foreground"
+                animate={{ rotate: expandedSection === section.heading ? 180 : 0 }}
+              >
+                ▼
+              </motion.span>
             </button>
             <AnimatePresence>
               {expandedSection === section.heading && (
@@ -700,20 +808,26 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
       </div>
 
       {/* Quranic References */}
-      <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📖 Quranic Insight</h3>
+      <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">📖</span>
+        Quranic Insight
+      </h3>
       <div className="mb-6 flex flex-col gap-3">
         {content.ayahs.map((ayah, i) => (
-          <div key={i} className="rounded-2xl bg-gradient-calm border border-border p-4">
+          <div key={i} className="rounded-2xl bg-gradient-calm border border-primary/10 p-4">
             <p className="mb-2 font-arabic text-lg leading-loose text-foreground" dir="rtl">{ayah.arabic}</p>
             <p className="mb-1 text-xs font-medium text-primary italic">{ayah.transliteration}</p>
             <p className="mb-2 text-sm text-muted-foreground italic">"{ayah.english}"</p>
-            <a href={ayah.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">{ayah.ref} →</a>
+            <a href={ayah.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline hover:text-primary/80">{ayah.ref} →</a>
           </div>
         ))}
       </div>
 
       {/* Hadith References */}
-      <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📚 Hadith Evidence</h3>
+      <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/10 text-xs">📚</span>
+        Hadith Evidence
+      </h3>
       <div className="mb-6 flex flex-col gap-3">
         {content.hadiths.map((hadith, i) => (
           <div key={i} className="rounded-2xl border border-border bg-card p-4">
@@ -725,7 +839,7 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
               <p className="mb-1 text-xs text-muted-foreground">{hadith.narrator}</p>
             )}
             <div className="flex items-center gap-2">
-              <a href={hadith.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">{hadith.source} →</a>
+              <a href={hadith.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline hover:text-primary/80">{hadith.source} →</a>
               {hadith.grade && (
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                   hadith.grade.includes("Sahih") ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
@@ -739,7 +853,10 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
       </div>
 
       {/* Key Takeaways */}
-      <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🔑 Key Takeaways</h3>
+      <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/10 text-xs">🔑</span>
+        Key Takeaways
+      </h3>
       <div className="mb-6 flex flex-col gap-2">
         {content.keyTakeaways.map((t, i) => (
           <div key={i} className="flex gap-3 rounded-xl border border-border bg-card p-3">
@@ -752,7 +869,10 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
       {/* Exercise */}
       {content.exercise && (
         <>
-          <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🏋️ Today's Exercise</h3>
+          <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/10 text-xs">🏋️</span>
+            Today's Exercise
+          </h3>
           <div className="mb-6 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-4">
             <p className="text-sm leading-relaxed text-foreground">{content.exercise}</p>
           </div>
@@ -760,19 +880,21 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
       )}
 
       {/* Complete button */}
-      <button
+      <motion.button
         onClick={() => {
           onComplete();
           onBack();
         }}
-        className={`w-full rounded-xl py-3 font-heading font-semibold transition-all hover:scale-105 active:scale-95 ${
+        className={`w-full rounded-xl py-3.5 font-heading font-semibold transition-all ${
           completed
             ? "bg-success text-success-foreground"
             : "bg-primary text-primary-foreground"
         }`}
+        whileTap={{ scale: 0.97 }}
+        whileHover={{ scale: 1.02 }}
       >
         {completed ? "✓ Completed — Review Again" : "Mark as Complete ✨"}
-      </button>
+      </motion.button>
     </motion.div>
   );
 };
