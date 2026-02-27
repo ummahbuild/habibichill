@@ -133,7 +133,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const latestTodayMood = todayMoods.length > 0 ? todayMoods[0] : null;
   const last7Moods = moodLog.slice(0, 7);
   const [moodNote, setMoodNote] = useState("");
-  const [showNoteInput, setShowNoteInput] = useState(false);
+  
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [showQuranMenu, setShowQuranMenu] = useState(false);
   const [showMoodHistory, setShowMoodHistory] = useState(false);
@@ -221,11 +221,20 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
             </span>
           )}
         </div>
+        {/* Note input always visible */}
+        <input
+          type="text"
+          value={moodNote}
+          onChange={(e) => setMoodNote(e.target.value)}
+          placeholder="Optional: what's on your mind?"
+          className="mb-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+        <p className="text-[10px] text-muted-foreground mb-2 text-center">Tap an emoji to check in{moodNote ? " with your note" : ""}</p>
         <div className="flex justify-between gap-1">
           {moodEmojis.map((emoji, i) => (
             <motion.button
               key={i}
-              onClick={() => { addMoodEntry(i + 1, moodNote || undefined); setMoodNote(""); setShowNoteInput(false); }}
+              onClick={() => { addMoodEntry(i + 1, moodNote || undefined); setMoodNote(""); }}
               className={`flex flex-1 flex-col items-center gap-1 rounded-xl p-2 transition-all ${
                 latestTodayMood?.mood === i + 1 ? "bg-primary/10 border border-primary/30 scale-105" : "border border-transparent hover:bg-muted"
               }`}
@@ -236,23 +245,6 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
             </motion.button>
           ))}
         </div>
-        {/* Toggle note input */}
-        <label className="mt-3 flex items-center gap-2 cursor-pointer select-none">
-          <input type="checkbox" checked={showNoteInput} onChange={(e) => setShowNoteInput(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
-          <span className="text-xs text-muted-foreground">Add a note — what's on your mind?</span>
-        </label>
-        <AnimatePresence>
-          {showNoteInput && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-              <input type="text" value={moodNote} onChange={(e) => setMoodNote(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && moodNote.trim()) { e.preventDefault(); } }}
-                placeholder="Type a note, then tap an emoji to check in"
-                className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                autoFocus
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
         {last7Moods.length > 1 && (
           <div className="mt-3 flex items-center gap-1">
             <button onClick={() => setShowMoodHistory(true)} className="text-[10px] text-primary font-medium mr-1 hover:underline cursor-pointer">Recent:</button>
@@ -443,7 +435,27 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
         )}
       </div>
 
-      {/* Recent activity — expandable on double click */}
+      {/* Quick Quran — Read Gallery */}
+      <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+        <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📖 Quran for Anger & Peace</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {angerSurahs.map((s) => (
+            <div key={s.id} className="flex items-center gap-2 rounded-xl border border-border bg-background p-2.5">
+              <span className="text-lg">{s.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <span className="block text-xs font-medium text-foreground truncate">{s.name}</span>
+                <span className="block text-[9px] text-muted-foreground">{s.benefit}</span>
+              </div>
+              <div className="flex gap-1">
+                <motion.button onClick={() => onNavigateToRead(s.id)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-[10px] transition-colors hover:bg-muted" whileTap={{ scale: 0.9 }} aria-label={`Read ${s.name}`}>📜</motion.button>
+                <motion.button onClick={() => onPlayQuran(String(s.id))} className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-[10px] text-primary-foreground" whileTap={{ scale: 0.9 }} aria-label={`Listen ${s.name}`}>▶</motion.button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent activity — expandable */}
       {angerLog.length > 0 && (
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
@@ -481,26 +493,6 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
           </div>
         </div>
       )}
-
-      {/* Quick Quran — Read Gallery */}
-      <div className="rounded-2xl border border-border bg-card p-4">
-        <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📖 Quran for Anger & Peace</h2>
-        <div className="grid grid-cols-2 gap-2">
-          {angerSurahs.map((s) => (
-            <div key={s.id} className="flex items-center gap-2 rounded-xl border border-border bg-background p-2.5">
-              <span className="text-lg">{s.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <span className="block text-xs font-medium text-foreground truncate">{s.name}</span>
-                <span className="block text-[9px] text-muted-foreground">{s.benefit}</span>
-              </div>
-              <div className="flex gap-1">
-                <motion.button onClick={() => onNavigateToRead(s.id)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-[10px] transition-colors hover:bg-muted" whileTap={{ scale: 0.9 }} aria-label={`Read ${s.name}`}>📜</motion.button>
-                <motion.button onClick={() => onPlayQuran(String(s.id))} className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-[10px] text-primary-foreground" whileTap={{ scale: 0.9 }} aria-label={`Listen ${s.name}`}>▶</motion.button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
