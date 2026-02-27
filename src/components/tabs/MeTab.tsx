@@ -27,7 +27,10 @@ const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
 const timeOfDayEmojis: Record<string, string> = { morning: "☀️", afternoon: "🌤️", evening: "🌅", night: "🌙" };
 
 const MeTab = () => {
-  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog } = useApp();
+  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog, updateMoodEntry, deleteMoodEntry } = useApp();
+  const [editingMoodId, setEditingMoodId] = useState<string | null>(null);
+  const [editMoodValue, setEditMoodValue] = useState(3);
+  const [editMoodNote, setEditMoodNote] = useState("");
   const [subTab, setSubTab] = useState<SubTab>("progress");
   const controlled = angerLog.filter((e) => e.controlled).length;
   const total = angerLog.length;
@@ -542,18 +545,45 @@ const MeTab = () => {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   {moodLog.slice(0, 50).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5">
-                      <span className="text-xl">{moodEmojis[entry.mood - 1]}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-foreground">{moodLabels[entry.mood - 1]}</span>
-                          {entry.timeOfDay && <span className="text-[10px]">{timeOfDayEmojis[entry.timeOfDay || "morning"]}</span>}
+                    <div key={entry.id} className="rounded-xl border border-border bg-card p-2.5">
+                      {editingMoodId === entry.id ? (
+                        <div>
+                          <div className="flex gap-1 mb-2">
+                            {moodEmojis.map((emoji, i) => (
+                              <button key={i} onClick={() => setEditMoodValue(i + 1)}
+                                className={`flex-1 rounded-lg p-1.5 text-lg transition-all ${editMoodValue === i + 1 ? "bg-primary/10 border border-primary/30 scale-105" : "border border-transparent hover:bg-muted"}`}
+                              >{emoji}</button>
+                            ))}
+                          </div>
+                          <input type="text" value={editMoodNote} onChange={(e) => setEditMoodNote(e.target.value)}
+                            placeholder="Note (optional)" className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-xs text-foreground mb-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                          />
+                          <div className="flex gap-2">
+                            <button onClick={() => setEditingMoodId(null)} className="flex-1 rounded-lg border border-border py-1.5 text-xs text-muted-foreground hover:bg-muted">Cancel</button>
+                            <button onClick={() => { updateMoodEntry(entry.id, editMoodValue, editMoodNote || undefined); setEditingMoodId(null); }}
+                              className="flex-1 rounded-lg bg-primary py-1.5 text-xs font-medium text-primary-foreground">Save</button>
+                            <button onClick={() => { if (confirm("Delete this mood entry?")) { deleteMoodEntry(entry.id); setEditingMoodId(null); } }}
+                              className="rounded-lg border border-destructive/30 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10">🗑️</button>
+                          </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground">
-                          {new Date(entry.date).toLocaleDateString()} · {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                        </p>
-                        {entry.note && <p className="text-[10px] text-muted-foreground italic truncate">"{entry.note}"</p>}
-                      </div>
+                      ) : (
+                        <button onClick={() => { setEditingMoodId(entry.id); setEditMoodValue(entry.mood); setEditMoodNote(entry.note || ""); }}
+                          className="flex w-full items-center gap-2 text-left"
+                        >
+                          <span className="text-xl">{moodEmojis[entry.mood - 1]}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-foreground">{moodLabels[entry.mood - 1]}</span>
+                              {entry.timeOfDay && <span className="text-[10px]">{timeOfDayEmojis[entry.timeOfDay || "morning"]}</span>}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">
+                              {new Date(entry.date).toLocaleDateString()} · {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                            {entry.note && <p className="text-[10px] text-muted-foreground italic truncate">"{entry.note}"</p>}
+                          </div>
+                          <span className="text-[9px] text-muted-foreground">✏️</span>
+                        </button>
+                      )}
                     </div>
                   ))}
                   {moodLog.length > 50 && (
@@ -672,6 +702,32 @@ const MeTab = () => {
               </button>
             </div>
 
+            {/* Support */}
+            <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🛟 Support</h2>
+            <div className="mb-5 flex flex-col gap-2">
+              <a href="https://github.com/ummah-build/habibichill/issues/new?template=bug_report.md" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+                <div className="text-left">
+                  <span className="text-sm font-medium text-foreground">🐛 Report a Bug</span>
+                  <p className="text-xs text-muted-foreground">Found something broken? Let us know</p>
+                </div>
+                <span className="text-muted-foreground">→</span>
+              </a>
+              <a href="https://github.com/ummah-build/habibichill/issues/new?template=feature_request.md" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+                <div className="text-left">
+                  <span className="text-sm font-medium text-foreground">💡 Request a Feature</span>
+                  <p className="text-xs text-muted-foreground">Suggest improvements or new tools</p>
+                </div>
+                <span className="text-muted-foreground">→</span>
+              </a>
+              <a href="https://github.com/ummah-build/habibichill/issues" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+                <div className="text-left">
+                  <span className="text-sm font-medium text-foreground">📋 View Open Issues</span>
+                  <p className="text-xs text-muted-foreground">See what's being worked on</p>
+                </div>
+                <span className="text-muted-foreground">→</span>
+              </a>
+            </div>
+
             {/* About */}
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">ℹ️ About</h2>
             <div className="mb-5 flex flex-col gap-2">
@@ -681,6 +737,14 @@ const MeTab = () => {
               </a>
               <a href="https://x.com/ummahbuild" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
                 <span className="text-sm font-medium text-foreground">Follow on X</span>
+                <span className="text-muted-foreground">→</span>
+              </a>
+              <a href="https://github.com/ummah-build/habibichill" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+                <span className="text-sm font-medium text-foreground">⭐ Star on GitHub</span>
+                <span className="text-muted-foreground">→</span>
+              </a>
+              <a href="/contribute" className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted">
+                <span className="text-sm font-medium text-foreground">🤝 Contribute</span>
                 <span className="text-muted-foreground">→</span>
               </a>
             </div>
