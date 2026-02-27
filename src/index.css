@@ -236,3 +236,12 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes scroll-stats {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-stats {
+  animation: scroll-stats 40s linear infinite;
+}
