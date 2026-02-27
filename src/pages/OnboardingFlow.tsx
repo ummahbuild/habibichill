@@ -14,6 +14,9 @@ const OnboardingFlow = () => {
 
   const finish = () => {
     setOnboardingData({ topTrigger: trigger, reciter: "", notifications: notifs, isMuslim });
+    if (!localStorage.getItem("hc-onboarded-at")) {
+      localStorage.setItem("hc-onboarded-at", new Date().toISOString());
+    }
     setAppState("app");
   };
 
