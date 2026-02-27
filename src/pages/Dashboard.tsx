@@ -32,6 +32,13 @@ const TabFallback = () => (
   </div>
 );
 
+const ModalFallback = () => (
+  <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <p className="mt-3 text-sm text-muted-foreground">Loading...</p>
+  </div>
+);
+
 const Dashboard = () => {
   const { logActivity } = useApp();
   const [activeTab, setActiveTab] = useState("home");
@@ -171,18 +178,48 @@ const Dashboard = () => {
 
       <PwaInstallPrompt />
 
-      <Suspense fallback={null}>
-        <AnimatePresence>
-          {showEmergency && <EmergencyFlow onClose={() => setShowEmergency(false)} />}
-          {showDhikr && <DhikrCounter onClose={() => setShowDhikr(false)} />}
-          {showWudu && <WuduGuide onClose={() => setShowWudu(false)} />}
-          {showJournal && <AngerJournal onClose={() => setShowJournal(false)} />}
-          {showSituations && <SituationGuide onClose={() => setShowSituations(false)} />}
-          {showSilenceTimer && <SilenceTimer onClose={() => setShowSilenceTimer(false)} />}
-          {showBreathing && <BreathingExercise onClose={() => setShowBreathing(false)} />}
-          {showPrayer && <PrayerTimes onClose={() => setShowPrayer(false)} />}
-        </AnimatePresence>
-      </Suspense>
+      <AnimatePresence>
+        {showEmergency && (
+          <Suspense fallback={<ModalFallback />}>
+            <EmergencyFlow onClose={() => setShowEmergency(false)} />
+          </Suspense>
+        )}
+        {showDhikr && (
+          <Suspense fallback={<ModalFallback />}>
+            <DhikrCounter onClose={() => setShowDhikr(false)} />
+          </Suspense>
+        )}
+        {showWudu && (
+          <Suspense fallback={<ModalFallback />}>
+            <WuduGuide onClose={() => setShowWudu(false)} />
+          </Suspense>
+        )}
+        {showJournal && (
+          <Suspense fallback={<ModalFallback />}>
+            <AngerJournal onClose={() => setShowJournal(false)} />
+          </Suspense>
+        )}
+        {showSituations && (
+          <Suspense fallback={<ModalFallback />}>
+            <SituationGuide onClose={() => setShowSituations(false)} />
+          </Suspense>
+        )}
+        {showSilenceTimer && (
+          <Suspense fallback={<ModalFallback />}>
+            <SilenceTimer onClose={() => setShowSilenceTimer(false)} />
+          </Suspense>
+        )}
+        {showBreathing && (
+          <Suspense fallback={<ModalFallback />}>
+            <BreathingExercise onClose={() => setShowBreathing(false)} />
+          </Suspense>
+        )}
+        {showPrayer && (
+          <Suspense fallback={<ModalFallback />}>
+            <PrayerTimes onClose={() => setShowPrayer(false)} />
+          </Suspense>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
