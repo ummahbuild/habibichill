@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { X, MapPin, Search, Settings, Check } from "lucide-react";
+import { X, MapPin, Search, Settings, Check, ChevronDown } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const PRAYER_NAMES = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"] as const;
 const PRAYER_EMOJIS: Record<string, string> = { Fajr: "🌅", Dhuhr: "☀️", Asr: "🌤️", Maghrib: "🌅", Isha: "🌙" };
@@ -239,16 +240,22 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
       </div>
 
       <div className="mx-auto max-w-lg px-4 py-4">
-        {/* Location info */}
-        {prayerSettings.city && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl border border-border bg-card p-3">
-            <MapPin className="h-4 w-4 text-primary" />
-            <span className="text-sm text-foreground">{prayerSettings.city}{prayerSettings.country ? `, ${prayerSettings.country}` : ""}</span>
-            <span className="ml-auto text-[10px] text-muted-foreground">
-              {CALCULATION_METHODS.find((m) => m.id === prayerSettings.method)?.name.split(",")[0] || "ISNA"}
-            </span>
-          </div>
-        )}
+        {/* Location info - clickable to change */}
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="mb-4 flex w-full items-center gap-2 rounded-xl border border-border bg-card p-3 text-left hover:bg-muted/50 transition-colors"
+        >
+          <MapPin className="h-4 w-4 text-primary shrink-0" />
+          <span className="text-sm text-foreground flex-1 truncate">
+            {prayerSettings.city
+              ? `${prayerSettings.city}${prayerSettings.country ? `, ${prayerSettings.country}` : ""}`
+              : "Set your location"}
+          </span>
+          <span className="hidden sm:inline text-[10px] text-muted-foreground mr-1">
+            {CALCULATION_METHODS.find((m) => m.id === prayerSettings.method)?.name.split(",")[0] || "ISNA"}
+          </span>
+          <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform shrink-0 ${showSettings ? "rotate-180" : ""}`} />
+        </button>
 
         {/* Settings Panel */}
         <AnimatePresence>
@@ -383,12 +390,11 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
                       <span className="text-[10px] font-medium text-success">Done</span>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => handleMarkPrayer(name)}
-                      className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                    >
-                      Mark ✓
-                    </button>
+                    <Checkbox
+                      checked={false}
+                      onCheckedChange={() => handleMarkPrayer(name)}
+                      className="h-5 w-5 rounded-md border-2 border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    />
                   )}
                 </motion.div>
               );
