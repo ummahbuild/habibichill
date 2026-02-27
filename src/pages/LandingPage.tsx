@@ -8,7 +8,6 @@ import AppWalkthrough from "@/components/AppWalkthrough";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import HadithTooltip from "@/components/HadithTooltip";
 import SiteFooter from "@/components/SiteFooter";
-import FeatureShowcase from "@/components/FeatureShowcase";
 
 const features = [
   { emoji: "🔥", title: "Emergency Calm", desc: "Instant Sunnah-based anger protocol when you need it most" },
@@ -433,9 +432,6 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
-
-      {/* Feature Showcase */}
-      <FeatureShowcase />
 
       {/* App Walkthrough */}
       <AppWalkthrough />
