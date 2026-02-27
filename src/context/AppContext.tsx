@@ -9,6 +9,33 @@ interface OnboardingData {
   isMuslim: boolean;
 }
 
+export interface ActivityEntry {
+  id: string;
+  date: string;
+  type: "breathing" | "silence" | "wudu" | "dhikr" | "reading" | "learning" | "mood_checkin" | "prayer" | "quran_listen";
+  details?: string;
+  durationSeconds?: number;
+  journalNote?: string;
+}
+
+export interface PrayerEntry {
+  id: string;
+  date: string;
+  prayer: "Fajr" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
+  completed: boolean;
+  journalNote?: string;
+  toolsUsed?: string[];
+}
+
+export interface PrayerSettings {
+  latitude: number | null;
+  longitude: number | null;
+  city: string;
+  country: string;
+  method: number;
+  autoDetect: boolean;
+}
+
 interface AppContextType {
   appState: AppState;
   setAppState: (state: AppState) => void;
@@ -29,6 +56,12 @@ interface AppContextType {
   addMoodEntry: (mood: number, note?: string) => void;
   updateMoodEntry: (id: string, mood: number, note?: string) => void;
   deleteMoodEntry: (id: string) => void;
+  activityLog: ActivityEntry[];
+  logActivity: (type: ActivityEntry["type"], details?: string, durationSeconds?: number) => void;
+  prayerLog: PrayerEntry[];
+  logPrayer: (prayer: PrayerEntry["prayer"], journalNote?: string, toolsUsed?: string[]) => void;
+  prayerSettings: PrayerSettings;
+  updatePrayerSettings: (settings: Partial<PrayerSettings>) => void;
 }
 
 export interface AngerEntry {
@@ -58,9 +91,9 @@ export interface Bookmark {
 export interface MoodEntry {
   id: string;
   date: string;
-  mood: number; // 1-5
+  mood: number;
   note?: string;
-  timeOfDay?: string; // "morning" | "afternoon" | "evening" | "night"
+  timeOfDay?: string;
 }
 
 export interface AppSettings {
@@ -75,6 +108,15 @@ const defaultSettings: AppSettings = {
   reducedMotion: false,
   highContrast: false,
   darkMode: false,
+};
+
+const defaultPrayerSettings: PrayerSettings = {
+  latitude: null,
+  longitude: null,
+  city: "",
+  country: "",
+  method: 2, // ISNA
+  autoDetect: true,
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -116,6 +158,21 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [moodLog, setMoodLog] = useState<MoodEntry[]>(() => {
     const saved = localStorage.getItem("hc-mood-log");
     return saved ? JSON.parse(saved) : [];
+  });
+
+  const [activityLog, setActivityLog] = useState<ActivityEntry[]>(() => {
+    const saved = localStorage.getItem("hc-activity-log");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [prayerLog, setPrayerLog] = useState<PrayerEntry[]>(() => {
+    const saved = localStorage.getItem("hc-prayer-log");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [prayerSettings, setPrayerSettings] = useState<PrayerSettings>(() => {
+    const saved = localStorage.getItem("hc-prayer-settings");
+    return saved ? { ...defaultPrayerSettings, ...JSON.parse(saved) } : defaultPrayerSettings;
   });
 
   const setAppState = (state: AppState) => {
@@ -193,6 +250,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem("hc-mood-log", JSON.stringify(next));
       return next;
     });
+    // Also log as activity
+    logActivity("mood_checkin", `Mood: ${mood}/5${note ? ` — ${note}` : ""}`);
   };
 
   const updateMoodEntry = (id: string, mood: number, note?: string) => {
@@ -207,6 +266,47 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setMoodLog((prev) => {
       const next = prev.filter((e) => e.id !== id);
       localStorage.setItem("hc-mood-log", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const logActivity = (type: ActivityEntry["type"], details?: string, durationSeconds?: number) => {
+    setActivityLog((prev) => {
+      const entry: ActivityEntry = {
+        id: crypto.randomUUID(),
+        date: new Date().toISOString(),
+        type,
+        details,
+        durationSeconds,
+      };
+      const next = [entry, ...prev].slice(0, 500); // Keep last 500
+      localStorage.setItem("hc-activity-log", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const logPrayer = (prayer: PrayerEntry["prayer"], journalNote?: string, toolsUsed?: string[]) => {
+    setPrayerLog((prev) => {
+      const entry: PrayerEntry = {
+        id: crypto.randomUUID(),
+        date: new Date().toISOString(),
+        prayer,
+        completed: true,
+        journalNote,
+        toolsUsed,
+      };
+      const next = [entry, ...prev].slice(0, 500);
+      localStorage.setItem("hc-prayer-log", JSON.stringify(next));
+      return next;
+    });
+    addSabrPoints(5);
+    logActivity("prayer", prayer);
+  };
+
+  const updatePrayerSettings = (partial: Partial<PrayerSettings>) => {
+    setPrayerSettings((prev) => {
+      const next = { ...prev, ...partial };
+      localStorage.setItem("hc-prayer-settings", JSON.stringify(next));
       return next;
     });
   };
@@ -247,6 +347,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         addMoodEntry,
         updateMoodEntry,
         deleteMoodEntry,
+        activityLog,
+        logActivity,
+        prayerLog,
+        logPrayer,
+        prayerSettings,
+        updatePrayerSettings,
       }}
     >
       {children}
