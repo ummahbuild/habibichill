@@ -26,6 +26,8 @@ interface AppContextType {
   isBookmarked: (contentId: string) => boolean;
   moodLog: MoodEntry[];
   addMoodEntry: (mood: number, note?: string) => void;
+  updateMoodEntry: (id: string, mood: number, note?: string) => void;
+  deleteMoodEntry: (id: string) => void;
 }
 
 export interface AngerEntry {
@@ -192,6 +194,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updateMoodEntry = (id: string, mood: number, note?: string) => {
+    setMoodLog((prev) => {
+      const next = prev.map((e) => e.id === id ? { ...e, mood, note } : e);
+      localStorage.setItem("hc-mood-log", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const deleteMoodEntry = (id: string) => {
+    setMoodLog((prev) => {
+      const next = prev.filter((e) => e.id !== id);
+      localStorage.setItem("hc-mood-log", JSON.stringify(next));
+      return next;
+    });
+  };
+
   useEffect(() => {
     if (settings.darkMode) {
       document.documentElement.classList.add("dark");
@@ -226,6 +244,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         isBookmarked,
         moodLog,
         addMoodEntry,
+        updateMoodEntry,
+        deleteMoodEntry,
       }}
     >
       {children}
