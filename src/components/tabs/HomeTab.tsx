@@ -5,6 +5,7 @@ import { useTerminology } from "@/hooks/use-terminology";
 import ReferenceTooltip from "@/components/ReferenceTooltip";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const wisdoms = [
   { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "Qur'an 94:6", link: "https://quran.com/94/6" },
@@ -131,6 +132,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [showQuranMenu, setShowQuranMenu] = useState(false);
+  const [showMoodHistory, setShowMoodHistory] = useState(false);
 
   const quickTools = [
     { emoji: "📿", label: t.dhikr, action: onOpenDhikr, color: "bg-primary/10" },
@@ -213,7 +215,8 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
           {showNoteInput && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
               <input type="text" value={moodNote} onChange={(e) => setMoodNote(e.target.value)}
-                placeholder="What's on your mind?"
+                onKeyDown={(e) => { if (e.key === "Enter" && moodNote.trim()) { e.preventDefault(); } }}
+                placeholder="Type a note, then tap an emoji to check in"
                 className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 autoFocus
               />
@@ -222,7 +225,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
         </AnimatePresence>
         {last7Moods.length > 1 && (
           <div className="mt-3 flex items-center gap-1">
-            <span className="text-[10px] text-muted-foreground mr-1">Recent:</span>
+            <button onClick={() => setShowMoodHistory(true)} className="text-[10px] text-primary font-medium mr-1 hover:underline cursor-pointer">Recent:</button>
             {last7Moods.map((entry, i) => (
               <Tooltip key={i}>
                 <TooltipTrigger asChild>
@@ -238,6 +241,35 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
             ))}
           </div>
         )}
+        {/* Full Mood History Dialog */}
+        <Dialog open={showMoodHistory} onOpenChange={setShowMoodHistory}>
+          <DialogContent className="max-h-[70vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Mood History</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2">
+              {moodLog.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No mood entries yet</p>
+              ) : (
+                moodLog.map((entry) => (
+                  <div key={entry.id} className="flex items-start gap-3 rounded-xl border border-border bg-background p-3">
+                    <span className="text-2xl">{moodEmojis[entry.mood - 1]}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-foreground">{moodLabels[entry.mood - 1]}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(entry.date).toLocaleDateString([], { month: "short", day: "numeric" })} · {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      {entry.note && <p className="text-xs text-muted-foreground italic mt-0.5">"{entry.note}"</p>}
+                      {entry.timeOfDay && <span className="text-[9px] text-muted-foreground capitalize">{entry.timeOfDay}</span>}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats Row */}
