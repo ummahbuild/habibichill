@@ -37,6 +37,26 @@ const BlogPost = () => {
   }
 
   const renderContent = (block: string) => {
+    // Image support: ![alt text](/path/to/image.jpg)
+    const imgMatch = block.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (imgMatch) {
+      return (
+        <figure className="my-6">
+          <img
+            src={imgMatch[2]}
+            alt={imgMatch[1]}
+            className="mx-auto max-w-xs rounded-2xl border border-border shadow-calm"
+            loading="lazy"
+            width={320}
+          />
+          {imgMatch[1] && (
+            <figcaption className="mt-2 text-center text-xs text-muted-foreground italic">
+              {imgMatch[1]}
+            </figcaption>
+          )}
+        </figure>
+      );
+    }
     if (block.startsWith("## ")) {
       return <h2 className="mb-3 mt-8 font-heading text-2xl font-bold text-foreground">{block.slice(3)}</h2>;
     }
