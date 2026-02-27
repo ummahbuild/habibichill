@@ -4,6 +4,7 @@ import { useApp, AngerEntry } from "@/context/AppContext";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend } from "recharts";
 import { format, subDays, startOfDay, parseISO, eachDayOfInterval } from "date-fns";
 import logo from "@/assets/habibichill-logo.png";
+import { PwaInstallCard } from "@/components/PwaInstallPrompt";
 
 type SubTab = "progress" | "mood" | "journal" | "settings";
 
@@ -700,6 +701,12 @@ const MeTab = () => {
                 </div>
                 <span className="text-lg">🗑️</span>
               </button>
+            </div>
+
+            {/* Install App */}
+            <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📱 App</h2>
+            <div className="mb-5">
+              <PwaInstallCard />
             </div>
 
             {/* Support */}
