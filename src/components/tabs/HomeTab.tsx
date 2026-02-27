@@ -13,6 +13,20 @@ const wisdoms = [
   { arabic: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ فَإِذَا الَّذِي بَيْنَكَ وَبَيْنَهُ عَدَاوَةٌ كَأَنَّهُ وَلِيٌّ حَمِيمٌ", english: "Repel evil with that which is better; then the one between whom and you there was enmity will become a devoted friend.", ref: "Qur'an 41:34", link: "https://quran.com/41/34" },
   { arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ", english: "Those who restrain their anger and pardon people.", ref: "Qur'an 3:134", link: "https://quran.com/3/134" },
   { arabic: "وَإِذَا مَا غَضِبُوا هُمْ يَغْفِرُونَ", english: "And when they are angry, they forgive.", ref: "Qur'an 42:37", link: "https://quran.com/42/37" },
+  { arabic: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", english: "Verily, in the remembrance of Allah do hearts find rest.", ref: "Qur'an 13:28", link: "https://quran.com/13/28" },
+  { arabic: "وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ", english: "Seek help through patience and prayer.", ref: "Qur'an 2:45", link: "https://quran.com/2/45" },
+  { arabic: "فَاصْبِرْ صَبْرًا جَمِيلًا", english: "So be patient with a beautiful patience.", ref: "Qur'an 70:5", link: "https://quran.com/70/5" },
+  { arabic: "وَلَا تَسْتَوِي الْحَسَنَةُ وَلَا السَّيِّئَةُ", english: "Good and evil are not equal. Repel evil with what is better.", ref: "Qur'an 41:34", link: "https://quran.com/41/34" },
+  { arabic: "رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَثَبِّتْ أَقْدَامَنَا", english: "Our Lord, pour upon us patience and plant firmly our feet.", ref: "Qur'an 2:250", link: "https://quran.com/2/250" },
+  { arabic: "وَمَا يُلَقَّاهَا إِلَّا الَّذِينَ صَبَرُوا", english: "None is granted this except those who are patient.", ref: "Qur'an 41:35", link: "https://quran.com/41/35" },
+  { arabic: "إِنَّمَا يُوَفَّى الصَّابِرُونَ أَجْرَهُم بِغَيْرِ حِسَابٍ", english: "The patient will be given their reward without account.", ref: "Qur'an 39:10", link: "https://quran.com/39/10" },
+  { arabic: "وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ", english: "Perhaps you hate a thing and it is good for you.", ref: "Qur'an 2:216", link: "https://quran.com/2/216" },
+  { arabic: "يَا أَيُّهَا الَّذِينَ آمَنُوا اصْبِرُوا وَصَابِرُوا وَرَابِطُوا", english: "O you who believe, persevere and endure and remain stationed.", ref: "Qur'an 3:200", link: "https://quran.com/3/200" },
+  { arabic: "وَبَشِّرِ الصَّابِرِينَ", english: "And give good tidings to the patient.", ref: "Qur'an 2:155", link: "https://quran.com/2/155" },
+  { arabic: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", english: "Allah does not burden a soul beyond that it can bear.", ref: "Qur'an 2:286", link: "https://quran.com/2/286" },
+  { arabic: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", english: "Whoever relies upon Allah — then He is sufficient for him.", ref: "Qur'an 65:3", link: "https://quran.com/65/3" },
+  { arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "For indeed, with hardship comes ease. Indeed, with hardship comes ease.", ref: "Qur'an 94:5-6", link: "https://quran.com/94/5-6" },
+  { arabic: "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ", english: "We send down the Quran as a healing and mercy for the believers.", ref: "Qur'an 17:82", link: "https://quran.com/17/82" },
 ];
 
 const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];

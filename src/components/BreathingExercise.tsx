@@ -2,11 +2,62 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
 
-const phases = [
-  { label: "Inhale", duration: 4, arabic: "بِسْمِ اللَّهِ", english: "In the name of Allah" },
-  { label: "Hold", duration: 4, arabic: "سُبْحَانَ اللَّهِ", english: "Glory be to Allah" },
-  { label: "Exhale", duration: 6, arabic: "الْحَمْدُ لِلَّهِ", english: "All praise to Allah" },
-  { label: "Hold", duration: 2, arabic: "اللَّهُ أَكْبَرُ", english: "Allah is the Greatest" },
+interface Technique {
+  name: string;
+  emoji: string;
+  description: string;
+  phases: { label: string; duration: number; arabic: string; english: string }[];
+  cycles: number;
+}
+
+const techniques: Technique[] = [
+  {
+    name: "Calm Breathing",
+    emoji: "🌊",
+    description: "4-4-6-2 technique — deep calm with dhikr",
+    phases: [
+      { label: "Inhale", duration: 4, arabic: "بِسْمِ اللَّهِ", english: "In the name of Allah" },
+      { label: "Hold", duration: 4, arabic: "سُبْحَانَ اللَّهِ", english: "Glory be to Allah" },
+      { label: "Exhale", duration: 6, arabic: "الْحَمْدُ لِلَّهِ", english: "All praise to Allah" },
+      { label: "Hold", duration: 2, arabic: "اللَّهُ أَكْبَرُ", english: "Allah is the Greatest" },
+    ],
+    cycles: 5,
+  },
+  {
+    name: "Box Breathing",
+    emoji: "📦",
+    description: "4-4-4-4 equal rhythm — focus & clarity",
+    phases: [
+      { label: "Inhale", duration: 4, arabic: "لَا إِلَٰهَ إِلَّا اللَّهُ", english: "There is no god but Allah" },
+      { label: "Hold", duration: 4, arabic: "سُبْحَانَ اللَّهِ", english: "Glory be to Allah" },
+      { label: "Exhale", duration: 4, arabic: "الْحَمْدُ لِلَّهِ", english: "All praise to Allah" },
+      { label: "Hold", duration: 4, arabic: "اللَّهُ أَكْبَرُ", english: "Allah is the Greatest" },
+    ],
+    cycles: 4,
+  },
+  {
+    name: "Quick Reset",
+    emoji: "⚡",
+    description: "3-3-5 fast calm — for urgent moments",
+    phases: [
+      { label: "Inhale", duration: 3, arabic: "أَعُوذُ بِاللَّهِ", english: "I seek refuge in Allah" },
+      { label: "Hold", duration: 3, arabic: "سُبْحَانَ اللَّهِ", english: "Glory be to Allah" },
+      { label: "Exhale", duration: 5, arabic: "الْحَمْدُ لِلَّهِ", english: "All praise to Allah" },
+    ],
+    cycles: 3,
+  },
+  {
+    name: "Deep Sabr",
+    emoji: "🕊️",
+    description: "5-5-8-3 extended — deep relaxation",
+    phases: [
+      { label: "Inhale", duration: 5, arabic: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", english: "In the name of Allah, Most Gracious, Most Merciful" },
+      { label: "Hold", duration: 5, arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", english: "Glory and praise be to Allah" },
+      { label: "Exhale", duration: 8, arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", english: "There is no power except with Allah" },
+      { label: "Hold", duration: 3, arabic: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", english: "Allah is sufficient for us" },
+    ],
+    cycles: 4,
+  },
 ];
 
 interface BreathingExerciseProps {
@@ -15,22 +66,31 @@ interface BreathingExerciseProps {
 
 const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
   useEscapeKey(onClose);
+  const [selectedTechnique, setSelectedTechnique] = useState<Technique | null>(null);
   const [started, setStarted] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(phases[0].duration);
-  const [totalCycles] = useState(5);
+  const [secondsLeft, setSecondsLeft] = useState(4);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const phases = selectedTechnique?.phases ?? techniques[0].phases;
+  const totalCycles = selectedTechnique?.cycles ?? 5;
   const phase = phases[phaseIndex];
   const done = cycleCount >= totalCycles;
+
+  const startTechnique = (t: Technique) => {
+    setSelectedTechnique(t);
+    setPhaseIndex(0);
+    setCycleCount(0);
+    setSecondsLeft(t.phases[0].duration);
+    setStarted(true);
+  };
 
   useEffect(() => {
     if (!started || done) return;
     intervalRef.current = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
-          // Move to next phase
           const nextPhaseIndex = (phaseIndex + 1) % phases.length;
           if (nextPhaseIndex === 0) {
             setCycleCount((c) => c + 1);
@@ -42,7 +102,7 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
       });
     }, 1000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [started, phaseIndex, done]);
+  }, [started, phaseIndex, done, phases]);
 
   const scaleMap: Record<string, number[]> = {
     Inhale: [0.6, 1.3],
@@ -51,9 +111,11 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
   };
   const scale = scaleMap[phase.label] || [1, 1];
 
+  const cycleDuration = phases.reduce((sum, p) => sum + p.duration, 0);
+
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/95 backdrop-blur-sm"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -66,30 +128,37 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
         ✕
       </button>
 
-      <div className="w-full max-w-sm px-4 text-center">
+      <div className="w-full max-w-sm px-4 py-8 text-center">
         <AnimatePresence mode="wait">
           {!started && !done && (
-            <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="select" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <span className="mb-4 block text-5xl">🌊</span>
               <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">Breathing Exercise</h2>
-              <p className="mb-2 text-sm text-muted-foreground">Combine deep breathing with dhikr for maximum calm</p>
-              <div className="mb-6 rounded-2xl bg-gradient-calm border border-border p-4">
-                <p className="text-sm text-foreground">
-                  <strong>4-4-6-2 technique:</strong> Inhale 4s → Hold 4s → Exhale 6s → Hold 2s
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground">{totalCycles} cycles · ~{Math.ceil(totalCycles * 16 / 60)} minutes</p>
+              <p className="mb-4 text-sm text-muted-foreground">Choose a technique that fits your moment</p>
+              <div className="flex flex-col gap-3">
+                {techniques.map((t) => (
+                  <motion.button
+                    key={t.name}
+                    onClick={() => startTechnique(t)}
+                    className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:shadow-calm active:scale-[0.98]"
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="text-3xl">{t.emoji}</span>
+                    <div className="flex-1">
+                      <p className="font-heading text-sm font-bold text-foreground">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.description}</p>
+                      <p className="mt-1 text-[10px] text-primary">{t.cycles} cycles · ~{Math.ceil(t.cycles * t.phases.reduce((s, p) => s + p.duration, 0) / 60)} min</p>
+                    </div>
+                    <span className="text-muted-foreground">→</span>
+                  </motion.button>
+                ))}
               </div>
-              <button
-                onClick={() => setStarted(true)}
-                className="w-full rounded-xl bg-primary py-4 font-heading font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
-              >
-                Begin
-              </button>
             </motion.div>
           )}
 
           {started && !done && (
             <motion.div key="breathing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <p className="mb-1 text-[10px] font-medium text-primary">{selectedTechnique?.emoji} {selectedTechnique?.name}</p>
               <p className="mb-2 text-xs text-muted-foreground">Cycle {cycleCount + 1} of {totalCycles}</p>
               <div className="mb-2 flex gap-1 justify-center">
                 {Array.from({ length: totalCycles }).map((_, i) => (
@@ -154,12 +223,20 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
                 <p className="mb-1 text-sm text-muted-foreground italic">"Verily, in the remembrance of Allah do hearts find rest."</p>
                 <a href="https://quran.com/13/28" target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">Qur'an 13:28 →</a>
               </div>
-              <button
-                onClick={onClose}
-                className="w-full rounded-xl bg-primary py-4 font-heading font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
-              >
-                Done
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setStarted(false); setSelectedTechnique(null); setCycleCount(0); setPhaseIndex(0); }}
+                  className="flex-1 rounded-xl border border-border bg-card py-4 font-heading font-semibold text-foreground transition-all hover:bg-muted"
+                >
+                  Try Another
+                </button>
+                <button
+                  onClick={onClose}
+                  className="flex-1 rounded-xl bg-primary py-4 font-heading font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
+                >
+                  Done
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
