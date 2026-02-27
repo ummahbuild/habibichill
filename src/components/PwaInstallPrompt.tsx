@@ -1,54 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePwaInstall } from "@/hooks/use-pwa-install";
 
 const PwaInstallPrompt = () => {
   const { canPrompt, showBanner, deviceType, install, dismiss, isInstalled, isStandalone } = usePwaInstall();
+  const [autoDismissed, setAutoDismissed] = useState(false);
 
-  if (!showBanner || isInstalled || isStandalone) return null;
+  // Auto-dismiss after 8 seconds
+  useEffect(() => {
+    if (!showBanner || isInstalled || isStandalone) return;
+    const timer = setTimeout(() => setAutoDismissed(true), 8000);
+    return () => clearTimeout(timer);
+  }, [showBanner, isInstalled, isStandalone]);
+
+  if (!showBanner || isInstalled || isStandalone || autoDismissed) return null;
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed left-3 right-3 bottom-20 z-50 rounded-2xl border border-primary/20 bg-card p-4 shadow-lg shadow-primary/10"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 40 }}
+        className="fixed right-3 top-3 z-50 max-w-xs rounded-2xl border border-primary/20 bg-card p-3 shadow-lg shadow-primary/10"
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 40 }}
       >
-        <button onClick={dismiss} className="absolute right-3 top-3 text-muted-foreground hover:text-foreground text-sm">✕</button>
-        <div className="flex items-start gap-3">
-          <span className="text-3xl">📲</span>
+        <button onClick={dismiss} className="absolute right-2 top-2 text-muted-foreground hover:text-foreground text-xs">✕</button>
+        <div className="flex items-start gap-2.5 pr-4">
+          <span className="text-2xl">📲</span>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-foreground font-heading">Install HabibiChill</h3>
-            <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
+            <h3 className="text-xs font-bold text-foreground font-heading">Install HabibiChill</h3>
+            <p className="mt-0.5 text-[10px] text-muted-foreground leading-relaxed">
               {deviceType === "ios"
-                ? "Tap the Share button, then \"Add to Home Screen\" for instant offline access."
-                : "Install as an app for instant access, offline support, and a full-screen experience."}
+                ? "Tap Share → Add to Home Screen"
+                : "Install for offline access"}
             </p>
-            <div className="mt-3 flex gap-2">
+            <div className="mt-2 flex gap-2">
               {canPrompt ? (
                 <button
                   onClick={install}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
+                  className="rounded-lg bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
                 >
-                  Install Now
+                  Install
                 </button>
-              ) : deviceType === "ios" ? (
-                <div className="flex items-center gap-1.5 rounded-xl bg-muted px-3 py-2 text-xs text-foreground">
-                  <span>Tap</span>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                    <polyline points="16 6 12 2 8 6" />
-                    <line x1="12" y1="2" x2="12" y2="15" />
-                  </svg>
-                  <span>then "Add to Home Screen"</span>
-                </div>
               ) : (
-                <div className="rounded-xl bg-muted px-3 py-2 text-xs text-foreground">
-                  Use browser menu → "Install app" or "Add to Home Screen"
-                </div>
+                <span className="rounded-lg bg-muted px-2 py-1 text-[10px] text-foreground">
+                  {deviceType === "ios" ? "Use Safari Share ↗" : "Browser menu → Install"}
+                </span>
               )}
-              <button onClick={dismiss} className="rounded-xl border border-border px-3 py-2 text-xs text-muted-foreground hover:text-foreground">
+              <button onClick={dismiss} className="rounded-lg border border-border px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground">
                 Later
               </button>
             </div>
