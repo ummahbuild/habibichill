@@ -45,6 +45,7 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
   });
   const [showReward, setShowReward] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [showIntro, setShowIntro] = useState(() => !localStorage.getItem("hc-dhikr-seen"));
 
   const current = dhikrs[activeIndex];
   const count = counts[activeIndex];
@@ -92,7 +93,39 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <button onClick={onClose} className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:text-foreground" aria-label="Close">✕</button>
+      <button onClick={onClose} className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:text-foreground z-10" aria-label="Close">✕</button>
+
+      {/* First-time intro overlay */}
+      <AnimatePresence>
+        {showIntro && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/98 backdrop-blur-sm px-6 text-center"
+          >
+            <span className="mb-4 text-6xl">📿</span>
+            <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">Dhikr Counter</h2>
+            <p className="mb-3 text-sm text-muted-foreground max-w-xs">
+              Dhikr means <strong className="text-foreground">remembrance of God</strong> through short, repeated prayers. It calms the heart and earns spiritual reward.
+            </p>
+            <div className="mb-6 rounded-xl border border-border bg-card p-4 max-w-xs text-left">
+              <p className="text-xs text-muted-foreground mb-2 font-medium">How it works:</p>
+              <div className="flex flex-col gap-2 text-xs text-foreground">
+                <p>👆 <strong>Tap the circle</strong> to count each prayer</p>
+                <p>🔄 Complete 33 + 33 + 34 = <strong>100 total</strong></p>
+                <p>✨ Earn rewards mentioned in authentic hadith</p>
+              </div>
+            </div>
+            <button
+              onClick={() => { setShowIntro(false); localStorage.setItem("hc-dhikr-seen", "1"); }}
+              className="rounded-xl bg-primary px-8 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95"
+            >
+              Start Counting
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="w-full max-w-sm px-4 text-center">
         <AnimatePresence mode="wait">
