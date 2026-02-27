@@ -449,36 +449,30 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Research Stats */}
-      <section className="container mx-auto px-4 py-16" aria-label="Research and statistics">
+      {/* Research Stats Carousel */}
+      <section className="py-16 overflow-hidden" aria-label="Research and statistics">
         <h2 className="mb-4 text-center font-heading text-3xl font-bold text-foreground">Why This Matters</h2>
-        <p className="mb-12 text-center text-muted-foreground">Research-backed insights on anger and emotional health in Muslim communities</p>
-        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {researchStats.map((item, i) => (
-            <motion.div
-              key={item.title}
-              className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-calm"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.07 }}
-            >
-              <div className="mb-3 flex items-center gap-3">
-                <span className="text-3xl">{item.emoji}</span>
-                <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-heading text-2xl font-extrabold text-primary underline decoration-primary/30 hover:decoration-primary transition-colors">{item.stat}</a>
-              </div>
-              <h3 className="mb-2 font-heading text-base font-semibold text-card-foreground">{item.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground mb-2">{item.desc}</p>
+        <p className="mb-10 text-center text-muted-foreground">Research-backed insights on anger and emotional health</p>
+        <div className="relative">
+          <div className="flex animate-scroll-stats gap-5 w-max hover:[animation-play-state:paused]">
+            {[...researchStats, ...researchStats].map((item, i) => (
               <a
+                key={`${item.title}-${i}`}
                 href={item.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-primary underline decoration-primary/30 hover:decoration-primary transition-colors"
+                className="flex-shrink-0 w-72 rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-calm hover:border-primary/30"
               >
-                📎 {item.sourceLabel}
+                <div className="mb-2 flex items-center gap-3">
+                  <span className="text-3xl">{item.emoji}</span>
+                  <span className="font-heading text-2xl font-extrabold text-primary">{item.stat}</span>
+                </div>
+                <h3 className="mb-1.5 font-heading text-sm font-semibold text-card-foreground">{item.title}</h3>
+                <p className="text-xs leading-relaxed text-muted-foreground mb-2 line-clamp-3">{item.desc}</p>
+                <span className="text-[10px] font-medium text-primary">📎 {item.sourceLabel}</span>
               </a>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
