@@ -124,17 +124,35 @@ interface EmergencyFlowProps {
   onClose: () => void;
 }
 
-// ─── Inline Silence Timer ───
+// ─── Inline Silence Timer (Enhanced) ───
+const silenceMotivations = [
+  { arabic: "إِذَا غَضِبَ أَحَدُكُمْ فَلْيَسْكُتْ", english: "If any of you becomes angry, let him keep silent.", source: "Musnad Ahmad 2136", link: "https://sunnah.com/ahmad:2136" },
+  { arabic: "مَنْ صَمَتَ نَجَا", english: "Whoever is silent is saved.", source: "Tirmidhi 2501", link: "https://sunnah.com/tirmidhi:2501" },
+  { english: "Speak good or remain silent.", source: "Bukhari 6018", link: "https://sunnah.com/bukhari:6018" },
+  { english: "The believer does not insult, curse, or speak obscenely.", source: "Tirmidhi 1977", link: "https://sunnah.com/tirmidhi:1977" },
+  { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", source: "Qur'an 94:6", link: "https://quran.com/94/6" },
+];
+
+const quickSurahsInline = [
+  { id: "93", name: "Ad-Duha", emoji: "☀️" },
+  { id: "94", name: "Ash-Sharh", emoji: "💚" },
+  { id: "112", name: "Al-Ikhlas", emoji: "🕌" },
+];
+
 const InlineSilenceTimer = ({ onComplete }: { onComplete: () => void }) => {
   const [phase, setPhase] = useState<"select" | "running" | "done">("select");
   const [totalSeconds, setTotalSeconds] = useState(60);
   const [remaining, setRemaining] = useState(0);
+  const [currentMotivation, setCurrentMotivation] = useState(0);
+  const [playingSurah, setPlayingSurah] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const start = (secs: number) => {
     setTotalSeconds(secs);
     setRemaining(secs);
     setPhase("running");
+    setCurrentMotivation(Math.floor(Math.random() * silenceMotivations.length));
   };
 
   useEffect(() => {
@@ -152,10 +170,39 @@ const InlineSilenceTimer = ({ onComplete }: { onComplete: () => void }) => {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [phase]);
 
+  // Rotate motivations
+  useEffect(() => {
+    if (phase !== "running") return;
+    const iv = setInterval(() => {
+      setCurrentMotivation((prev) => (prev + 1) % silenceMotivations.length);
+    }, 10000);
+    return () => clearInterval(iv);
+  }, [phase]);
+
+  const playQuran = (surahId: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      if (playingSurah === surahId) { setPlayingSurah(null); return; }
+    }
+    const url = `https://server8.mp3quran.net/afs/${surahId.padStart(3, "0")}.mp3`;
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    setPlayingSurah(surahId);
+    audio.play().catch(() => {});
+    audio.onended = () => setPlayingSurah(null);
+  };
+
+  const stopAudio = () => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    setPlayingSurah(null);
+  };
+
   const progress = totalSeconds > 0 ? 1 - remaining / totalSeconds : 0;
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+  const mot = silenceMotivations[currentMotivation];
 
   if (phase === "done") {
+    stopAudio();
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-success/30 bg-success/5 p-4 text-center">
         <span className="text-3xl">✅</span>
@@ -170,6 +217,7 @@ const InlineSilenceTimer = ({ onComplete }: { onComplete: () => void }) => {
   if (phase === "running") {
     return (
       <div className="rounded-2xl border border-border bg-card p-4 text-center">
+        {/* Circle timer */}
         <div className="relative mx-auto mb-3 h-28 w-28">
           <svg className="absolute inset-0 -rotate-90" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="52" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
@@ -183,9 +231,49 @@ const InlineSilenceTimer = ({ onComplete }: { onComplete: () => void }) => {
             <p className="font-heading text-lg font-bold text-foreground">{formatTime(remaining)}</p>
           </div>
         </div>
+
+        {/* Quran audio */}
+        <div className="mb-3 rounded-lg border border-border bg-background p-2">
+          <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">🎧 Listen while silent</p>
+          <div className="flex gap-1.5 justify-center">
+            {quickSurahsInline.map((s) => (
+              <button key={s.id} onClick={() => playQuran(s.id)}
+                className={`flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium transition-all ${
+                  playingSurah === s.id ? "bg-primary text-primary-foreground" : "border border-border text-foreground hover:bg-muted"
+                }`}
+              >
+                {s.emoji} {s.name} {playingSurah === s.id ? "⏸" : "▶"}
+              </button>
+            ))}
+          </div>
+          {playingSurah && (
+            <div className="mt-1.5 flex items-center justify-center gap-1">
+              <motion.div className="h-1 w-1 rounded-full bg-primary" animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 0.5, repeat: Infinity }} />
+              <motion.div className="h-1 w-1 rounded-full bg-primary" animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 0.5, repeat: Infinity, delay: 0.15 }} />
+              <motion.div className="h-1 w-1 rounded-full bg-primary" animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 0.5, repeat: Infinity, delay: 0.3 }} />
+              <span className="text-[9px] text-primary ml-0.5">Playing...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Rotating motivation */}
+        <AnimatePresence mode="wait">
+          <motion.div key={currentMotivation} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            className="mb-3 rounded-xl bg-gradient-calm border border-border p-2.5"
+          >
+            {mot.arabic && <p className="mb-0.5 font-arabic text-sm leading-relaxed text-foreground" dir="rtl">{mot.arabic}</p>}
+            <p className="text-[11px] text-muted-foreground italic">"{mot.english}"</p>
+            <a href={mot.link} target="_blank" rel="noopener noreferrer" className="text-[9px] text-primary underline">{mot.source} →</a>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Breathing indicator */}
+        <motion.div className="mx-auto h-2.5 w-2.5 rounded-full bg-primary" animate={{ scale: [1, 2, 1], opacity: [0.5, 1, 0.5] }} transition={{ duration: 4, repeat: Infinity }} />
+        <p className="mt-1 text-[10px] text-muted-foreground">Breathe slowly...</p>
+
         <button
-          onClick={() => { if (intervalRef.current) clearInterval(intervalRef.current); setPhase("done"); }}
-          className="rounded-lg border border-border px-4 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+          onClick={() => { stopAudio(); if (intervalRef.current) clearInterval(intervalRef.current); setPhase("done"); }}
+          className="mt-3 rounded-lg border border-border px-4 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
         >
           End Early
         </button>
@@ -274,16 +362,33 @@ const InlineBreathing = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-// ─── Inline Wudu ───
+// ─── Full Wudu Steps for inline use ───
+const fullWuduSteps = [
+  { title: "Intention (Niyyah)", arabic: "نَوَيْتُ الْوُضُوءَ", transliteration: "Nawaytu al-wuḍū'", desc: "Make the intention in your heart to perform wudu for the sake of Allah.", icon: "🤲", image: null as string | null, sunnah: "Actions are judged by intentions.", sunnahShort: "Bukhari 1", sunnahLink: "https://sunnah.com/bukhari:1", tips: "The intention distinguishes between washing for cleanliness and performing wudu as worship." },
+  { title: "Say Bismillah", arabic: "بِسْمِ اللَّهِ", transliteration: "Bismillāh", desc: "Say 'In the name of Allah' before beginning.", icon: "🗣️", image: null as string | null, sunnah: "There is no wudu for the one who does not mention the name of Allah.", sunnahShort: "Abu Dawud 101", sunnahLink: "https://sunnah.com/abudawud:101", tips: null as string | null },
+  { title: "Wash Hands (×3)", desc: "Wash both hands up to the wrists three times. Start right, then left. Water must reach between fingers.", icon: "🖐️", image: wuduHands, sunnah: "The Prophet ﷺ used to wash his hands three times.", sunnahShort: "Bukhari 159", sunnahLink: "https://sunnah.com/bukhari:159", tips: "Interlock fingers to ensure water passes between them.", arabic: null as string | null, transliteration: null as string | null },
+  { title: "Rinse Mouth (×3)", arabic: "الْمَضْمَضَة", transliteration: "Al-Maḍmaḍah", desc: "Take water, swirl in mouth thoroughly, spit out. Repeat three times.", icon: "👄", image: wuduMouth, sunnah: "The Prophet ﷺ used to rinse his mouth and nose together.", sunnahShort: "Bukhari 191", sunnahLink: "https://sunnah.com/bukhari:191", tips: null as string | null },
+  { title: "Sniff & Blow Nose (×3)", arabic: "الاِسْتِنْشَاق", transliteration: "Al-Istinshāq", desc: "Sniff water gently into nostrils (right hand), blow out (left hand).", icon: "👃", image: null as string | null, sunnah: "Let him sniff water into his nose and then blow it out.", sunnahShort: "Muslim 237", sunnahLink: "https://sunnah.com/muslim:237", tips: "Be gentle — don't sniff too hard." },
+  { title: "Wash Face (×3)", desc: "Wash entire face — hairline to chin, ear to ear.", icon: "😊", image: null as string | null, sunnah: null as string | null, sunnahShort: null as string | null, sunnahLink: null as string | null, tips: "Run wet fingers through your beard if applicable.", arabic: null as string | null, transliteration: null as string | null },
+  { title: "Wash Arms (×3)", desc: "Right arm fingertips to elbow (inclusive) ×3, then left arm.", icon: "💪", image: wuduArms, sunnah: "The Prophet ﷺ washed his arms up to and including the elbows.", sunnahShort: "Muslim 246", sunnahLink: "https://sunnah.com/muslim:246", tips: "Don't forget the elbow — rotate arm to cover all sides.", arabic: null as string | null, transliteration: null as string | null },
+  { title: "Wipe Head (×1)", arabic: "الْمَسْح", transliteration: "Al-Masḥ", desc: "Wet hands, wipe from forehead to back of head and back.", icon: "🧑", image: wuduHead, sunnah: "The Prophet ﷺ wiped front to back and back again.", sunnahShort: "Bukhari 185", sunnahLink: "https://sunnah.com/bukhari:185", tips: "Done only once. Use fresh water." },
+  { title: "Wipe Ears (×1)", desc: "Insert index fingers into ear openings, wipe backs with thumbs.", icon: "👂", image: null as string | null, sunnah: "The ears are part of the head.", sunnahShort: "Abu Dawud 134", sunnahLink: "https://sunnah.com/abudawud:134", tips: null as string | null, arabic: null as string | null, transliteration: null as string | null },
+  { title: "Wash Feet (×3)", desc: "Wash right foot including ankle ×3, then left. Water between toes.", icon: "🦶", image: wuduFeet, sunnah: "Woe to the heels from the Hellfire!", sunnahShort: "Bukhari 165", sunnahLink: "https://sunnah.com/bukhari:165", tips: "Use left pinky to wash between toes. Don't neglect heels.", arabic: null as string | null, transliteration: null as string | null },
+  { title: "Dua After Wudu", arabic: "أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ", transliteration: "Ash-hadu an lā ilāha illallāh", desc: "I testify there is no god but Allah alone, and Muhammad is His servant and messenger.", icon: "✨", image: null as string | null, sunnah: "Whoever says this after wudu, the eight gates of Paradise open.", sunnahShort: "Muslim 234", sunnahLink: "https://sunnah.com/muslim:234", tips: null as string | null },
+];
+
+// ─── Inline Wudu (Enhanced with full guide) ───
 const InlineWudu = ({ onComplete }: { onComplete: () => void }) => {
   const [step, setStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const current = miniWuduSteps[step];
-  const allDone = completedSteps.size === miniWuduSteps.length;
+  const [showSunnah, setShowSunnah] = useState(false);
+  const current = fullWuduSteps[step];
+  const allDone = completedSteps.size === fullWuduSteps.length;
 
   const markDone = () => {
     setCompletedSteps((prev) => new Set(prev).add(step));
-    if (step < miniWuduSteps.length - 1) {
+    setShowSunnah(false);
+    if (step < fullWuduSteps.length - 1) {
       setStep(step + 1);
     }
   };
@@ -293,6 +398,11 @@ const InlineWudu = ({ onComplete }: { onComplete: () => void }) => {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-success/30 bg-success/5 p-4 text-center">
         <span className="text-3xl">💧</span>
         <p className="mt-1 text-sm font-medium text-foreground">Wudu complete!</p>
+        <div className="mt-2 mb-2 rounded-xl bg-gradient-calm border border-border p-2.5">
+          <p className="font-arabic text-sm leading-relaxed text-foreground" dir="rtl">اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ</p>
+          <p className="mt-1 text-[10px] text-muted-foreground italic">"O Allah, make me among those who repent and purify themselves."</p>
+          <a href="https://sunnah.com/tirmidhi:55" target="_blank" rel="noopener noreferrer" className="text-[9px] text-primary underline">Tirmidhi 55 →</a>
+        </div>
         <button onClick={onComplete} className="mt-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground">Continue →</button>
       </motion.div>
     );
@@ -300,30 +410,74 @@ const InlineWudu = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">💧 Wudu Guide — Step {step + 1}/{miniWuduSteps.length}</p>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">💧 Wudu Guide — Step {step + 1}/{fullWuduSteps.length}</p>
+      
+      {/* Progress bar */}
       <div className="mb-3 flex gap-0.5">
-        {miniWuduSteps.map((_, i) => (
-          <div key={i} className={`h-1 flex-1 rounded-full ${completedSteps.has(i) ? "bg-success" : i === step ? "bg-primary" : "bg-muted"}`} />
+        {fullWuduSteps.map((_, i) => (
+          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${completedSteps.has(i) ? "bg-success" : i === step ? "bg-primary" : "bg-muted"}`} />
         ))}
       </div>
-      <div className="flex items-center gap-3 mb-3">
-        {current.image ? (
-          <img src={current.image} alt={current.title} className="h-14 w-14 rounded-xl object-cover border border-border" />
-        ) : (
-          <span className="text-3xl">{current.icon}</span>
-        )}
-        <div className="text-left flex-1">
-          <p className="text-sm font-semibold text-foreground">{current.title}</p>
-          <p className="text-xs text-muted-foreground">{current.desc}</p>
-        </div>
-      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div key={step} initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -15 }}>
+          {/* Image or icon */}
+          <div className="flex items-start gap-3 mb-3">
+            {current.image ? (
+              <img src={current.image} alt={current.title} className="h-16 w-16 rounded-xl object-cover border border-border flex-shrink-0" loading="lazy" />
+            ) : (
+              <span className="text-3xl flex-shrink-0">{current.icon}</span>
+            )}
+            <div className="text-left flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">{current.title}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{current.desc}</p>
+            </div>
+          </div>
+
+          {/* Arabic if available */}
+          {current.arabic && (
+            <div className="mb-3 rounded-lg bg-gradient-calm border border-border p-2.5 text-center">
+              <p className="font-arabic text-base leading-relaxed text-foreground" dir="rtl">{current.arabic}</p>
+              {current.transliteration && <p className="mt-0.5 text-[10px] font-medium text-primary italic">{current.transliteration}</p>}
+            </div>
+          )}
+
+          {/* Tips */}
+          {current.tips && (
+            <div className="mb-3 flex items-start gap-1.5 rounded-lg border border-secondary/30 bg-secondary/5 p-2 text-left">
+              <span className="text-xs">💡</span>
+              <p className="text-[11px] text-foreground">{current.tips}</p>
+            </div>
+          )}
+
+          {/* Sunnah reference */}
+          {current.sunnah && (
+            <div className="mb-3 text-center">
+              <button onClick={() => setShowSunnah(!showSunnah)} className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors">
+                📚 {current.sunnahShort} {showSunnah ? "▲" : "▼"}
+              </button>
+              <AnimatePresence>
+                {showSunnah && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="mt-1.5 rounded-lg border border-border bg-background p-2 text-left">
+                      <p className="text-[11px] text-foreground italic">"{current.sunnah}"</p>
+                      {current.sunnahLink && <a href={current.sunnahLink} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-[10px] text-primary underline">View source →</a>}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
       <div className="flex gap-2">
-        <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}
+        <button onClick={() => { setStep(Math.max(0, step - 1)); setShowSunnah(false); }} disabled={step === 0}
           className="flex-1 rounded-lg border border-border py-2 text-xs font-medium text-foreground disabled:opacity-30 hover:bg-muted"
         >Back</button>
         <button onClick={markDone}
-          className="flex-1 rounded-lg bg-primary py-2 text-xs font-medium text-primary-foreground"
-        >{step === miniWuduSteps.length - 1 ? "Complete ✨" : "Done ✓"}</button>
+          className="flex-1 rounded-lg bg-primary py-2 text-xs font-medium text-primary-foreground transition-all active:scale-95"
+        >{step === fullWuduSteps.length - 1 ? "Complete Wudu ✨" : "Done ✓ Next"}</button>
       </div>
     </div>
   );
