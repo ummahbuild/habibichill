@@ -1,21 +1,15 @@
 import { useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp, AngerEntry } from "@/context/AppContext";
+import { useTerminology } from "@/hooks/use-terminology";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend } from "recharts";
 import { format, subDays, startOfDay, parseISO, eachDayOfInterval } from "date-fns";
 import logo from "@/assets/habibichill-logo.png";
 import { PwaInstallCard } from "@/components/PwaInstallPrompt";
 
-type SubTab = "progress" | "mood" | "journal" | "settings";
-
-const achievements = [
-  { name: "First Control", desc: "Controlled anger for the first time", icon: "🌱", threshold: 1 },
-  { name: "Sabr Student", desc: "Earned 50 sabr points", icon: "📚", threshold: 50 },
-  { name: "Silence Warrior", desc: "Stayed silent 5 times", icon: "🤫", threshold: 5 },
-  { name: "Wudu Champion", desc: "Made wudu during anger", icon: "💧", threshold: 3 },
-  { name: "Forgiveness Level 1", desc: "Forgave in 3 situations", icon: "🕊️", threshold: 3 },
-  { name: "Sabr Master", desc: "Earned 300 sabr points", icon: "⭐", threshold: 300 },
-];
+const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];
+const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
+const timeOfDayEmojis: Record<string, string> = { morning: "☀️", afternoon: "🌤️", evening: "🌅", night: "🌙" };
 
 const CHART_COLORS = {
   controlled: "hsl(160, 84%, 39%)",
@@ -23,12 +17,21 @@ const CHART_COLORS = {
   primary: "hsl(175, 85%, 32%)",
 };
 
-const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];
-const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
-const timeOfDayEmojis: Record<string, string> = { morning: "☀️", afternoon: "🌤️", evening: "🌅", night: "🌙" };
+type SubTab = "progress" | "mood" | "journal" | "settings";
 
 const MeTab = () => {
   const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog, updateMoodEntry, deleteMoodEntry } = useApp();
+  const t = useTerminology();
+
+  const achievements = [
+    { name: "First Control", desc: "Controlled anger for the first time", icon: "🌱", threshold: 1 },
+    { name: `${t.sabr} Student`, desc: `Earned 50 ${t.sabrPoints.toLowerCase()}`, icon: "📚", threshold: 50 },
+    { name: "Silence Warrior", desc: "Stayed silent 5 times", icon: "🤫", threshold: 5 },
+    { name: `${t.wudu} Champion`, desc: `Used ${t.wudu.toLowerCase()} during anger`, icon: "💧", threshold: 3 },
+    { name: "Forgiveness Level 1", desc: "Forgave in 3 situations", icon: "🕊️", threshold: 3 },
+    { name: `${t.sabr} Master`, desc: `Earned 300 ${t.sabrPoints.toLowerCase()}`, icon: "⭐", threshold: 300 },
+  ];
+
   const [editingMoodId, setEditingMoodId] = useState<string | null>(null);
   const [editMoodValue, setEditMoodValue] = useState(3);
   const [editMoodNote, setEditMoodNote] = useState("");
@@ -241,9 +244,9 @@ const MeTab = () => {
       <div className="mb-4 grid grid-cols-4 gap-2">
         <div className="group relative rounded-xl border border-border bg-card p-2.5 text-center">
           <p className="font-heading text-xl font-bold text-primary">{sabrPoints}</p>
-          <p className="text-[9px] text-muted-foreground">Sabr Pts</p>
-          <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 w-48 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            <p className="text-[10px] font-bold text-primary mb-0.5">Sabr Points</p>
+           <p className="text-[9px] text-muted-foreground">{t.sabr} Pts</p>
+           <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 w-48 rounded-xl border border-border bg-popover p-2.5 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+             <p className="text-[10px] font-bold text-primary mb-0.5">{t.sabrPoints}</p>
             <p className="text-[10px] text-muted-foreground">Earned by controlling anger (+10 per incident). Unlock achievements as you grow.</p>
           </div>
         </div>

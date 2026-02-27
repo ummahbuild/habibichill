@@ -4,17 +4,16 @@ import { useApp } from "@/context/AppContext";
 import logo from "@/assets/habibichill-logo.png";
 
 const triggers = ["Marriage/Relationship", "Online Arguments", "Family Disputes", "Workplace Stress", "Traffic/Road Rage", "Parenting", "Other"];
-const reciters = ["Mishary Rashid Alafasy", "Abdul Rahman Al-Sudais", "Saad Al-Ghamdi", "Abdul Basit", "Any"];
 
 const OnboardingFlow = () => {
   const { setAppState, setOnboardingData } = useApp();
   const [step, setStep] = useState(0);
+  const [isMuslim, setIsMuslim] = useState(true);
   const [trigger, setTrigger] = useState("");
-  const [reciter, setReciter] = useState("");
   const [notifs, setNotifs] = useState(true);
 
   const finish = () => {
-    setOnboardingData({ topTrigger: trigger, reciter, notifications: notifs });
+    setOnboardingData({ topTrigger: trigger, reciter: "", notifications: notifs, isMuslim });
     setAppState("app");
   };
 
@@ -25,11 +24,55 @@ const OnboardingFlow = () => {
       <h1 className="mb-2 font-heading text-3xl font-bold text-foreground">Welcome to HabibiChill</h1>
       <p className="text-lg text-gradient-gold font-heading font-semibold">Turn anger into reward</p>
     </div>,
+    // Mode selection
+    <div key="mode" className="flex flex-col items-center text-center">
+      <span className="mb-4 text-6xl">🌍</span>
+      <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">Choose Your Experience</h2>
+      <p className="mb-6 text-sm text-muted-foreground">We'll tailor the language and content for you</p>
+      <div className="flex flex-col gap-3 w-full max-w-xs">
+        <button
+          onClick={() => setIsMuslim(true)}
+          className={`rounded-2xl border p-4 text-left transition-all ${
+            isMuslim
+              ? "border-primary bg-primary/10 shadow-calm"
+              : "border-border bg-card hover:border-primary/50"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🕌</span>
+            <div>
+              <p className="font-heading font-bold text-foreground">Muslim</p>
+              <p className="text-xs text-muted-foreground">Full Islamic experience with Qur'an, Sunnah, dhikr, and Arabic terms</p>
+            </div>
+          </div>
+        </button>
+        <button
+          onClick={() => setIsMuslim(false)}
+          className={`rounded-2xl border p-4 text-left transition-all ${
+            !isMuslim
+              ? "border-primary bg-primary/10 shadow-calm"
+              : "border-border bg-card hover:border-primary/50"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🌱</span>
+            <div>
+              <p className="font-heading font-bold text-foreground">Non-Muslim / Secular</p>
+              <p className="text-xs text-muted-foreground">Same tools, English-only labels. No Arabic terminology.</p>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>,
     // Problem
     <div key="problem" className="flex flex-col items-center text-center">
       <span className="mb-4 text-6xl">😤</span>
       <h2 className="mb-3 font-heading text-2xl font-bold text-foreground">Anger Affects Us All</h2>
-      <p className="max-w-sm text-muted-foreground">But Islam has a complete solution — a 1400-year-old system for emotional mastery rooted in Qur'an and Sunnah.</p>
+      <p className="max-w-sm text-muted-foreground">
+        {isMuslim
+          ? "But Islam has a complete solution — a 1400-year-old system for emotional mastery rooted in Qur'an and Sunnah."
+          : "This app gives you a proven step-by-step system for emotional mastery — combining ancient wisdom with modern psychology."}
+      </p>
     </div>,
     // How it works
     <div key="how" className="flex flex-col items-center text-center">
@@ -37,8 +80,8 @@ const OnboardingFlow = () => {
       <div className="flex flex-col gap-4 text-left">
         {[
           { emoji: "🔴", text: "Tap \"I'm Angry\" when anger rises" },
-          { emoji: "🌊", text: "Follow guided Sunnah calming protocol" },
-          { emoji: "📈", text: "Track progress & earn spiritual rewards" },
+          { emoji: "🌊", text: isMuslim ? "Follow guided Sunnah calming protocol" : "Follow guided calming protocol" },
+          { emoji: "📈", text: isMuslim ? "Track progress & earn spiritual rewards" : "Track progress & earn patience rewards" },
         ].map((s, i) => (
           <div key={i} className="flex items-center gap-3 rounded-xl bg-card p-4 border border-border">
             <span className="text-2xl">{s.emoji}</span>
@@ -70,34 +113,15 @@ const OnboardingFlow = () => {
         Skip this step →
       </button>
     </div>,
-    // Reciter
-    <div key="reciter" className="flex flex-col items-center text-center">
-      <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">Preferred Quran Reciter?</h2>
-      <p className="mb-6 text-sm text-muted-foreground">For calming recitations</p>
-      <div className="flex flex-col gap-2 w-full max-w-xs">
-        {reciters.map((r) => (
-          <button
-            key={r}
-            onClick={() => setReciter(r)}
-            className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-              reciter === r
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card text-card-foreground hover:border-primary/50"
-            }`}
-          >
-            {r}
-          </button>
-        ))}
-      </div>
-      <button onClick={() => setStep(step + 1)} className="mt-4 text-xs text-muted-foreground hover:text-foreground">
-        Skip this step →
-      </button>
-    </div>,
     // Ready
     <div key="ready" className="flex flex-col items-center text-center">
       <span className="mb-4 text-6xl">🌟</span>
       <h2 className="mb-3 font-heading text-2xl font-bold text-foreground">Your Journey Begins Now</h2>
-      <p className="mb-2 text-muted-foreground">May Allah grant you sabr and inner peace.</p>
+      <p className="mb-2 text-muted-foreground">
+        {isMuslim
+          ? "May Allah grant you sabr and inner peace."
+          : "May you find patience and inner peace."}
+      </p>
       <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
         <input type="checkbox" checked={notifs} onChange={(e) => setNotifs(e.target.checked)} className="rounded accent-primary" />
         Enable daily reminders

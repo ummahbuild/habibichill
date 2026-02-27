@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp, AngerEntry } from "@/context/AppContext";
+import { useTerminology } from "@/hooks/use-terminology";
 import ReferenceTooltip from "@/components/ReferenceTooltip";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -114,6 +115,7 @@ const EntryDetail = ({ entry, onClose }: { entry: AngerEntry; onClose: () => voi
 
 const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing }: HomeTabProps) => {
   const { sabrPoints, streak, angerLog, moodLog, addMoodEntry } = useApp();
+  const t = useTerminology();
   const todayIndex = Math.floor(Date.now() / 86400000) % wisdoms.length;
   const [wisdomIndex, setWisdomIndex] = useState(todayIndex);
   const currentWisdom = wisdoms[wisdomIndex];
@@ -130,8 +132,8 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const [showQuranMenu, setShowQuranMenu] = useState(false);
 
   const quickTools = [
-    { emoji: "📿", label: "Dhikr", action: onOpenDhikr, color: "bg-primary/10" },
-    { emoji: "💧", label: "Wudu", action: onOpenWudu, color: "bg-accent/10" },
+    { emoji: "📿", label: t.dhikr, action: onOpenDhikr, color: "bg-primary/10" },
+    { emoji: "💧", label: t.wudu, action: onOpenWudu, color: "bg-accent/10" },
     { emoji: "🤫", label: "Silence", action: onOpenSilenceTimer, color: "bg-secondary/10" },
     { emoji: "🌊", label: "Breathe", action: onOpenBreathing, color: "bg-warning/10" },
     { emoji: "📓", label: "Journal", action: onOpenJournal, color: "bg-destructive/10" },
@@ -223,7 +225,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
           <TooltipTrigger asChild>
             <div className="rounded-xl border border-border bg-card p-3 text-center cursor-help">
               <p className="font-heading text-2xl font-bold text-primary">{sabrPoints}</p>
-              <p className="text-[10px] text-muted-foreground"><ArabicTooltip term="sabr">Sabr</ArabicTooltip> Points</p>
+              <p className="text-[10px] text-muted-foreground">{t.islamic ? <ArabicTooltip term="sabr">Sabr</ArabicTooltip> : "Patience"} Points</p>
             </div>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="max-w-[200px] text-center">
