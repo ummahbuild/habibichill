@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useApp, AngerEntry } from "@/context/AppContext";
 import ReferenceTooltip from "@/components/ReferenceTooltip";
 import ArabicTooltip from "@/components/ArabicTooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const wisdoms = [
   { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "Qur'an 94:6", link: "https://quran.com/94/6" },
@@ -204,22 +205,48 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
 
       {/* Stats Row */}
       <div className="mb-5 grid grid-cols-3 gap-2">
-        <div className="rounded-xl border border-border bg-card p-3 text-center">
-          <p className="font-heading text-2xl font-bold text-primary">{sabrPoints}</p>
-          <p className="text-[10px] text-muted-foreground"><ArabicTooltip term="sabr">Sabr</ArabicTooltip> Points</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-3 text-center">
-          <p className="font-heading text-2xl font-bold text-success">{controlRate}%</p>
-          <p className="text-[10px] text-muted-foreground">Control Rate</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-3 text-center">
-          <p className="font-heading text-2xl font-bold text-foreground">
-            {sabrPoints < 50 ? "🌱" : sabrPoints < 150 ? "📚" : sabrPoints < 300 ? "⭐" : "👑"}
-          </p>
-          <p className="text-[10px] text-muted-foreground">
-            {sabrPoints < 50 ? "Beginner" : sabrPoints < 150 ? "Student" : sabrPoints < 300 ? "Practitioner" : "Master"}
-          </p>
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="rounded-xl border border-border bg-card p-3 text-center cursor-help">
+              <p className="font-heading text-2xl font-bold text-primary">{sabrPoints}</p>
+              <p className="text-[10px] text-muted-foreground"><ArabicTooltip term="sabr">Sabr</ArabicTooltip> Points</p>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[200px] text-center">
+            <p className="text-xs font-medium">Patience Rewards</p>
+            <p className="text-[10px] text-muted-foreground">Earn +10 points each time you control your anger using the CHILL flow. The Prophet ﷺ said the strong person controls themselves in anger.</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="rounded-xl border border-border bg-card p-3 text-center cursor-help">
+              <p className="font-heading text-2xl font-bold text-success">{controlRate}%</p>
+              <p className="text-[10px] text-muted-foreground">Control Rate</p>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[200px] text-center">
+            <p className="text-xs font-medium">Anger Control Rate</p>
+            <p className="text-[10px] text-muted-foreground">Percentage of anger episodes where you successfully controlled yourself ({controlled}/{total} logged). Higher is better — aim for 80%+.</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="rounded-xl border border-border bg-card p-3 text-center cursor-help">
+              <p className="font-heading text-2xl font-bold text-foreground">
+                {sabrPoints < 50 ? "🌱" : sabrPoints < 150 ? "📚" : sabrPoints < 300 ? "⭐" : "👑"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {sabrPoints < 50 ? "Beginner" : sabrPoints < 150 ? "Student" : sabrPoints < 300 ? "Practitioner" : "Master"}
+              </p>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[200px] text-center">
+            <p className="text-xs font-medium">Your Rank</p>
+            <p className="text-[10px] text-muted-foreground">
+              {sabrPoints < 50 ? "🌱 Beginner (0–49 SP) → Keep using the CHILL flow to level up to Student!" : sabrPoints < 150 ? "📚 Student (50–149 SP) → You're building habits. Practitioner rank at 150 SP." : sabrPoints < 300 ? "⭐ Practitioner (150–299 SP) → Impressive self-control! Master rank at 300 SP." : "👑 Master (300+ SP) → You've achieved mastery over anger. Keep inspiring others!"}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Quick Tools */}
