@@ -44,7 +44,7 @@ const Dashboard = () => {
   useKeyboardShortcuts(shortcuts);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
+    <div className="flex min-h-screen flex-col bg-background pb-32">
       <main className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
