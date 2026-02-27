@@ -43,6 +43,7 @@ interface HomeTabProps {
   onOpenSituations: () => void;
   onOpenSilenceTimer: () => void;
   onOpenBreathing: () => void;
+  onOpenPrayer: () => void;
 }
 
 // ─── Expanded Entry Detail ───
@@ -114,7 +115,7 @@ const EntryDetail = ({ entry, onClose }: { entry: AngerEntry; onClose: () => voi
   );
 };
 
-const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing }: HomeTabProps) => {
+const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpenJournal, onOpenSituations, onOpenSilenceTimer, onOpenBreathing, onOpenPrayer }: HomeTabProps) => {
   const { sabrPoints, streak, angerLog, moodLog, addMoodEntry } = useApp();
   const t = useTerminology();
   const todayIndex = Math.floor(Date.now() / 86400000) % wisdoms.length;
@@ -135,6 +136,7 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const [showMoodHistory, setShowMoodHistory] = useState(false);
 
   const quickTools = [
+    { emoji: "🕌", label: "Prayer", action: onOpenPrayer, color: "bg-primary/10" },
     { emoji: "📿", label: t.dhikr, action: onOpenDhikr, color: "bg-primary/10" },
     { emoji: "💧", label: t.wudu, action: onOpenWudu, color: "bg-accent/10" },
     { emoji: "🤫", label: "Silence", action: onOpenSilenceTimer, color: "bg-secondary/10" },

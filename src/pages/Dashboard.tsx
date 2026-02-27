@@ -1,6 +1,7 @@
 import React, { useState, useMemo, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useApp } from "@/context/AppContext";
 import HomeTab from "@/components/tabs/HomeTab";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
@@ -16,6 +17,7 @@ const AngerJournal = lazy(() => import("@/components/AngerJournal"));
 const SituationGuide = lazy(() => import("@/components/SituationGuide"));
 const SilenceTimer = lazy(() => import("@/components/SilenceTimer"));
 const BreathingExercise = lazy(() => import("@/components/BreathingExercise"));
+const PrayerTimes = lazy(() => import("@/components/PrayerTimes"));
 
 const tabs = [
   { id: "home", label: "Home", icon: "🏠" },
@@ -31,6 +33,7 @@ const TabFallback = () => (
 );
 
 const Dashboard = () => {
+  const { logActivity } = useApp();
   const [activeTab, setActiveTab] = useState("home");
   const [showEmergency, setShowEmergency] = useState(false);
   const [playingSurah, setPlayingSurah] = useState<string | null>(null);
@@ -40,6 +43,7 @@ const Dashboard = () => {
   const [showSituations, setShowSituations] = useState(false);
   const [showSilenceTimer, setShowSilenceTimer] = useState(false);
   const [showBreathing, setShowBreathing] = useState(false);
+  const [showPrayer, setShowPrayer] = useState(false);
   const [initialReadSurah, setInitialReadSurah] = useState<number | null>(null);
 
   const shortcuts = useMemo(() => [
@@ -51,6 +55,21 @@ const Dashboard = () => {
   ], []);
 
   useKeyboardShortcuts(shortcuts);
+
+  // Activity-logging wrappers
+  const handleOpenDhikr = () => { setShowDhikr(true); logActivity("dhikr", "Opened Dhikr Counter"); };
+  const handleOpenWudu = () => { setShowWudu(true); logActivity("wudu", "Opened Wudu Guide"); };
+  const handleOpenSilence = () => { setShowSilenceTimer(true); logActivity("silence", "Started Silence Timer"); };
+  const handleOpenBreathing = () => { setShowBreathing(true); logActivity("breathing", "Started Breathing Exercise"); };
+  const handleOpenJournal = () => { setShowJournal(true); };
+  const handleOpenSituations = () => { setShowSituations(true); };
+  const handleOpenPrayer = () => { setShowPrayer(true); };
+  const handlePlayQuran = (surahId: string) => { setPlayingSurah(surahId); logActivity("quran_listen", `Surah ${surahId}`); };
+  const handleNavigateToRead = (surahId: number) => {
+    setInitialReadSurah(surahId);
+    setActiveTab("quran");
+    logActivity("reading", `Surah ${surahId}`);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-32">
@@ -65,23 +84,21 @@ const Dashboard = () => {
           >
             {activeTab === "home" && (
               <HomeTab
-                onPlayQuran={(surahId) => setPlayingSurah(surahId)}
-                onNavigateToRead={(surahId) => {
-                  setInitialReadSurah(surahId);
-                  setActiveTab("quran");
-                }}
-                onOpenDhikr={() => setShowDhikr(true)}
-                onOpenWudu={() => setShowWudu(true)}
-                onOpenJournal={() => setShowJournal(true)}
-                onOpenSituations={() => setShowSituations(true)}
-                onOpenSilenceTimer={() => setShowSilenceTimer(true)}
-                onOpenBreathing={() => setShowBreathing(true)}
+                onPlayQuran={handlePlayQuran}
+                onNavigateToRead={handleNavigateToRead}
+                onOpenDhikr={handleOpenDhikr}
+                onOpenWudu={handleOpenWudu}
+                onOpenJournal={handleOpenJournal}
+                onOpenSituations={handleOpenSituations}
+                onOpenSilenceTimer={handleOpenSilence}
+                onOpenBreathing={handleOpenBreathing}
+                onOpenPrayer={handleOpenPrayer}
               />
             )}
             {activeTab === "quran" && (
               <Suspense fallback={<TabFallback />}>
                 <QuranSunnahTab
-                  onPlayQuran={(surahId) => setPlayingSurah(surahId)}
+                  onPlayQuran={handlePlayQuran}
                   initialReadSurah={initialReadSurah}
                   onClearInitialRead={() => setInitialReadSurah(null)}
                   playingSurahId={playingSurah}
@@ -163,6 +180,7 @@ const Dashboard = () => {
           {showSituations && <SituationGuide onClose={() => setShowSituations(false)} />}
           {showSilenceTimer && <SilenceTimer onClose={() => setShowSilenceTimer(false)} />}
           {showBreathing && <BreathingExercise onClose={() => setShowBreathing(false)} />}
+          {showPrayer && <PrayerTimes onClose={() => setShowPrayer(false)} />}
         </AnimatePresence>
       </Suspense>
     </div>

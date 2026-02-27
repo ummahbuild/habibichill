@@ -21,7 +21,7 @@ const CHART_COLORS = {
 type SubTab = "progress" | "mood" | "journal" | "settings";
 
 const MeTab = () => {
-  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog, updateMoodEntry, deleteMoodEntry } = useApp();
+  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog, updateMoodEntry, deleteMoodEntry, activityLog, prayerLog, prayerSettings, updatePrayerSettings } = useApp();
   const t = useTerminology();
 
   const achievements = [
@@ -151,8 +151,8 @@ const MeTab = () => {
   // Export/Import handlers
   const handleExportJSON = () => {
     const data = {
-      exportDate: new Date().toISOString(), app: "HabibiChill", version: "1.1",
-      sabrPoints, streak, angerLog, bookmarks, moodLog, settings,
+      exportDate: new Date().toISOString(), app: "HabibiChill", version: "1.2",
+      sabrPoints, streak, angerLog, bookmarks, moodLog, settings, activityLog, prayerLog, prayerSettings,
       completedLessons: JSON.parse(localStorage.getItem("hc-completed-lessons") || "[]"),
       dhikrCounts: JSON.parse(localStorage.getItem("hc-dhikr-counts") || "[0,0,0]"),
     };
@@ -409,7 +409,7 @@ const MeTab = () => {
 
             {/* Achievements */}
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🏆 Achievements</h2>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3 mb-5">
               {achievements.map((a) => {
                 const unlocked = sabrPoints >= a.threshold || controlled >= a.threshold;
                 return (
@@ -448,6 +448,119 @@ const MeTab = () => {
                 })()}
               </DialogContent>
             </Dialog>
+
+            {/* Activity Log Stats */}
+            <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📋 Activity Log</h2>
+            <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+              {activityLog.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground py-4">Use tools to see activity stats here</p>
+              ) : (() => {
+                const typeCounts: Record<string, number> = {};
+                activityLog.forEach((a) => { typeCounts[a.type] = (typeCounts[a.type] || 0) + 1; });
+                const typeLabels: Record<string, { emoji: string; label: string }> = {
+                  breathing: { emoji: "🌊", label: "Breathing" },
+                  silence: { emoji: "🤫", label: "Silence" },
+                  wudu: { emoji: "💧", label: "Wudu" },
+                  dhikr: { emoji: "📿", label: "Dhikr" },
+                  reading: { emoji: "📜", label: "Reading" },
+                  quran_listen: { emoji: "🎧", label: "Listening" },
+                  learning: { emoji: "🧠", label: "Learning" },
+                  mood_checkin: { emoji: "😊", label: "Mood Check-in" },
+                  prayer: { emoji: "🕌", label: "Prayer" },
+                };
+                const sorted = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
+                return (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground mb-2">{activityLog.length} total activities logged</p>
+                    {sorted.map(([type, count]) => {
+                      const info = typeLabels[type] || { emoji: "🔧", label: type };
+                      const maxCount = sorted[0][1];
+                      return (
+                        <div key={type} className="flex items-center gap-2">
+                          <span className="text-sm w-6 text-center">{info.emoji}</span>
+                          <span className="w-20 text-xs text-foreground">{info.label}</span>
+                          <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary/50 transition-all" style={{ width: `${(count / maxCount) * 100}%` }} />
+                          </div>
+                          <span className="w-8 text-right text-xs font-medium text-muted-foreground">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Prayer Stats */}
+            <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🕌 Prayer Tracking</h2>
+            <div className="mb-5 rounded-2xl border border-border bg-card p-4">
+              {prayerLog.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground py-4">Mark prayers as complete to see stats here</p>
+              ) : (() => {
+                const prayerCounts: Record<string, number> = { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 };
+                const last7Days = new Set<string>();
+                prayerLog.forEach((p) => {
+                  if (prayerCounts[p.prayer] !== undefined) prayerCounts[p.prayer]++;
+                  last7Days.add(p.date.slice(0, 10));
+                });
+                const totalPrayers = prayerLog.length;
+                const daysActive = last7Days.size;
+                const prayerEmojis: Record<string, string> = { Fajr: "🌅", Dhuhr: "☀️", Asr: "🌤️", Maghrib: "🌅", Isha: "🌙" };
+
+                return (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      <div className="rounded-lg border border-border bg-background p-2 text-center">
+                        <p className="font-heading text-lg font-bold text-primary">{totalPrayers}</p>
+                        <p className="text-[9px] text-muted-foreground">Total Logged</p>
+                      </div>
+                      <div className="rounded-lg border border-border bg-background p-2 text-center">
+                        <p className="font-heading text-lg font-bold text-success">{daysActive}</p>
+                        <p className="text-[9px] text-muted-foreground">Days Active</p>
+                      </div>
+                      <div className="rounded-lg border border-border bg-background p-2 text-center">
+                        <p className="font-heading text-lg font-bold text-accent">{totalPrayers > 0 ? (totalPrayers / Math.max(daysActive, 1)).toFixed(1) : "0"}</p>
+                        <p className="text-[9px] text-muted-foreground">Avg/Day</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      {Object.entries(prayerCounts).map(([name, count]) => (
+                        <div key={name} className="flex flex-col items-center gap-0.5">
+                          <span className="text-sm">{prayerEmojis[name]}</span>
+                          <span className="text-[10px] text-foreground font-medium">{name}</span>
+                          <span className="text-xs font-bold text-primary">{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Recent journal entries from prayers */}
+                    {prayerLog.filter((p) => p.journalNote).slice(0, 3).length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Prayer Reflections</p>
+                        {prayerLog.filter((p) => p.journalNote).slice(0, 3).map((p) => (
+                          <div key={p.id} className="mb-1.5 rounded-lg border border-border bg-background p-2">
+                            <div className="flex items-center gap-1 mb-0.5">
+                              <span className="text-[10px]">{prayerEmojis[p.prayer]}</span>
+                              <span className="text-[10px] font-medium text-foreground">{p.prayer}</span>
+                              <span className="text-[9px] text-muted-foreground ml-auto">
+                                {new Date(p.date).toLocaleDateString([], { month: "short", day: "numeric" })}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground italic">"{p.journalNote}"</p>
+                            {p.toolsUsed && p.toolsUsed.length > 0 && (
+                              <div className="flex gap-1 mt-1">
+                                {p.toolsUsed.map((t) => (
+                                  <span key={t} className="rounded bg-primary/10 px-1.5 py-0.5 text-[8px] text-primary">{t}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
           </motion.div>
         )}
 
@@ -683,7 +796,46 @@ const MeTab = () => {
               </label>
             </div>
 
-            {/* Appearance */}
+            {/* Prayer Settings */}
+            <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🕌 Prayer Settings</h2>
+            <div className="mb-5 flex flex-col gap-2">
+              <div className="rounded-xl border border-border bg-card p-4">
+                <p className="text-sm font-medium text-foreground mb-2">Location</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {prayerSettings.city ? `${prayerSettings.city}${prayerSettings.country ? `, ${prayerSettings.country}` : ""}` : "Not set — open Prayer Times to auto-detect"}
+                </p>
+                {prayerSettings.latitude && (
+                  <p className="text-[10px] text-muted-foreground">Lat: {prayerSettings.latitude?.toFixed(4)}, Lng: {prayerSettings.longitude?.toFixed(4)}</p>
+                )}
+              </div>
+              <div className="rounded-xl border border-border bg-card p-4">
+                <p className="text-sm font-medium text-foreground mb-2">Calculation Method</p>
+                <select
+                  value={prayerSettings.method}
+                  onChange={(e) => updatePrayerSettings({ method: parseInt(e.target.value) })}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  {[
+                    { id: 1, name: "Univ. Islamic Sciences, Karachi" },
+                    { id: 2, name: "ISNA" },
+                    { id: 3, name: "Muslim World League" },
+                    { id: 4, name: "Umm Al-Qura, Makkah" },
+                    { id: 5, name: "Egyptian General Authority" },
+                    { id: 7, name: "Univ. Tehran" },
+                    { id: 8, name: "Gulf Region" },
+                    { id: 13, name: "Diyanet (Turkey)" },
+                    { id: 15, name: "Moonsighting Committee" },
+                  ].map((m) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="rounded-xl border border-border bg-card p-4">
+                <p className="text-sm font-medium text-foreground mb-1">Prayer Stats</p>
+                <p className="text-xs text-muted-foreground">{prayerLog.length} prayers logged total</p>
+              </div>
+            </div>
+
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🎨 Appearance</h2>
             <div className="mb-5 flex flex-col gap-2">
               <label className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
