@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePwaInstall } from "@/hooks/use-pwa-install";
 
@@ -61,6 +62,7 @@ const PwaInstallPrompt = () => {
 /** Compact card for use inside settings */
 export const PwaInstallCard = () => {
   const { canPrompt, install, isInstalled, isStandalone, deviceType } = usePwaInstall();
+  const [showInstructions, setShowInstructions] = useState(false);
 
   if (isInstalled || isStandalone) {
     return (
@@ -69,28 +71,91 @@ export const PwaInstallCard = () => {
           <span className="text-sm font-medium text-foreground">📱 App Installed</span>
           <p className="text-xs text-success">HabibiChill is installed on your device</p>
         </div>
-        <span className="text-success">✓</span>
+        <span className="text-success text-lg">✓</span>
       </div>
     );
   }
 
   return (
-    <button
-      onClick={canPrompt ? install : undefined}
-      className="flex w-full items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-4 text-left transition-colors hover:bg-primary/10"
-    >
-      <div>
-        <span className="text-sm font-medium text-foreground">📲 Install App</span>
-        <p className="text-xs text-muted-foreground">
-          {canPrompt
-            ? "Tap to install for offline access"
-            : deviceType === "ios"
-              ? "Tap Share → Add to Home Screen"
-              : "Use browser menu → Install app"}
-        </p>
-      </div>
-      <span className="text-primary font-semibold text-sm">{canPrompt ? "Install" : "How?"}</span>
-    </button>
+    <div className="rounded-xl border border-primary/20 bg-primary/5 overflow-hidden">
+      <button
+        onClick={canPrompt ? install : () => setShowInstructions(!showInstructions)}
+        className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-primary/10"
+      >
+        <div>
+          <span className="text-sm font-medium text-foreground">📲 Install App</span>
+          <p className="text-xs text-muted-foreground">
+            {canPrompt
+              ? "Tap to install for offline access"
+              : "Tap for installation instructions"}
+          </p>
+        </div>
+        <span className="text-primary font-semibold text-sm">
+          {canPrompt ? "Install" : showInstructions ? "▲" : "How?"}
+        </span>
+      </button>
+
+      <AnimatePresence>
+        {showInstructions && !canPrompt && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-border px-4 pb-4 pt-3">
+              {deviceType === "ios" ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-foreground">Safari (iOS)</p>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">1</span>
+                    <p className="text-xs text-muted-foreground">Tap the <strong className="text-foreground">Share</strong> button (box with arrow) at the bottom of Safari</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">2</span>
+                    <p className="text-xs text-muted-foreground">Scroll down and tap <strong className="text-foreground">"Add to Home Screen"</strong></p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">3</span>
+                    <p className="text-xs text-muted-foreground">Tap <strong className="text-foreground">"Add"</strong> to confirm</p>
+                  </div>
+                  <p className="mt-1 text-[10px] text-muted-foreground italic">⚠️ Must use Safari — Chrome/Firefox on iOS don't support PWA install.</p>
+                </div>
+              ) : deviceType === "android" ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-foreground">Chrome (Android)</p>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">1</span>
+                    <p className="text-xs text-muted-foreground">Tap the <strong className="text-foreground">⋮ menu</strong> (three dots) in the top-right</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">2</span>
+                    <p className="text-xs text-muted-foreground">Tap <strong className="text-foreground">"Install app"</strong> or <strong className="text-foreground">"Add to Home Screen"</strong></p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">3</span>
+                    <p className="text-xs text-muted-foreground">Tap <strong className="text-foreground">"Install"</strong> to confirm</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-foreground">Desktop Browser</p>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">1</span>
+                    <p className="text-xs text-muted-foreground">Look for the <strong className="text-foreground">install icon</strong> (⊕) in the address bar, or open the browser menu</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">2</span>
+                    <p className="text-xs text-muted-foreground">Click <strong className="text-foreground">"Install HabibiChill"</strong> or <strong className="text-foreground">"Install app"</strong></p>
+                  </div>
+                  <p className="mt-1 text-[10px] text-muted-foreground italic">Works best in Chrome, Edge, or Brave. Firefox has limited PWA support.</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
