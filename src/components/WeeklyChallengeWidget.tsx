@@ -269,7 +269,7 @@ interface WeeklyChallengeWidgetProps {
 
 const WeeklyChallengeWidget = ({ compact = false }: WeeklyChallengeWidgetProps) => {
   const { challengeProgress, canClaim, claimReward, daysLeft } = useWeeklyChallenges();
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState<string | false>(false);
   const [justClaimed, setJustClaimed] = useState(false);
 
   const allComplete = challengeProgress.every((cp) => cp.completed);
