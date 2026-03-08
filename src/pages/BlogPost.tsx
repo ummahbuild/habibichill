@@ -5,6 +5,8 @@ import { getPostBySlug, getRelatedPosts } from "@/data/blogPosts";
 import logo from "@/assets/habibichill-logo.png";
 import SiteFooter from "@/components/SiteFooter";
 import ShareButtons from "@/components/ShareButtons";
+import ReadingProgressBar from "@/components/ReadingProgressBar";
+import BlogTableOfContents from "@/components/BlogTableOfContents";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -59,10 +61,14 @@ const BlogPost = () => {
       );
     }
     if (block.startsWith("## ")) {
-      return <h2 className="mb-3 mt-8 font-heading text-2xl font-bold text-foreground">{block.slice(3)}</h2>;
+      const text = block.slice(3);
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      return <h2 id={id} className="mb-3 mt-8 scroll-mt-20 font-heading text-2xl font-bold text-foreground">{text}</h2>;
     }
     if (block.startsWith("### ")) {
-      return <h3 className="mb-2 mt-6 font-heading text-xl font-semibold text-foreground">{block.slice(4)}</h3>;
+      const text = block.slice(4);
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      return <h3 id={id} className="mb-2 mt-6 scroll-mt-20 font-heading text-xl font-semibold text-foreground">{text}</h3>;
     }
     if (block.startsWith("- ")) {
       return (
@@ -87,6 +93,30 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ReadingProgressBar />
+
+      {/* Breadcrumb */}
+      <div className="container mx-auto px-4 pt-16 pb-0">
+        <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
+          <ol className="flex items-center gap-1" itemScope itemType="https://schema.org/BreadcrumbList">
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <Link to="/" itemProp="item" className="hover:text-foreground"><span itemProp="name">Home</span></Link>
+              <meta itemProp="position" content="1" />
+            </li>
+            <li className="mx-1">/</li>
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <Link to="/blogs" itemProp="item" className="hover:text-foreground"><span itemProp="name">Blog</span></Link>
+              <meta itemProp="position" content="2" />
+            </li>
+            <li className="mx-1">/</li>
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <span itemProp="name" className="text-foreground truncate max-w-[200px] inline-block align-bottom">{post.title}</span>
+              <meta itemProp="position" content="3" />
+            </li>
+          </ol>
+        </nav>
+      </div>
+
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
         <div className="container mx-auto flex items-center justify-between px-4 py-3">
@@ -154,6 +184,8 @@ const BlogPost = () => {
             ))}
           </div>
         </motion.header>
+
+        <BlogTableOfContents content={post.content} />
 
         <motion.div
           className="prose-custom"
