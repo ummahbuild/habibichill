@@ -379,6 +379,10 @@ const lessons: Lesson[] = [
         "The Prophet ﷺ forgave his worst enemies — this is true strength",
       ],
       exercise: "Think of one person you are holding a grudge against. Make dua for them tonight: 'O Allah, forgive them and guide them.' Notice how your heart feels after. This is the beginning of freedom.",
+      quiz: [
+        { question: "What did the Prophet ﷺ say to the people of Makkah on the day of conquest?", options: ["'You will be punished'", "'Go, you are free'", "'Convert or face consequences'", "'Pay a fine'"], correctIndex: 1, explanation: "Despite 13 years of persecution, torture, and exile, the Prophet ﷺ said 'Go, you are free' — the greatest act of forgiveness in history." },
+        { question: "What does Allah connect His forgiveness to?", options: ["Amount of prayer", "Your forgiveness of others", "Financial charity", "Pilgrimage"], correctIndex: 1, explanation: "Allah revealed 'Do you not wish that Allah should forgive you?' (24:22) — directly linking His forgiveness to our forgiveness of others." },
+      ],
     },
   },
   {
