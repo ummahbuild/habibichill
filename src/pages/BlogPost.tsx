@@ -132,6 +132,16 @@ const BlogPost = () => {
             <span>·</span>
             <span>{post.readTime} read</span>
           </div>
+
+          {/* Share Buttons */}
+          <div className="mt-4">
+            <ShareButtons
+              url={`/blogs/${post.slug}`}
+              title={post.title}
+              text={`${post.title} — ${post.excerpt}`}
+            />
+          </div>
+
           <div className="mt-4 flex flex-wrap gap-2">
             {post.tags.map((tag) => (
               <Link
