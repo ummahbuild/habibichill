@@ -1042,9 +1042,11 @@ interface LessonViewProps {
   onToggleSection: (s: string) => void;
   onComplete: () => void;
   onBack: () => void;
+  totalLessons: number;
+  completedCount: number;
 }
 
-const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack }: LessonViewProps) => {
+const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount }: LessonViewProps) => {
   const { content } = lesson;
 
   return (
