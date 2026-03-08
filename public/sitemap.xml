@@ -228,4 +228,44 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://habibichill.com/blogs/blessings-of-controlling-anger-islam</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/sunnah-anger-management-complete-protocol</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/anger-and-dua-turning-rage-into-supplication</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/islamic-conflict-resolution-avoiding-anger</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/fasting-anger-control-ramadan-and-beyond</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/raising-children-without-anger-islamic-parenting</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/how-shaytan-uses-anger-islamic-perspective</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/patience-trials-qadr-anger-acceptance</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
