@@ -65,17 +65,66 @@ const QuranPlayer = ({ currentSurahId, onChangeSurah, onClose }: QuranPlayerProp
 
   useKeyboardShortcuts(shortcuts);
 
+  // Initialize audio element once
   useEffect(() => {
-    if (audioRef.current) {
-      setLoading(true);
-      setProgress(0);
-      setAudioError(false);
-      audioRef.current.src = getAudioUrl(currentSurahId, reciter);
-      audioRef.current.load();
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
+    if (!audioRef.current) {
+      const audio = new Audio();
+      audio.preload = "auto";
+      audioRef.current = audio;
     }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeAttribute("src");
+        audioRef.current.load();
+      }
+    };
+  }, []);
+
+  // Update source when surah or reciter changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    setLoading(true);
+    setProgress(0);
+    setAudioError(false);
+
+    const url = getAudioUrl(currentSurahId, reciter);
+    audio.src = url;
+    audio.load();
+
+    // Attach event handlers
+    const onPlay = () => { setIsPlaying(true); setLoading(false); setAudioError(false); };
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => playNextRef.current();
+    const onTimeUpdate = () => {
+      if (audio.duration) setProgress(audio.currentTime / audio.duration);
+    };
+    const onLoadedMetadata = () => { setLoading(false); setDuration(audio.duration); };
+    const onCanPlay = () => setLoading(false);
+    const onError = () => { setLoading(false); setAudioError(true); };
+
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("ended", onEnded);
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("loadedmetadata", onLoadedMetadata);
+    audio.addEventListener("canplay", onCanPlay);
+    audio.addEventListener("error", onError);
+
+    // Attempt autoplay — will fail silently if no user gesture
+    audio.play().catch(() => setIsPlaying(false));
+
+    return () => {
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("ended", onEnded);
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("loadedmetadata", onLoadedMetadata);
+      audio.removeEventListener("canplay", onCanPlay);
+      audio.removeEventListener("error", onError);
+    };
   }, [currentSurahId, reciter]);
 
   const togglePlay = useCallback(() => {
