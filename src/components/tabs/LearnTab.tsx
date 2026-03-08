@@ -858,6 +858,14 @@ const getDailyVerse = () => {
   return dailyVerses[dayOfYear % dailyVerses.length];
 };
 
+const achievements = [
+  { id: "first_lesson", emoji: "🌱", title: "First Step", desc: "Complete your first lesson", check: (c: number[]) => c.length >= 1 },
+  { id: "five_lessons", emoji: "📚", title: "Dedicated Student", desc: "Complete 5 lessons", check: (c: number[]) => c.length >= 5 },
+  { id: "all_lessons", emoji: "🏆", title: "Scholar", desc: "Complete all lessons", check: (c: number[]) => c.length >= lessons.length },
+  { id: "streak_3", emoji: "🔥", title: "On Fire", desc: "3-day learning streak", check: (_c: number[], s: number) => s >= 3 },
+  { id: "streak_7", emoji: "⭐", title: "Consistent", desc: "7-day learning streak", check: (_c: number[], s: number) => s >= 7 },
+];
+
 const LearnTab = () => {
   const [openLessonId, setOpenLessonId] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
@@ -866,6 +874,11 @@ const LearnTab = () => {
   });
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [readingTime, setReadingTime] = useState<number>(() => {
+    return parseInt(localStorage.getItem("hc-learn-reading-time") || "0");
+  });
   const [streak, setStreak] = useState(() => {
     const saved = localStorage.getItem("hc-learn-streak");
     if (!saved) return { count: 0, lastDate: "" };
@@ -880,6 +893,19 @@ const LearnTab = () => {
     localStorage.setItem("hc-learn-streak", JSON.stringify(streak));
   }, [streak]);
 
+  // Track reading time when lesson is open
+  useEffect(() => {
+    if (!openLessonId) return;
+    const interval = setInterval(() => {
+      setReadingTime(prev => {
+        const next = prev + 1;
+        localStorage.setItem("hc-learn-reading-time", String(next));
+        return next;
+      });
+    }, 60000); // every minute
+    return () => clearInterval(interval);
+  }, [openLessonId]);
+
   const updateStreak = () => {
     const today = new Date().toDateString();
     if (streak.lastDate === today) return;
@@ -891,9 +917,15 @@ const LearnTab = () => {
   const openLesson = lessons.find((l) => l.id === openLessonId);
   const nextLessonIndex = completedLessons.length;
   const nextLesson = lessons[nextLessonIndex] || lessons[0];
-  const filteredLessons = activeCategory === "All" ? lessons : lessons.filter((l) => l.category === activeCategory);
+  const searchLower = searchQuery.toLowerCase();
+  const filteredLessons = lessons.filter(l => {
+    const matchCategory = activeCategory === "All" || l.category === activeCategory;
+    const matchSearch = !searchQuery || l.title.toLowerCase().includes(searchLower) || l.category.toLowerCase().includes(searchLower) || l.content.intro.toLowerCase().includes(searchLower);
+    return matchCategory && matchSearch;
+  });
   const progress = Math.round((completedLessons.length / lessons.length) * 100);
   const dailyVerse = getDailyVerse();
+  const unlockedAchievements = achievements.filter(a => a.check(completedLessons, streak.count));
 
   const markComplete = (id: number) => {
     if (!completedLessons.includes(id)) {
