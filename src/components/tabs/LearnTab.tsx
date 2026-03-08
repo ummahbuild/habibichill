@@ -773,6 +773,10 @@ const lessons: Lesson[] = [
         "Every uncontrollable situation is an invitation to deepen Tawakkul",
       ],
       exercise: "Identify one situation that's been making you angry that you cannot control. Write it down. Then write: 'I trust that Allah has a plan for this that I cannot see.' Say 'Hasbiyallahu wa ni'mal wakeel' 7 times and feel the anger release.",
+      quiz: [
+        { question: "What is Tawakkul?", options: ["Blind passivity", "Maximum effort + zero anxiety about results", "Giving up trying", "Only making dua without action"], correctIndex: 1, explanation: "Like the birds who GO OUT but don't worry — Tawakkul is taking action while trusting Allah with the outcome." },
+        { question: "What is the root cause of most anger according to this lesson?", options: ["Other people", "Wanting to control what you cannot", "Physical pain", "Lack of knowledge"], correctIndex: 1, explanation: "Most anger is a response to unmet expectations about things beyond your control. Tawakkul eliminates these expectations." },
+      ],
     },
   },
   {
