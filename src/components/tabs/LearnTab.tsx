@@ -787,6 +787,21 @@ const lessons: Lesson[] = [
 
 const categories = ["All", ...Array.from(new Set(lessons.map((l) => l.category)))];
 
+const dailyVerses = [
+  { arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ", english: "Those who restrain their anger and pardon people.", ref: "3:134" },
+  { arabic: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", english: "Indeed, Allah is with the patient.", ref: "2:153" },
+  { arabic: "ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ", english: "Repel evil by that which is better.", ref: "41:34" },
+  { arabic: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", english: "In the remembrance of Allah do hearts find rest.", ref: "13:28" },
+  { arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "94:5" },
+  { arabic: "وَلَمَن صَبَرَ وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنْ عَزْمِ الْأُمُورِ", english: "Whoever is patient and forgives — that is of the matters requiring determination.", ref: "42:43" },
+  { arabic: "خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ", english: "Take what is given freely, enjoin what is good, and turn away from the ignorant.", ref: "7:199" },
+];
+
+const getDailyVerse = () => {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+  return dailyVerses[dayOfYear % dailyVerses.length];
+};
+
 const LearnTab = () => {
   const [openLessonId, setOpenLessonId] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
@@ -795,20 +810,39 @@ const LearnTab = () => {
   });
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [streak, setStreak] = useState(() => {
+    const saved = localStorage.getItem("hc-learn-streak");
+    if (!saved) return { count: 0, lastDate: "" };
+    return JSON.parse(saved);
+  });
 
   useEffect(() => {
     localStorage.setItem("hc-completed-lessons", JSON.stringify(completedLessons));
   }, [completedLessons]);
+
+  useEffect(() => {
+    localStorage.setItem("hc-learn-streak", JSON.stringify(streak));
+  }, [streak]);
+
+  const updateStreak = () => {
+    const today = new Date().toDateString();
+    if (streak.lastDate === today) return;
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    const newCount = streak.lastDate === yesterday ? streak.count + 1 : 1;
+    setStreak({ count: newCount, lastDate: today });
+  };
 
   const openLesson = lessons.find((l) => l.id === openLessonId);
   const nextLessonIndex = completedLessons.length;
   const nextLesson = lessons[nextLessonIndex] || lessons[0];
   const filteredLessons = activeCategory === "All" ? lessons : lessons.filter((l) => l.category === activeCategory);
   const progress = Math.round((completedLessons.length / lessons.length) * 100);
+  const dailyVerse = getDailyVerse();
 
   const markComplete = (id: number) => {
     if (!completedLessons.includes(id)) {
       setCompletedLessons((prev) => [...prev, id]);
+      updateStreak();
     }
   };
 
@@ -821,35 +855,64 @@ const LearnTab = () => {
         onToggleSection={(s) => setExpandedSection(expandedSection === s ? null : s)}
         onComplete={() => markComplete(openLesson.id)}
         onBack={() => { setOpenLessonId(null); setExpandedSection(null); }}
+        totalLessons={lessons.length}
+        completedCount={completedLessons.length}
       />
     );
   }
 
   return (
     <div className="container mx-auto max-w-lg px-4 pt-6 pb-8">
-      {/* Header with progress */}
-      <div className="mb-6 flex items-start justify-between">
+      {/* Header with progress & streak */}
+      <div className="mb-5 flex items-start justify-between">
         <div>
           <h1 className="mb-1 font-heading text-xl font-bold text-foreground">Daily Training</h1>
-          <p className="text-sm text-muted-foreground">Quran, Hadith & practical wisdom</p>
+          <p className="text-sm text-muted-foreground">
+            {lessons.length} lessons · Quran, Hadith & practical wisdom
+          </p>
         </div>
-        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
-          <svg className="h-14 w-14 -rotate-90" viewBox="0 0 56 56">
-            <circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" className="stroke-muted" />
-            <circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" className="stroke-primary"
-              strokeLinecap="round"
-              strokeDasharray={`${2 * Math.PI * 24}`}
-              strokeDashoffset={`${2 * Math.PI * 24 * (1 - progress / 100)}`}
-              style={{ transition: "stroke-dashoffset 0.5s ease" }}
-            />
-          </svg>
-          <span className="absolute text-xs font-bold text-foreground">{progress}%</span>
+        <div className="flex items-center gap-3">
+          {/* Streak */}
+          {streak.count > 0 && (
+            <div className="flex flex-col items-center">
+              <span className="text-lg">🔥</span>
+              <span className="text-[10px] font-bold text-foreground">{streak.count}d</span>
+            </div>
+          )}
+          {/* Progress ring */}
+          <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+            <svg className="h-14 w-14 -rotate-90" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" className="stroke-muted" />
+              <circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" className="stroke-primary"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 24}`}
+                strokeDashoffset={`${2 * Math.PI * 24 * (1 - progress / 100)}`}
+                style={{ transition: "stroke-dashoffset 0.5s ease" }}
+              />
+            </svg>
+            <span className="absolute text-xs font-bold text-foreground">{progress}%</span>
+          </div>
         </div>
       </div>
 
+      {/* Daily Verse Card */}
+      <motion.div
+        className="mb-5 rounded-2xl bg-gradient-calm border border-primary/10 p-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="mb-2 flex items-center gap-2">
+          <span className="text-sm">📖</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Today's Verse</span>
+        </div>
+        <p className="mb-2 font-arabic text-lg leading-loose text-foreground text-center" dir="rtl">{dailyVerse.arabic}</p>
+        <p className="mb-1 text-sm text-muted-foreground italic text-center">"{dailyVerse.english}"</p>
+        <p className="text-[10px] text-primary text-center">— Qur'an {dailyVerse.ref}</p>
+      </motion.div>
+
       {/* Continue Learning Card */}
       <motion.div
-        className="mb-6 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-calm"
+        className="mb-5 overflow-hidden rounded-2xl border border-primary/20 bg-card"
         whileHover={{ scale: 1.01 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
