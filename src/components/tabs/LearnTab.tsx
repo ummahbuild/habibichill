@@ -1390,7 +1390,7 @@ interface LessonViewProps {
   onRate: (rating: number) => void;
 }
 
-const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount, onNavigate, prevLesson, nextLesson }: LessonViewProps) => {
+const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount, onNavigate, prevLesson, nextLesson, relatedLessons, rating, onRate }: LessonViewProps) => {
   const { content } = lesson;
   const [bookmarks, setBookmarks] = useState<string[]>(() => {
     const saved = localStorage.getItem("hc-bookmarks");
