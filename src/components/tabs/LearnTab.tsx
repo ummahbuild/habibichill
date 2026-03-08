@@ -1759,6 +1759,31 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
         {completed ? "✓ Completed — Review Again" : "Mark as Complete ✨"}
       </motion.button>
 
+      {/* Lesson Rating */}
+      {completed && (
+        <div className="mt-4 rounded-xl border border-border bg-card p-4">
+          <p className="mb-3 text-xs font-semibold text-foreground">Rate this lesson</p>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                onClick={() => onRate(star)}
+                className={`flex-1 rounded-lg border py-2 text-lg transition-all ${
+                  rating && star <= rating ? "border-primary/40 bg-primary/10 scale-105" : "border-border bg-muted/30 hover:border-muted-foreground/30"
+                }`}
+              >
+                {star <= (rating || 0) ? "⭐" : "☆"}
+              </button>
+            ))}
+          </div>
+          {rating && (
+            <p className="mt-2 text-center text-[10px] text-muted-foreground">
+              {rating === 5 ? "Excellent! 🏆" : rating >= 4 ? "Very helpful!" : rating >= 3 ? "Decent lesson" : "Room for improvement"}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Next/Prev Navigation */}
       <div className="mt-4 flex gap-2">
         {prevLesson && (
@@ -1780,6 +1805,29 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
           </button>
         )}
       </div>
+
+      {/* Related Lessons */}
+      {relatedLessons.length > 0 && (
+        <div className="mt-6">
+          <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">You Might Also Like</h3>
+          <div className="flex flex-col gap-2">
+            {relatedLessons.map(rel => (
+              <button
+                key={rel.id}
+                onClick={() => onNavigate(rel.id)}
+                className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left hover:border-primary/30 transition-colors"
+              >
+                <span className="text-2xl">{rel.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{rel.title}</p>
+                  <p className="text-[10px] text-muted-foreground">{rel.category} · {rel.duration}</p>
+                </div>
+                <span className="text-xs text-muted-foreground">→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
