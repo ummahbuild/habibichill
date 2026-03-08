@@ -866,6 +866,155 @@ const achievements = [
   { id: "streak_7", emoji: "⭐", title: "Consistent", desc: "7-day learning streak", check: (_c: number[], s: number) => s >= 7 },
 ];
 
+// Flashcard data from all lessons
+const getAllFlashcards = () => {
+  const cards: { id: string; type: "ayah" | "hadith"; front: string; back: string; source: string }[] = [];
+  lessons.forEach((lesson) => {
+    lesson.content.ayahs.forEach((ayah, i) => {
+      cards.push({
+        id: `${lesson.id}-ayah-${i}`,
+        type: "ayah",
+        front: ayah.arabic,
+        back: ayah.english,
+        source: ayah.ref,
+      });
+    });
+    lesson.content.hadiths.forEach((hadith, i) => {
+      cards.push({
+        id: `${lesson.id}-hadith-${i}`,
+        type: "hadith",
+        front: hadith.arabic || hadith.text.slice(0, 100) + "...",
+        back: hadith.text,
+        source: hadith.source,
+      });
+    });
+  });
+  return cards;
+};
+
+// Get related lessons by category or shared keywords
+const getRelatedLessons = (currentLesson: Lesson) => {
+  return lessons
+    .filter(l => l.id !== currentLesson.id)
+    .map(l => ({
+      lesson: l,
+      score: l.category === currentLesson.category ? 2 : 0,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 2)
+    .map(r => r.lesson);
+};
+
+/* ─── Flashcard Mode ───────────────────────────── */
+const FlashcardMode = ({ onBack }: { onBack: () => void }) => {
+  const cards = getAllFlashcards();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [mastered, setMastered] = useState<string[]>(() => {
+    const saved = localStorage.getItem("hc-flashcard-mastered");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const remaining = cards.filter(c => !mastered.includes(c.id));
+  const card = remaining[currentIndex % remaining.length];
+
+  const markMastered = () => {
+    const next = [...mastered, card.id];
+    setMastered(next);
+    localStorage.setItem("hc-flashcard-mastered", JSON.stringify(next));
+    setFlipped(false);
+    if (currentIndex >= remaining.length - 1) setCurrentIndex(0);
+  };
+
+  const nextCard = () => {
+    setFlipped(false);
+    setCurrentIndex(prev => (prev + 1) % remaining.length);
+  };
+
+  if (remaining.length === 0) {
+    return (
+      <div className="container mx-auto max-w-lg px-4 pt-6 pb-8 text-center">
+        <button onClick={onBack} className="mb-6 flex items-center gap-1 text-sm text-primary hover:underline">
+          <span>←</span> Back
+        </button>
+        <span className="mb-3 block text-4xl">🎉</span>
+        <h2 className="font-heading text-xl font-bold text-foreground mb-2">All Cards Mastered!</h2>
+        <p className="text-sm text-muted-foreground mb-4">You've reviewed all {cards.length} flashcards.</p>
+        <button
+          onClick={() => { setMastered([]); localStorage.removeItem("hc-flashcard-mastered"); }}
+          className="rounded-xl bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
+        >
+          Reset & Start Over
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto max-w-lg px-4 pt-6 pb-8">
+      <div className="mb-4 flex items-center justify-between">
+        <button onClick={onBack} className="flex items-center gap-1 text-sm text-primary hover:underline">
+          <span>←</span> Back
+        </button>
+        <span className="text-[10px] text-muted-foreground">{remaining.length} cards left · {mastered.length} mastered</span>
+      </div>
+      <h2 className="mb-5 font-heading text-lg font-bold text-foreground">📇 Flashcard Review</h2>
+
+      {/* Progress */}
+      <div className="mb-5 h-1.5 rounded-full bg-muted overflow-hidden">
+        <div className="h-full bg-primary transition-all" style={{ width: `${(mastered.length / cards.length) * 100}%` }} />
+      </div>
+
+      {/* Card */}
+      <motion.div
+        className="mb-6 cursor-pointer perspective-1000"
+        onClick={() => setFlipped(!flipped)}
+        whileTap={{ scale: 0.97 }}
+      >
+        <motion.div
+          className="relative min-h-[220px] rounded-2xl border border-border bg-card p-6 flex flex-col items-center justify-center text-center shadow-sm"
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={{ duration: 0.4 }}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          {!flipped ? (
+            <div>
+              <span className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
+                card.type === "ayah" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary-foreground"
+              }`}>
+                {card.type === "ayah" ? "📖 Qur'an" : "📚 Hadith"}
+              </span>
+              <p className="font-arabic text-xl leading-loose text-foreground mt-3" dir="rtl">{card.front}</p>
+              <p className="mt-4 text-[10px] text-muted-foreground">Tap to reveal translation</p>
+            </div>
+          ) : (
+            <div style={{ transform: "rotateY(180deg)" }}>
+              <p className="text-sm text-foreground italic leading-relaxed">"{card.back}"</p>
+              <p className="mt-3 text-[10px] text-primary font-medium">{card.source}</p>
+            </div>
+          )}
+        </motion.div>
+      </motion.div>
+
+      {/* Actions */}
+      <div className="flex gap-3">
+        <button
+          onClick={nextCard}
+          className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-muted-foreground/40 transition-colors"
+        >
+          Review Again
+        </button>
+        <button
+          onClick={markMastered}
+          className="flex-1 rounded-xl bg-success py-3 text-sm font-semibold text-success-foreground transition-all hover:scale-[1.02]"
+        >
+          ✓ Got It
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const LearnTab = () => {
   const [openLessonId, setOpenLessonId] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
@@ -876,6 +1025,20 @@ const LearnTab = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showFlashcards, setShowFlashcards] = useState(false);
+  const [dailyGoal, setDailyGoal] = useState(() => {
+    return parseInt(localStorage.getItem("hc-learn-daily-goal") || "10");
+  });
+  const [todayMinutes, setTodayMinutes] = useState(() => {
+    const saved = localStorage.getItem("hc-learn-today-minutes");
+    if (!saved) return 0;
+    const { date, minutes } = JSON.parse(saved);
+    return date === new Date().toDateString() ? minutes : 0;
+  });
+  const [lessonRatings, setLessonRatings] = useState<Record<number, number>>(() => {
+    const saved = localStorage.getItem("hc-lesson-ratings");
+    return saved ? JSON.parse(saved) : {};
+  });
   const [readingTime, setReadingTime] = useState<number>(() => {
     return parseInt(localStorage.getItem("hc-learn-reading-time") || "0");
   });
@@ -893,7 +1056,11 @@ const LearnTab = () => {
     localStorage.setItem("hc-learn-streak", JSON.stringify(streak));
   }, [streak]);
 
-  // Track reading time when lesson is open
+  useEffect(() => {
+    localStorage.setItem("hc-lesson-ratings", JSON.stringify(lessonRatings));
+  }, [lessonRatings]);
+
+  // Track reading time & daily minutes when lesson is open
   useEffect(() => {
     if (!openLessonId) return;
     const interval = setInterval(() => {
@@ -902,7 +1069,12 @@ const LearnTab = () => {
         localStorage.setItem("hc-learn-reading-time", String(next));
         return next;
       });
-    }, 60000); // every minute
+      setTodayMinutes(prev => {
+        const next = prev + 1;
+        localStorage.setItem("hc-learn-today-minutes", JSON.stringify({ date: new Date().toDateString(), minutes: next }));
+        return next;
+      });
+    }, 60000);
     return () => clearInterval(interval);
   }, [openLessonId]);
 
@@ -934,10 +1106,20 @@ const LearnTab = () => {
     }
   };
 
+  const rateLesson = (lessonId: number, rating: number) => {
+    setLessonRatings(prev => ({ ...prev, [lessonId]: rating }));
+  };
+
+  // Flashcard mode
+  if (showFlashcards) {
+    return <FlashcardMode onBack={() => setShowFlashcards(false)} />;
+  }
+
   if (openLesson) {
     const currentIndex = lessons.findIndex(l => l.id === openLesson.id);
     const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
     const nextNav = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
+    const relatedLessons = getRelatedLessons(openLesson);
     return (
       <LessonView
         lesson={openLesson}
@@ -951,6 +1133,9 @@ const LearnTab = () => {
         onNavigate={(id) => { setOpenLessonId(id); setExpandedSection(null); }}
         prevLesson={prevLesson}
         nextLesson={nextNav}
+        relatedLessons={relatedLessons}
+        rating={lessonRatings[openLesson.id]}
+        onRate={(r) => rateLesson(openLesson.id, r)}
       />
     );
   }
@@ -989,19 +1174,41 @@ const LearnTab = () => {
         </div>
       </div>
 
+      {/* Daily Goal Progress */}
+      <div className="mb-4 rounded-xl border border-border bg-card p-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-foreground">🎯 Daily Goal</span>
+          <span className="text-[10px] text-muted-foreground">{todayMinutes}/{dailyGoal} min</span>
+        </div>
+        <div className="h-2 rounded-full bg-muted overflow-hidden">
+          <motion.div 
+            className={`h-full transition-all ${todayMinutes >= dailyGoal ? "bg-success" : "bg-primary"}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min((todayMinutes / dailyGoal) * 100, 100)}%` }}
+          />
+        </div>
+        {todayMinutes >= dailyGoal && (
+          <p className="mt-1.5 text-[10px] text-success font-medium">✓ Goal reached! MāshāAllah!</p>
+        )}
+      </div>
+
       {/* Stats Row */}
-      <div className="mb-5 grid grid-cols-3 gap-2">
-        <div className="rounded-xl border border-border bg-card p-3 text-center">
-          <span className="block text-lg font-bold text-primary">{completedLessons.length}</span>
-          <span className="text-[10px] text-muted-foreground">Completed</span>
+      <div className="mb-4 grid grid-cols-4 gap-2">
+        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+          <span className="block text-base font-bold text-primary">{completedLessons.length}</span>
+          <span className="text-[9px] text-muted-foreground">Done</span>
         </div>
-        <div className="rounded-xl border border-border bg-card p-3 text-center">
-          <span className="block text-lg font-bold text-primary">{readingTime}</span>
-          <span className="text-[10px] text-muted-foreground">Min Read</span>
+        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+          <span className="block text-base font-bold text-primary">{readingTime}</span>
+          <span className="text-[9px] text-muted-foreground">Min</span>
         </div>
-        <button onClick={() => setShowAchievements(!showAchievements)} className="rounded-xl border border-border bg-card p-3 text-center hover:border-primary/30 transition-colors">
-          <span className="block text-lg font-bold text-primary">{unlockedAchievements.length}/{achievements.length}</span>
-          <span className="text-[10px] text-muted-foreground">Badges</span>
+        <button onClick={() => setShowAchievements(!showAchievements)} className="rounded-xl border border-border bg-card p-2.5 text-center hover:border-primary/30 transition-colors">
+          <span className="block text-base font-bold text-primary">{unlockedAchievements.length}</span>
+          <span className="text-[9px] text-muted-foreground">Badges</span>
+        </button>
+        <button onClick={() => setShowFlashcards(true)} className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-center hover:bg-primary/10 transition-colors">
+          <span className="block text-base">📇</span>
+          <span className="text-[9px] text-primary font-medium">Cards</span>
         </button>
       </div>
 
@@ -1200,9 +1407,12 @@ interface LessonViewProps {
   onNavigate: (id: number) => void;
   prevLesson: Lesson | null;
   nextLesson: Lesson | null;
+  relatedLessons: Lesson[];
+  rating?: number;
+  onRate: (rating: number) => void;
 }
 
-const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount, onNavigate, prevLesson, nextLesson }: LessonViewProps) => {
+const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount, onNavigate, prevLesson, nextLesson, relatedLessons, rating, onRate }: LessonViewProps) => {
   const { content } = lesson;
   const [bookmarks, setBookmarks] = useState<string[]>(() => {
     const saved = localStorage.getItem("hc-bookmarks");
@@ -1549,6 +1759,31 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
         {completed ? "✓ Completed — Review Again" : "Mark as Complete ✨"}
       </motion.button>
 
+      {/* Lesson Rating */}
+      {completed && (
+        <div className="mt-4 rounded-xl border border-border bg-card p-4">
+          <p className="mb-3 text-xs font-semibold text-foreground">Rate this lesson</p>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                onClick={() => onRate(star)}
+                className={`flex-1 rounded-lg border py-2 text-lg transition-all ${
+                  rating && star <= rating ? "border-primary/40 bg-primary/10 scale-105" : "border-border bg-muted/30 hover:border-muted-foreground/30"
+                }`}
+              >
+                {star <= (rating || 0) ? "⭐" : "☆"}
+              </button>
+            ))}
+          </div>
+          {rating && (
+            <p className="mt-2 text-center text-[10px] text-muted-foreground">
+              {rating === 5 ? "Excellent! 🏆" : rating >= 4 ? "Very helpful!" : rating >= 3 ? "Decent lesson" : "Room for improvement"}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Next/Prev Navigation */}
       <div className="mt-4 flex gap-2">
         {prevLesson && (
@@ -1570,6 +1805,29 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
           </button>
         )}
       </div>
+
+      {/* Related Lessons */}
+      {relatedLessons.length > 0 && (
+        <div className="mt-6">
+          <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">You Might Also Like</h3>
+          <div className="flex flex-col gap-2">
+            {relatedLessons.map(rel => (
+              <button
+                key={rel.id}
+                onClick={() => onNavigate(rel.id)}
+                className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left hover:border-primary/30 transition-colors"
+              >
+                <span className="text-2xl">{rel.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{rel.title}</p>
+                  <p className="text-[10px] text-muted-foreground">{rel.category} · {rel.duration}</p>
+                </div>
+                <span className="text-xs text-muted-foreground">→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
