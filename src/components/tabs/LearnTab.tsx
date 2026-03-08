@@ -245,6 +245,10 @@ const lessons: Lesson[] = [
         "Even an atom's weight of arrogance blocks Paradise",
       ],
       exercise: "Next time you feel anger rising, immediately ask: 'Am I angry because of injustice, or because my ego was hurt?' If it's the ego, say 'SubhanAllah' and let it go. Journal what you discover tonight.",
+      quiz: [
+        { question: "How much arrogance blocks entry to Paradise?", options: ["A mountain's weight", "A handful", "An atom's weight", "None — arrogance is forgiven"], correctIndex: 2, explanation: "The Prophet ﷺ said: 'No one who has an atom's weight of arrogance in his heart will enter Paradise.' (Muslim 91)" },
+        { question: "What is the antidote to ego-driven anger?", options: ["More anger", "Tawadu (humility)", "Ignoring it", "Physical exercise"], correctIndex: 1, explanation: "Humility (tawadu') is thinking of yourself less. A humble heart is rarely an angry heart." },
+      ],
     },
   },
   {
