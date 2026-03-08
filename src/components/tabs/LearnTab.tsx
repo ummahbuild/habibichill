@@ -996,10 +996,20 @@ const LearnTab = () => {
     }
   };
 
+  const rateLesson = (lessonId: number, rating: number) => {
+    setLessonRatings(prev => ({ ...prev, [lessonId]: rating }));
+  };
+
+  // Flashcard mode
+  if (showFlashcards) {
+    return <FlashcardMode onBack={() => setShowFlashcards(false)} />;
+  }
+
   if (openLesson) {
     const currentIndex = lessons.findIndex(l => l.id === openLesson.id);
     const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
     const nextNav = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
+    const relatedLessons = getRelatedLessons(openLesson);
     return (
       <LessonView
         lesson={openLesson}
@@ -1013,6 +1023,9 @@ const LearnTab = () => {
         onNavigate={(id) => { setOpenLessonId(id); setExpandedSection(null); }}
         prevLesson={prevLesson}
         nextLesson={nextNav}
+        relatedLessons={relatedLessons}
+        rating={lessonRatings[openLesson.id]}
+        onRate={(r) => rateLesson(openLesson.id, r)}
       />
     );
   }
