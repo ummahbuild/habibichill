@@ -379,6 +379,10 @@ const lessons: Lesson[] = [
         "The Prophet ﷺ forgave his worst enemies — this is true strength",
       ],
       exercise: "Think of one person you are holding a grudge against. Make dua for them tonight: 'O Allah, forgive them and guide them.' Notice how your heart feels after. This is the beginning of freedom.",
+      quiz: [
+        { question: "What did the Prophet ﷺ say to the people of Makkah on the day of conquest?", options: ["'You will be punished'", "'Go, you are free'", "'Convert or face consequences'", "'Pay a fine'"], correctIndex: 1, explanation: "Despite 13 years of persecution, torture, and exile, the Prophet ﷺ said 'Go, you are free' — the greatest act of forgiveness in history." },
+        { question: "What does Allah connect His forgiveness to?", options: ["Amount of prayer", "Your forgiveness of others", "Financial charity", "Pilgrimage"], correctIndex: 1, explanation: "Allah revealed 'Do you not wish that Allah should forgive you?' (24:22) — directly linking His forgiveness to our forgiveness of others." },
+      ],
     },
   },
   {
@@ -442,6 +446,10 @@ const lessons: Lesson[] = [
         "Marriage should be sakīnah (tranquility), not a battleground",
       ],
       exercise: "Tonight, regardless of how your day went, initiate a kind gesture toward your spouse — a compliment, a cup of tea, or simply listening. Do this for 7 days consecutively.",
+      quiz: [
+        { question: "What is the Quranic purpose of marriage?", options: ["Financial security", "Social status", "Sakīnah (tranquility)", "Having children only"], correctIndex: 2, explanation: "Allah says He placed 'mawaddah wa rahmah' (affection and mercy) between spouses for sakīnah (tranquility). (Qur'an 30:21)" },
+        { question: "How did the Prophet ﷺ handle anger at home?", options: ["He would raise his voice", "He would leave for days", "He would turn away silently until it passed", "He would punish"], correctIndex: 2, explanation: "Aisha (RA) reported he never struck anyone, never raised his voice at his wives, and would simply turn away silently when upset." },
+      ],
     },
   },
   {
@@ -498,6 +506,10 @@ const lessons: Lesson[] = [
         "The goal of fasting is taqwa (God-consciousness), not just hunger",
       ],
       exercise: "The next time you fast (whether Ramadan or voluntary), keep a tally of every time you successfully restrain your anger. Aim for 3+ restraints per fasting day. Say 'Innī ṣā'im' (I am fasting) each time.",
+      quiz: [
+        { question: "What does the Prophet ﷺ call fasting?", options: ["A burden", "A shield (junnah)", "A punishment", "A reward"], correctIndex: 1, explanation: "The Prophet ﷺ called fasting a 'shield' (junnah) — it protects you from sins and hellfire. (Bukhari 1904)" },
+        { question: "What should you say when provoked while fasting?", options: ["'Leave me alone'", "'I am fasting'", "'I will deal with you later'", "'Be quiet'"], correctIndex: 1, explanation: "The Prophet ﷺ said: 'If someone insults him or quarrels with him, let him say: I am fasting.' This serves as a spiritual barrier." },
+      ],
     },
   },
   {
@@ -565,6 +577,10 @@ const lessons: Lesson[] = [
         "True change happens at the level of the heart, not just behavior",
       ],
       exercise: "Spend 10 minutes tonight in murāqabah (self-reflection). Sit quietly, make dhikr, and ask yourself: 'What is the fuel of my anger? Is it ego? Status? Control?' Write down what you discover. Repeat weekly.",
+      quiz: [
+        { question: "According to Ghazali, what are the three states of anger?", options: ["Hot, warm, cold", "Deficiency, excess, balance", "Physical, emotional, spiritual", "Internal, external, hidden"], correctIndex: 1, explanation: "Ghazali identifies deficiency (no anger even at injustice), excess (uncontrolled rage), and balance (righteous anger controlled by faith)." },
+        { question: "What does Ghazali say is the 'fuel' of anger?", options: ["Other people's actions", "Arrogance, self-admiration, and love of dunya", "Physical pain", "Lack of sleep"], correctIndex: 1, explanation: "Ghazali says anger's fuel is kibr (arrogance), 'ujb (self-admiration), and ḥubb ad-dunyā (love of worldly things). Remove the fuel, the fire cannot burn." },
+      ],
     },
   },
   {
@@ -629,6 +645,10 @@ const lessons: Lesson[] = [
         "The tongue is the key to Paradise or Hellfire",
       ],
       exercise: "For 24 hours, before speaking to anyone, pause for 2 seconds and ask: 'Is what I'm about to say good?' If not, stay silent. Track how many times you chose silence over harmful speech.",
+      quiz: [
+        { question: "What does the Prophet ﷺ guarantee for those who guard their tongue?", options: ["Wealth", "Paradise", "Fame", "Long life"], correctIndex: 1, explanation: "'Whoever guarantees me what is between his jaws and what is between his legs, I guarantee him Paradise.' (Bukhari 6474)" },
+        { question: "How long does the initial anger 'bypass' of rational thinking last?", options: ["1-2 seconds", "6-20 seconds", "1-5 minutes", "30 minutes"], correctIndex: 1, explanation: "Neuroscience confirms speaking during the first 6-20 seconds of anger bypasses your rational brain entirely. Silence buys time for wisdom." },
+      ],
     },
   },
   {
@@ -685,6 +705,10 @@ const lessons: Lesson[] = [
         "Allah promises to increase blessings for the grateful",
       ],
       exercise: "Tonight before bed, write down 5 specific blessings from today. Do this every night for 7 days. On day 7, compare your anger levels to day 1.",
+      quiz: [
+        { question: "By how much does daily gratitude lower cortisol?", options: ["5%", "10%", "23%", "50%"], correctIndex: 2, explanation: "UC Davis research shows daily gratitude practice lowers cortisol (the stress hormone that fuels anger) by 23%." },
+        { question: "What did the Prophet ﷺ advise about comparing yourself to others?", options: ["Compare to the wealthy for motivation", "Look at those below you in blessings", "Don't compare at all", "Only compare in worship"], correctIndex: 1, explanation: "'Look at those who are below you and do not look at those above you. This prevents you from belittling Allah's blessings.' (Muslim 2963)" },
+      ],
     },
   },
   {
@@ -749,6 +773,10 @@ const lessons: Lesson[] = [
         "Every uncontrollable situation is an invitation to deepen Tawakkul",
       ],
       exercise: "Identify one situation that's been making you angry that you cannot control. Write it down. Then write: 'I trust that Allah has a plan for this that I cannot see.' Say 'Hasbiyallahu wa ni'mal wakeel' 7 times and feel the anger release.",
+      quiz: [
+        { question: "What is Tawakkul?", options: ["Blind passivity", "Maximum effort + zero anxiety about results", "Giving up trying", "Only making dua without action"], correctIndex: 1, explanation: "Like the birds who GO OUT but don't worry — Tawakkul is taking action while trusting Allah with the outcome." },
+        { question: "What is the root cause of most anger according to this lesson?", options: ["Other people", "Wanting to control what you cannot", "Physical pain", "Lack of knowledge"], correctIndex: 1, explanation: "Most anger is a response to unmet expectations about things beyond your control. Tawakkul eliminates these expectations." },
+      ],
     },
   },
   {
@@ -805,6 +833,10 @@ const lessons: Lesson[] = [
         "Evening self-accounting (muhasabah) builds continuous improvement",
       ],
       exercise: "For the next 3 days, try this routine: (1) Morning adhkar after Fajr, (2) 10-minute walk, (3) 3 dates for breakfast, (4) Evening muhasabah before sleep. Note your anger levels each day.",
+      quiz: [
+        { question: "By how much does sleep deprivation reduce your anger threshold?", options: ["10%", "25%", "Up to 60%", "It doesn't affect it"], correctIndex: 2, explanation: "Sleep deprivation reduces your anger threshold by up to 60% — making good sleep one of the most important anger prevention tools." },
+        { question: "What is muhasabah?", options: ["A type of prayer", "Self-accounting and reflection", "A type of fasting", "Meditation"], correctIndex: 1, explanation: "Muhasabah is nightly self-accounting: reviewing your day, identifying triggers, and planning for improvement. It's a core prevention habit." },
+      ],
     },
   },
 ];
@@ -826,6 +858,14 @@ const getDailyVerse = () => {
   return dailyVerses[dayOfYear % dailyVerses.length];
 };
 
+const achievements = [
+  { id: "first_lesson", emoji: "🌱", title: "First Step", desc: "Complete your first lesson", check: (c: number[]) => c.length >= 1 },
+  { id: "five_lessons", emoji: "📚", title: "Dedicated Student", desc: "Complete 5 lessons", check: (c: number[]) => c.length >= 5 },
+  { id: "all_lessons", emoji: "🏆", title: "Scholar", desc: "Complete all lessons", check: (c: number[]) => c.length >= lessons.length },
+  { id: "streak_3", emoji: "🔥", title: "On Fire", desc: "3-day learning streak", check: (_c: number[], s: number) => s >= 3 },
+  { id: "streak_7", emoji: "⭐", title: "Consistent", desc: "7-day learning streak", check: (_c: number[], s: number) => s >= 7 },
+];
+
 const LearnTab = () => {
   const [openLessonId, setOpenLessonId] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
@@ -834,6 +874,11 @@ const LearnTab = () => {
   });
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [readingTime, setReadingTime] = useState<number>(() => {
+    return parseInt(localStorage.getItem("hc-learn-reading-time") || "0");
+  });
   const [streak, setStreak] = useState(() => {
     const saved = localStorage.getItem("hc-learn-streak");
     if (!saved) return { count: 0, lastDate: "" };
@@ -848,6 +893,19 @@ const LearnTab = () => {
     localStorage.setItem("hc-learn-streak", JSON.stringify(streak));
   }, [streak]);
 
+  // Track reading time when lesson is open
+  useEffect(() => {
+    if (!openLessonId) return;
+    const interval = setInterval(() => {
+      setReadingTime(prev => {
+        const next = prev + 1;
+        localStorage.setItem("hc-learn-reading-time", String(next));
+        return next;
+      });
+    }, 60000); // every minute
+    return () => clearInterval(interval);
+  }, [openLessonId]);
+
   const updateStreak = () => {
     const today = new Date().toDateString();
     if (streak.lastDate === today) return;
@@ -859,9 +917,15 @@ const LearnTab = () => {
   const openLesson = lessons.find((l) => l.id === openLessonId);
   const nextLessonIndex = completedLessons.length;
   const nextLesson = lessons[nextLessonIndex] || lessons[0];
-  const filteredLessons = activeCategory === "All" ? lessons : lessons.filter((l) => l.category === activeCategory);
+  const searchLower = searchQuery.toLowerCase();
+  const filteredLessons = lessons.filter(l => {
+    const matchCategory = activeCategory === "All" || l.category === activeCategory;
+    const matchSearch = !searchQuery || l.title.toLowerCase().includes(searchLower) || l.category.toLowerCase().includes(searchLower) || l.content.intro.toLowerCase().includes(searchLower);
+    return matchCategory && matchSearch;
+  });
   const progress = Math.round((completedLessons.length / lessons.length) * 100);
   const dailyVerse = getDailyVerse();
+  const unlockedAchievements = achievements.filter(a => a.check(completedLessons, streak.count));
 
   const markComplete = (id: number) => {
     if (!completedLessons.includes(id)) {
@@ -925,6 +989,50 @@ const LearnTab = () => {
         </div>
       </div>
 
+      {/* Stats Row */}
+      <div className="mb-5 grid grid-cols-3 gap-2">
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <span className="block text-lg font-bold text-primary">{completedLessons.length}</span>
+          <span className="text-[10px] text-muted-foreground">Completed</span>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <span className="block text-lg font-bold text-primary">{readingTime}</span>
+          <span className="text-[10px] text-muted-foreground">Min Read</span>
+        </div>
+        <button onClick={() => setShowAchievements(!showAchievements)} className="rounded-xl border border-border bg-card p-3 text-center hover:border-primary/30 transition-colors">
+          <span className="block text-lg font-bold text-primary">{unlockedAchievements.length}/{achievements.length}</span>
+          <span className="text-[10px] text-muted-foreground">Badges</span>
+        </button>
+      </div>
+
+      {/* Achievements */}
+      <AnimatePresence>
+        {showAchievements && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="mb-5 overflow-hidden"
+          >
+            <h3 className="mb-2 font-heading text-xs font-semibold uppercase tracking-wider text-muted-foreground">Achievements</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {achievements.map(a => {
+                const unlocked = a.check(completedLessons, streak.count);
+                return (
+                  <div key={a.id} className={`flex items-center gap-2.5 rounded-xl border p-3 transition-all ${unlocked ? "border-primary/30 bg-primary/5" : "border-border bg-card opacity-50"}`}>
+                    <span className={`text-xl ${unlocked ? "" : "grayscale"}`}>{a.emoji}</span>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{a.title}</p>
+                      <p className="text-[10px] text-muted-foreground">{a.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Daily Verse Card */}
       <motion.div
         className="mb-5 rounded-2xl bg-gradient-calm border border-primary/10 p-4"
@@ -973,6 +1081,21 @@ const LearnTab = () => {
           <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
       </motion.div>
+
+      {/* Search */}
+      <div className="mb-4 relative">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search lessons..."
+          className="w-full rounded-xl border border-border bg-card px-4 py-2.5 pl-9 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">🔍</span>
+        {searchQuery && (
+          <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground">✕</button>
+        )}
+      </div>
 
       {/* Category Filters */}
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
