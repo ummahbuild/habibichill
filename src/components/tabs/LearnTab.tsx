@@ -446,6 +446,10 @@ const lessons: Lesson[] = [
         "Marriage should be sakīnah (tranquility), not a battleground",
       ],
       exercise: "Tonight, regardless of how your day went, initiate a kind gesture toward your spouse — a compliment, a cup of tea, or simply listening. Do this for 7 days consecutively.",
+      quiz: [
+        { question: "What is the Quranic purpose of marriage?", options: ["Financial security", "Social status", "Sakīnah (tranquility)", "Having children only"], correctIndex: 2, explanation: "Allah says He placed 'mawaddah wa rahmah' (affection and mercy) between spouses for sakīnah (tranquility). (Qur'an 30:21)" },
+        { question: "How did the Prophet ﷺ handle anger at home?", options: ["He would raise his voice", "He would leave for days", "He would turn away silently until it passed", "He would punish"], correctIndex: 2, explanation: "Aisha (RA) reported he never struck anyone, never raised his voice at his wives, and would simply turn away silently when upset." },
+      ],
     },
   },
   {
