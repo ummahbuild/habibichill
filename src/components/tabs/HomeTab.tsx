@@ -7,6 +7,7 @@ import ReferenceTooltip from "@/components/ReferenceTooltip";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import WeeklyChallengeWidget from "@/components/WeeklyChallengeWidget";
 
 const wisdoms = [
   { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "Qur'an 94:6", link: "https://quran.com/94/6" },
