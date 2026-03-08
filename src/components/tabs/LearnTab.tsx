@@ -645,6 +645,10 @@ const lessons: Lesson[] = [
         "The tongue is the key to Paradise or Hellfire",
       ],
       exercise: "For 24 hours, before speaking to anyone, pause for 2 seconds and ask: 'Is what I'm about to say good?' If not, stay silent. Track how many times you chose silence over harmful speech.",
+      quiz: [
+        { question: "What does the Prophet ﷺ guarantee for those who guard their tongue?", options: ["Wealth", "Paradise", "Fame", "Long life"], correctIndex: 1, explanation: "'Whoever guarantees me what is between his jaws and what is between his legs, I guarantee him Paradise.' (Bukhari 6474)" },
+        { question: "How long does the initial anger 'bypass' of rational thinking last?", options: ["1-2 seconds", "6-20 seconds", "1-5 minutes", "30 minutes"], correctIndex: 1, explanation: "Neuroscience confirms speaking during the first 6-20 seconds of anger bypasses your rational brain entirely. Silence buys time for wisdom." },
+      ],
     },
   },
   {
