@@ -833,6 +833,10 @@ const lessons: Lesson[] = [
         "Evening self-accounting (muhasabah) builds continuous improvement",
       ],
       exercise: "For the next 3 days, try this routine: (1) Morning adhkar after Fajr, (2) 10-minute walk, (3) 3 dates for breakfast, (4) Evening muhasabah before sleep. Note your anger levels each day.",
+      quiz: [
+        { question: "By how much does sleep deprivation reduce your anger threshold?", options: ["10%", "25%", "Up to 60%", "It doesn't affect it"], correctIndex: 2, explanation: "Sleep deprivation reduces your anger threshold by up to 60% — making good sleep one of the most important anger prevention tools." },
+        { question: "What is muhasabah?", options: ["A type of prayer", "Self-accounting and reflection", "A type of fasting", "Meditation"], correctIndex: 1, explanation: "Muhasabah is nightly self-accounting: reviewing your day, identifying triggers, and planning for improvement. It's a core prevention habit." },
+      ],
     },
   },
 ];
