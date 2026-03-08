@@ -577,6 +577,10 @@ const lessons: Lesson[] = [
         "True change happens at the level of the heart, not just behavior",
       ],
       exercise: "Spend 10 minutes tonight in murāqabah (self-reflection). Sit quietly, make dhikr, and ask yourself: 'What is the fuel of my anger? Is it ego? Status? Control?' Write down what you discover. Repeat weekly.",
+      quiz: [
+        { question: "According to Ghazali, what are the three states of anger?", options: ["Hot, warm, cold", "Deficiency, excess, balance", "Physical, emotional, spiritual", "Internal, external, hidden"], correctIndex: 1, explanation: "Ghazali identifies deficiency (no anger even at injustice), excess (uncontrolled rage), and balance (righteous anger controlled by faith)." },
+        { question: "What does Ghazali say is the 'fuel' of anger?", options: ["Other people's actions", "Arrogance, self-admiration, and love of dunya", "Physical pain", "Lack of sleep"], correctIndex: 1, explanation: "Ghazali says anger's fuel is kibr (arrogance), 'ujb (self-admiration), and ḥubb ad-dunyā (love of worldly things). Remove the fuel, the fire cannot burn." },
+      ],
     },
   },
   {
