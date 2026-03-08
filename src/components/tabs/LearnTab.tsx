@@ -871,6 +871,9 @@ const LearnTab = () => {
   };
 
   if (openLesson) {
+    const currentIndex = lessons.findIndex(l => l.id === openLesson.id);
+    const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
+    const nextNav = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
     return (
       <LessonView
         lesson={openLesson}
@@ -881,6 +884,9 @@ const LearnTab = () => {
         onBack={() => { setOpenLessonId(null); setExpandedSection(null); }}
         totalLessons={lessons.length}
         completedCount={completedLessons.length}
+        onNavigate={(id) => { setOpenLessonId(id); setExpandedSection(null); }}
+        prevLesson={prevLesson}
+        nextLesson={nextNav}
       />
     );
   }
