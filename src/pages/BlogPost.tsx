@@ -61,10 +61,14 @@ const BlogPost = () => {
       );
     }
     if (block.startsWith("## ")) {
-      return <h2 className="mb-3 mt-8 font-heading text-2xl font-bold text-foreground">{block.slice(3)}</h2>;
+      const text = block.slice(3);
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      return <h2 id={id} className="mb-3 mt-8 scroll-mt-20 font-heading text-2xl font-bold text-foreground">{text}</h2>;
     }
     if (block.startsWith("### ")) {
-      return <h3 className="mb-2 mt-6 font-heading text-xl font-semibold text-foreground">{block.slice(4)}</h3>;
+      const text = block.slice(4);
+      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      return <h3 id={id} className="mb-2 mt-6 scroll-mt-20 font-heading text-xl font-semibold text-foreground">{text}</h3>;
     }
     if (block.startsWith("- ")) {
       return (
