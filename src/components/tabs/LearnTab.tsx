@@ -105,6 +105,10 @@ const lessons: Lesson[] = [
         "Self-awareness is the foundation of anger management",
       ],
       exercise: "For the next 24 hours, whenever you feel a flash of irritation, pause and ask: 'Is this anger for Allah's sake, or for my ego?' Write down what you discover.",
+      quiz: [
+        { question: "What did the Prophet ﷺ say about the truly strong person?", options: ["The one who can fight well", "The one who controls himself when angry", "The one who never feels anger", "The one who wins arguments"], correctIndex: 1, explanation: "The Prophet ﷺ said: 'The strong person is not the one who can overpower others. The strong person is the one who controls himself when he is angry.' (Bukhari 6114)" },
+        { question: "What are the two types of anger in Islam?", options: ["Hot and cold anger", "Righteous anger and ego-driven anger", "Physical and emotional anger", "Internal and external anger"], correctIndex: 1, explanation: "Islam distinguishes between righteous anger (for Allah's sake) and selfish anger (for the ego). Most daily anger is ego-driven." },
+      ],
     },
   },
   {
