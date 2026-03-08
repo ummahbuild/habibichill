@@ -705,6 +705,10 @@ const lessons: Lesson[] = [
         "Allah promises to increase blessings for the grateful",
       ],
       exercise: "Tonight before bed, write down 5 specific blessings from today. Do this every night for 7 days. On day 7, compare your anger levels to day 1.",
+      quiz: [
+        { question: "By how much does daily gratitude lower cortisol?", options: ["5%", "10%", "23%", "50%"], correctIndex: 2, explanation: "UC Davis research shows daily gratitude practice lowers cortisol (the stress hormone that fuels anger) by 23%." },
+        { question: "What did the Prophet ﷺ advise about comparing yourself to others?", options: ["Compare to the wealthy for motivation", "Look at those below you in blessings", "Don't compare at all", "Only compare in worship"], correctIndex: 1, explanation: "'Look at those who are below you and do not look at those above you. This prevents you from belittling Allah's blessings.' (Muslim 2963)" },
+      ],
     },
   },
   {
