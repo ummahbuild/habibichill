@@ -5,6 +5,8 @@ import { getPostBySlug, getRelatedPosts } from "@/data/blogPosts";
 import logo from "@/assets/habibichill-logo.png";
 import SiteFooter from "@/components/SiteFooter";
 import ShareButtons from "@/components/ShareButtons";
+import ReadingProgressBar from "@/components/ReadingProgressBar";
+import BlogTableOfContents from "@/components/BlogTableOfContents";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
