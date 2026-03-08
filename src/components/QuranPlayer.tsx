@@ -150,11 +150,6 @@ const QuranPlayer = ({ currentSurahId, onChangeSurah, onClose }: QuranPlayerProp
   useEffect(() => { playNextRef.current = playNext; }, [playNext]);
   useEffect(() => { playPrevRef.current = playPrev; }, [playPrev]);
 
-  const handleTimeUpdate = () => {
-    if (audioRef.current && audioRef.current.duration) {
-      setProgress(audioRef.current.currentTime / audioRef.current.duration);
-    }
-  };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!audioRef.current || !audioRef.current.duration) return;
