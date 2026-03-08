@@ -150,6 +150,14 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
                   Sahih Muslim 597 →
                 </a>
               </div>
+              <div className="mb-4 flex justify-center">
+                <ShareButtons
+                  url="/"
+                  title="I just completed 100 adhkār on HabibiChill! 📿✨"
+                  text="I just completed 100 adhkār (SubhanAllah 33, Alhamdulillah 33, Allahu Akbar 34) on HabibiChill — the Muslim anger management app. Try it free:"
+                  compact
+                />
+              </div>
               <div className="flex gap-2">
                 <button onClick={reset} className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground hover:bg-muted">
                   Start Again
