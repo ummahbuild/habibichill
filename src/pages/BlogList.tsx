@@ -80,7 +80,7 @@ const BlogList = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Evidence-based Islamic anger management articles, Qur'anic wisdom, prophetic guidance, and practical guides.
+            {blogPosts.length} articles on Islamic anger management, Qur'anic wisdom, prophetic guidance, and practical guides.
           </motion.p>
         </div>
       </header>
