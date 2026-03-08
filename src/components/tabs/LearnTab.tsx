@@ -866,6 +866,45 @@ const achievements = [
   { id: "streak_7", emoji: "⭐", title: "Consistent", desc: "7-day learning streak", check: (_c: number[], s: number) => s >= 7 },
 ];
 
+// Flashcard data from all lessons
+const getAllFlashcards = () => {
+  const cards: { id: string; type: "ayah" | "hadith"; front: string; back: string; source: string }[] = [];
+  lessons.forEach((lesson) => {
+    lesson.content.ayahs.forEach((ayah, i) => {
+      cards.push({
+        id: `${lesson.id}-ayah-${i}`,
+        type: "ayah",
+        front: ayah.arabic,
+        back: ayah.english,
+        source: ayah.ref,
+      });
+    });
+    lesson.content.hadiths.forEach((hadith, i) => {
+      cards.push({
+        id: `${lesson.id}-hadith-${i}`,
+        type: "hadith",
+        front: hadith.arabic || hadith.text.slice(0, 100) + "...",
+        back: hadith.text,
+        source: hadith.source,
+      });
+    });
+  });
+  return cards;
+};
+
+// Get related lessons by category or shared keywords
+const getRelatedLessons = (currentLesson: Lesson) => {
+  return lessons
+    .filter(l => l.id !== currentLesson.id)
+    .map(l => ({
+      lesson: l,
+      score: l.category === currentLesson.category ? 2 : 0,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 2)
+    .map(r => r.lesson);
+};
+
 const LearnTab = () => {
   const [openLessonId, setOpenLessonId] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
@@ -876,6 +915,20 @@ const LearnTab = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showFlashcards, setShowFlashcards] = useState(false);
+  const [dailyGoal, setDailyGoal] = useState(() => {
+    return parseInt(localStorage.getItem("hc-learn-daily-goal") || "10");
+  });
+  const [todayMinutes, setTodayMinutes] = useState(() => {
+    const saved = localStorage.getItem("hc-learn-today-minutes");
+    if (!saved) return 0;
+    const { date, minutes } = JSON.parse(saved);
+    return date === new Date().toDateString() ? minutes : 0;
+  });
+  const [lessonRatings, setLessonRatings] = useState<Record<number, number>>(() => {
+    const saved = localStorage.getItem("hc-lesson-ratings");
+    return saved ? JSON.parse(saved) : {};
+  });
   const [readingTime, setReadingTime] = useState<number>(() => {
     return parseInt(localStorage.getItem("hc-learn-reading-time") || "0");
   });
