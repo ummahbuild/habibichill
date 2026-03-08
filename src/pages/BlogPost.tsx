@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { getPostBySlug, getRelatedPosts } from "@/data/blogPosts";
 import logo from "@/assets/habibichill-logo.png";
 import SiteFooter from "@/components/SiteFooter";
+import ShareButtons from "@/components/ShareButtons";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -131,6 +132,16 @@ const BlogPost = () => {
             <span>·</span>
             <span>{post.readTime} read</span>
           </div>
+
+          {/* Share Buttons */}
+          <div className="mt-4">
+            <ShareButtons
+              url={`/blogs/${post.slug}`}
+              title={post.title}
+              text={`${post.title} — ${post.excerpt}`}
+            />
+          </div>
+
           <div className="mt-4 flex flex-wrap gap-2">
             {post.tags.map((tag) => (
               <Link
@@ -155,13 +166,23 @@ const BlogPost = () => {
           ))}
         </motion.div>
 
-        {/* CTA */}
+        {/* CTA + Share */}
         <div className="mt-12 rounded-2xl bg-gradient-calm border border-border p-8 text-center">
           <h3 className="mb-2 font-heading text-xl font-bold text-foreground">Ready to Start Your Sabr Journey?</h3>
           <p className="mb-4 text-muted-foreground">HabibiChill is free, private, and works offline.</p>
-          <Link to="/" className="inline-block rounded-2xl bg-primary px-8 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105">
-            Launch HabibiChill
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link to="/" className="inline-block rounded-2xl bg-primary px-8 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105">
+              Launch HabibiChill
+            </Link>
+          </div>
+          <div className="mt-5 flex justify-center">
+            <ShareButtons
+              url={`/blogs/${post.slug}`}
+              title={post.title}
+              text={`${post.title} — Read on HabibiChill`}
+              compact
+            />
+          </div>
         </div>
 
         {/* Related */}
