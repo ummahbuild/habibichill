@@ -506,6 +506,10 @@ const lessons: Lesson[] = [
         "The goal of fasting is taqwa (God-consciousness), not just hunger",
       ],
       exercise: "The next time you fast (whether Ramadan or voluntary), keep a tally of every time you successfully restrain your anger. Aim for 3+ restraints per fasting day. Say 'Innī ṣā'im' (I am fasting) each time.",
+      quiz: [
+        { question: "What does the Prophet ﷺ call fasting?", options: ["A burden", "A shield (junnah)", "A punishment", "A reward"], correctIndex: 1, explanation: "The Prophet ﷺ called fasting a 'shield' (junnah) — it protects you from sins and hellfire. (Bukhari 1904)" },
+        { question: "What should you say when provoked while fasting?", options: ["'Leave me alone'", "'I am fasting'", "'I will deal with you later'", "'Be quiet'"], correctIndex: 1, explanation: "The Prophet ﷺ said: 'If someone insults him or quarrels with him, let him say: I am fasting.' This serves as a spiritual barrier." },
+      ],
     },
   },
   {
