@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { getPostBySlug, getRelatedPosts } from "@/data/blogPosts";
 import logo from "@/assets/habibichill-logo.png";
 import SiteFooter from "@/components/SiteFooter";
+import ShareButtons from "@/components/ShareButtons";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
