@@ -1275,6 +1275,9 @@ interface LessonViewProps {
   onNavigate: (id: number) => void;
   prevLesson: Lesson | null;
   nextLesson: Lesson | null;
+  relatedLessons: Lesson[];
+  rating?: number;
+  onRate: (rating: number) => void;
 }
 
 const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount, onNavigate, prevLesson, nextLesson }: LessonViewProps) => {
