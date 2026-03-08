@@ -185,6 +185,8 @@ const BlogPost = () => {
           </div>
         </motion.header>
 
+        <BlogTableOfContents content={post.content} />
+
         <motion.div
           className="prose-custom"
           initial={{ opacity: 0 }}
