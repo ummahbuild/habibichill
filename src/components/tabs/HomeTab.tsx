@@ -436,6 +436,11 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
         )}
       </div>
 
+      {/* Weekly Challenge */}
+      <div className="mb-5">
+        <WeeklyChallengeWidget compact />
+      </div>
+
       {/* Quick Quran — Read Gallery */}
       <div className="mb-5 rounded-2xl border border-border bg-card p-4">
         <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📖 Quran for Anger & Peace</h2>
