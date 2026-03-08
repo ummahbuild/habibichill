@@ -1074,10 +1074,62 @@ interface LessonViewProps {
   onBack: () => void;
   totalLessons: number;
   completedCount: number;
+  onNavigate: (id: number) => void;
+  prevLesson: Lesson | null;
+  nextLesson: Lesson | null;
 }
 
-const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount }: LessonViewProps) => {
+const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount, onNavigate, prevLesson, nextLesson }: LessonViewProps) => {
   const { content } = lesson;
+  const [bookmarks, setBookmarks] = useState<string[]>(() => {
+    const saved = localStorage.getItem("hc-bookmarks");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [notes, setNotes] = useState<Record<number, string>>(() => {
+    const saved = localStorage.getItem("hc-lesson-notes");
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [showNotes, setShowNotes] = useState(false);
+  const [quizState, setQuizState] = useState<{ started: boolean; currentQ: number; answers: (number | null)[]; showResult: boolean }>({
+    started: false, currentQ: 0, answers: [], showResult: false,
+  });
+
+  useEffect(() => {
+    localStorage.setItem("hc-bookmarks", JSON.stringify(bookmarks));
+  }, [bookmarks]);
+
+  useEffect(() => {
+    localStorage.setItem("hc-lesson-notes", JSON.stringify(notes));
+  }, [notes]);
+
+  const toggleBookmark = useCallback((id: string) => {
+    setBookmarks(prev => prev.includes(id) ? prev.filter(b => b !== id) : [...prev, id]);
+  }, []);
+
+  const quiz = content.quiz;
+  const hasQuiz = quiz && quiz.length > 0;
+
+  const startQuiz = () => {
+    setQuizState({ started: true, currentQ: 0, answers: new Array(quiz!.length).fill(null), showResult: false });
+  };
+
+  const answerQuiz = (optionIndex: number) => {
+    const newAnswers = [...quizState.answers];
+    newAnswers[quizState.currentQ] = optionIndex;
+    const isLast = quizState.currentQ >= quiz!.length - 1;
+    setQuizState(prev => ({ ...prev, answers: newAnswers, showResult: true }));
+  };
+
+  const nextQuestion = () => {
+    const isLast = quizState.currentQ >= quiz!.length - 1;
+    if (isLast) {
+      setQuizState(prev => ({ ...prev, started: false }));
+    } else {
+      setQuizState(prev => ({ ...prev, currentQ: prev.currentQ + 1, showResult: false }));
+    }
+  };
+
+  const quizScore = quizState.answers.filter((a, i) => a === quiz?.[i]?.correctIndex).length;
 
   return (
     <motion.div
@@ -1153,14 +1205,25 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
         Quranic Insight
       </h3>
       <div className="mb-6 flex flex-col gap-3">
-        {content.ayahs.map((ayah, i) => (
-          <div key={i} className="rounded-2xl bg-gradient-calm border border-primary/10 p-4">
-            <p className="mb-2 font-arabic text-lg leading-loose text-foreground" dir="rtl">{ayah.arabic}</p>
-            <p className="mb-1 text-xs font-medium text-primary italic">{ayah.transliteration}</p>
-            <p className="mb-2 text-sm text-muted-foreground italic">"{ayah.english}"</p>
-            <a href={ayah.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline hover:text-primary/80">{ayah.ref} →</a>
-          </div>
-        ))}
+        {content.ayahs.map((ayah, i) => {
+          const bmId = `ayah-${ayah.ref}`;
+          const isBookmarked = bookmarks.includes(bmId);
+          return (
+            <div key={i} className="rounded-2xl bg-gradient-calm border border-primary/10 p-4 relative">
+              <button
+                onClick={() => toggleBookmark(bmId)}
+                className={`absolute top-3 right-3 text-sm transition-colors ${isBookmarked ? "text-primary" : "text-muted-foreground/40 hover:text-primary/60"}`}
+                title={isBookmarked ? "Remove bookmark" : "Bookmark this ayah"}
+              >
+                {isBookmarked ? "★" : "☆"}
+              </button>
+              <p className="mb-2 font-arabic text-lg leading-loose text-foreground pr-6" dir="rtl">{ayah.arabic}</p>
+              <p className="mb-1 text-xs font-medium text-primary italic">{ayah.transliteration}</p>
+              <p className="mb-2 text-sm text-muted-foreground italic">"{ayah.english}"</p>
+              <a href={ayah.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline hover:text-primary/80">{ayah.ref} →</a>
+            </div>
+          );
+        })}
       </div>
 
       {/* Hadith References */}
@@ -1169,27 +1232,38 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
         Hadith Evidence
       </h3>
       <div className="mb-6 flex flex-col gap-3">
-        {content.hadiths.map((hadith, i) => (
-          <div key={i} className="rounded-2xl border border-border bg-card p-4">
-            {hadith.arabic && (
-              <p className="mb-2 font-arabic text-base leading-relaxed text-foreground" dir="rtl">{hadith.arabic}</p>
-            )}
-            <p className="mb-2 text-sm text-foreground italic">"{hadith.text}"</p>
-            {hadith.narrator && (
-              <p className="mb-1 text-xs text-muted-foreground">{hadith.narrator}</p>
-            )}
-            <div className="flex items-center gap-2">
-              <a href={hadith.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline hover:text-primary/80">{hadith.source} →</a>
-              {hadith.grade && (
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                  hadith.grade.includes("Sahih") ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
-                }`}>
-                  {hadith.grade}
-                </span>
+        {content.hadiths.map((hadith, i) => {
+          const bmId = `hadith-${hadith.source}`;
+          const isBookmarked = bookmarks.includes(bmId);
+          return (
+            <div key={i} className="rounded-2xl border border-border bg-card p-4 relative">
+              <button
+                onClick={() => toggleBookmark(bmId)}
+                className={`absolute top-3 right-3 text-sm transition-colors ${isBookmarked ? "text-primary" : "text-muted-foreground/40 hover:text-primary/60"}`}
+                title={isBookmarked ? "Remove bookmark" : "Bookmark this hadith"}
+              >
+                {isBookmarked ? "★" : "☆"}
+              </button>
+              {hadith.arabic && (
+                <p className="mb-2 font-arabic text-base leading-relaxed text-foreground pr-6" dir="rtl">{hadith.arabic}</p>
               )}
+              <p className="mb-2 text-sm text-foreground italic pr-6">"{hadith.text}"</p>
+              {hadith.narrator && (
+                <p className="mb-1 text-xs text-muted-foreground">{hadith.narrator}</p>
+              )}
+              <div className="flex items-center gap-2">
+                <a href={hadith.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline hover:text-primary/80">{hadith.source} →</a>
+                {hadith.grade && (
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    hadith.grade.includes("Sahih") ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
+                  }`}>
+                    {hadith.grade}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Key Takeaways */}
@@ -1219,6 +1293,122 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
         </>
       )}
 
+      {/* Quiz Section */}
+      {hasQuiz && (
+        <>
+          <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/10 text-xs">🧠</span>
+            Test Your Knowledge
+          </h3>
+          {!quizState.started ? (
+            <div className="mb-6 rounded-2xl border border-border bg-card p-5 text-center">
+              {quizState.answers.some(a => a !== null) ? (
+                <>
+                  <span className="mb-2 block text-2xl">{quizScore === quiz!.length ? "🏆" : "📝"}</span>
+                  <p className="text-sm font-semibold text-foreground mb-1">
+                    Score: {quizScore}/{quiz!.length} {quizScore === quiz!.length && "— Perfect!"}
+                  </p>
+                  <button onClick={startQuiz} className="mt-2 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors">
+                    Retake Quiz
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground mb-3">{quiz!.length} questions to test your understanding</p>
+                  <button onClick={startQuiz} className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:scale-[1.02] transition-all">
+                    Start Quiz →
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <motion.div
+              className="mb-6 rounded-2xl border border-primary/20 bg-card p-5"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground font-medium">
+                  Question {quizState.currentQ + 1} of {quiz!.length}
+                </span>
+                <div className="flex gap-1">
+                  {quiz!.map((_, i) => (
+                    <span key={i} className={`h-1.5 w-4 rounded-full ${
+                      i === quizState.currentQ ? "bg-primary" : i < quizState.currentQ ? "bg-success" : "bg-muted"
+                    }`} />
+                  ))}
+                </div>
+              </div>
+              <p className="mb-4 text-sm font-semibold text-foreground">{quiz![quizState.currentQ].question}</p>
+              <div className="flex flex-col gap-2">
+                {quiz![quizState.currentQ].options.map((opt, oi) => {
+                  const selected = quizState.answers[quizState.currentQ] === oi;
+                  const isCorrect = oi === quiz![quizState.currentQ].correctIndex;
+                  const showFeedback = quizState.showResult;
+                  return (
+                    <button
+                      key={oi}
+                      onClick={() => !quizState.showResult && answerQuiz(oi)}
+                      disabled={quizState.showResult}
+                      className={`rounded-xl border p-3 text-left text-sm transition-all ${
+                        showFeedback && isCorrect
+                          ? "border-success bg-success/10 text-foreground"
+                          : showFeedback && selected && !isCorrect
+                            ? "border-destructive bg-destructive/10 text-foreground"
+                            : selected
+                              ? "border-primary bg-primary/10 text-foreground"
+                              : "border-border bg-card text-muted-foreground hover:border-muted-foreground/40"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                          showFeedback && isCorrect ? "bg-success text-success-foreground" : showFeedback && selected ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground"
+                        }`}>
+                          {showFeedback && isCorrect ? "✓" : showFeedback && selected && !isCorrect ? "✗" : String.fromCharCode(65 + oi)}
+                        </span>
+                        {opt}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {quizState.showResult && (
+                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-3">
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">{quiz![quizState.currentQ].explanation}</p>
+                  <button onClick={nextQuestion} className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground">
+                    {quizState.currentQ >= quiz!.length - 1 ? "See Results" : "Next Question →"}
+                  </button>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </>
+      )}
+
+      {/* Personal Notes */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowNotes(!showNotes)}
+          className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <span>📝</span> My Notes {notes[lesson.id] ? "(saved)" : ""}
+          <span className="text-[10px]">{showNotes ? "▲" : "▼"}</span>
+        </button>
+        <AnimatePresence>
+          {showNotes && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+              <textarea
+                value={notes[lesson.id] || ""}
+                onChange={(e) => setNotes(prev => ({ ...prev, [lesson.id]: e.target.value }))}
+                placeholder="Write your reflections, personal insights, or action items..."
+                className="w-full rounded-xl border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                rows={3}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Complete button */}
       <motion.button
         onClick={() => {
@@ -1235,6 +1425,28 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
       >
         {completed ? "✓ Completed — Review Again" : "Mark as Complete ✨"}
       </motion.button>
+
+      {/* Next/Prev Navigation */}
+      <div className="mt-4 flex gap-2">
+        {prevLesson && (
+          <button
+            onClick={() => onNavigate(prevLesson.id)}
+            className="flex-1 rounded-xl border border-border bg-card p-3 text-left hover:border-primary/30 transition-colors"
+          >
+            <span className="text-[10px] text-muted-foreground">← Previous</span>
+            <p className="text-xs font-semibold text-foreground truncate">{prevLesson.title}</p>
+          </button>
+        )}
+        {nextLesson && (
+          <button
+            onClick={() => onNavigate(nextLesson.id)}
+            className="flex-1 rounded-xl border border-border bg-card p-3 text-right hover:border-primary/30 transition-colors"
+          >
+            <span className="text-[10px] text-muted-foreground">Next →</span>
+            <p className="text-xs font-semibold text-foreground truncate">{nextLesson.title}</p>
+          </button>
+        )}
+      </div>
     </motion.div>
   );
 };
