@@ -80,7 +80,7 @@ const BlogList = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Evidence-based Islamic anger management articles, Qur'anic wisdom, prophetic guidance, and practical guides.
+            {blogPosts.length} articles on Islamic anger management, Qur'anic wisdom, prophetic guidance, and practical guides.
           </motion.p>
         </div>
       </header>
@@ -165,6 +165,11 @@ const BlogList = () => {
                     <span className="rounded-full bg-primary/10 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
                       {post.category}
                     </span>
+                    {Date.now() - new Date(post.date).getTime() < 14 * 86400000 && (
+                      <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
+                        New
+                      </span>
+                    )}
                   </div>
                   <h2 className="mb-2 font-heading text-lg font-bold text-card-foreground group-hover:text-primary transition-colors">
                     {post.title}
