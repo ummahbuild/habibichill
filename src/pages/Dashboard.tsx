@@ -143,7 +143,8 @@ const Dashboard = () => {
       {/* Bottom Tab Bar */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md safe-area-bottom"
-        aria-label="App navigation"
+        role="tablist"
+        aria-label="Main navigation"
       >
         <div className="mx-auto flex max-w-lg items-center justify-around py-1.5">
           {tabs.map((tab, i) => (
