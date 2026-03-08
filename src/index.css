@@ -267,4 +267,23 @@
 
 .animate-scroll-stats {
   animation: scroll-stats 40s linear infinite;
+  will-change: transform;
+}
+
+/* GPU acceleration for animated elements */
+.animate-float,
+.animate-fire-glow,
+.animate-ice-glow,
+.animate-pulse-gentle,
+.animate-breathe {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Improve touch targets for mobile */
+@media (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

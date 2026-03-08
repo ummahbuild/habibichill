@@ -457,7 +457,7 @@ const LandingPage = () => {
         <h2 className="mb-4 text-center font-heading text-3xl font-bold text-foreground">Why This Matters</h2>
         <p className="mb-10 text-center text-muted-foreground">Research-backed insights on anger and emotional health</p>
         <div className="relative">
-          <div className="flex animate-scroll-stats gap-5 w-max hover:[animation-play-state:paused]">
+          <div className="flex animate-scroll-stats gap-5 w-max hover:[animation-play-state:paused]" style={{ willChange: 'transform' }}>
             {[...researchStats, ...researchStats].map((item, i) => (
               <a
                 key={`${item.title}-${i}`}
