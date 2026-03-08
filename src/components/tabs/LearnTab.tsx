@@ -946,7 +946,11 @@ const LearnTab = () => {
     localStorage.setItem("hc-learn-streak", JSON.stringify(streak));
   }, [streak]);
 
-  // Track reading time when lesson is open
+  useEffect(() => {
+    localStorage.setItem("hc-lesson-ratings", JSON.stringify(lessonRatings));
+  }, [lessonRatings]);
+
+  // Track reading time & daily minutes when lesson is open
   useEffect(() => {
     if (!openLessonId) return;
     const interval = setInterval(() => {
@@ -955,7 +959,12 @@ const LearnTab = () => {
         localStorage.setItem("hc-learn-reading-time", String(next));
         return next;
       });
-    }, 60000); // every minute
+      setTodayMinutes(prev => {
+        const next = prev + 1;
+        localStorage.setItem("hc-learn-today-minutes", JSON.stringify({ date: new Date().toDateString(), minutes: next }));
+        return next;
+      });
+    }, 60000);
     return () => clearInterval(interval);
   }, [openLessonId]);
 
