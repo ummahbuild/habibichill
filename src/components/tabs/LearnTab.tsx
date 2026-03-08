@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface LessonAyah {
@@ -23,6 +23,13 @@ interface LessonSection {
   body: string;
 }
 
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
 interface LessonContent {
   intro: string;
   sections: LessonSection[];
@@ -30,6 +37,7 @@ interface LessonContent {
   hadiths: LessonHadith[];
   keyTakeaways: string[];
   exercise?: string;
+  quiz?: QuizQuestion[];
 }
 
 interface Lesson {
