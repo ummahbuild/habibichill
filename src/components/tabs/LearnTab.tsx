@@ -1174,19 +1174,41 @@ const LearnTab = () => {
         </div>
       </div>
 
+      {/* Daily Goal Progress */}
+      <div className="mb-4 rounded-xl border border-border bg-card p-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-foreground">🎯 Daily Goal</span>
+          <span className="text-[10px] text-muted-foreground">{todayMinutes}/{dailyGoal} min</span>
+        </div>
+        <div className="h-2 rounded-full bg-muted overflow-hidden">
+          <motion.div 
+            className={`h-full transition-all ${todayMinutes >= dailyGoal ? "bg-success" : "bg-primary"}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min((todayMinutes / dailyGoal) * 100, 100)}%` }}
+          />
+        </div>
+        {todayMinutes >= dailyGoal && (
+          <p className="mt-1.5 text-[10px] text-success font-medium">✓ Goal reached! MāshāAllah!</p>
+        )}
+      </div>
+
       {/* Stats Row */}
-      <div className="mb-5 grid grid-cols-3 gap-2">
-        <div className="rounded-xl border border-border bg-card p-3 text-center">
-          <span className="block text-lg font-bold text-primary">{completedLessons.length}</span>
-          <span className="text-[10px] text-muted-foreground">Completed</span>
+      <div className="mb-4 grid grid-cols-4 gap-2">
+        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+          <span className="block text-base font-bold text-primary">{completedLessons.length}</span>
+          <span className="text-[9px] text-muted-foreground">Done</span>
         </div>
-        <div className="rounded-xl border border-border bg-card p-3 text-center">
-          <span className="block text-lg font-bold text-primary">{readingTime}</span>
-          <span className="text-[10px] text-muted-foreground">Min Read</span>
+        <div className="rounded-xl border border-border bg-card p-2.5 text-center">
+          <span className="block text-base font-bold text-primary">{readingTime}</span>
+          <span className="text-[9px] text-muted-foreground">Min</span>
         </div>
-        <button onClick={() => setShowAchievements(!showAchievements)} className="rounded-xl border border-border bg-card p-3 text-center hover:border-primary/30 transition-colors">
-          <span className="block text-lg font-bold text-primary">{unlockedAchievements.length}/{achievements.length}</span>
-          <span className="text-[10px] text-muted-foreground">Badges</span>
+        <button onClick={() => setShowAchievements(!showAchievements)} className="rounded-xl border border-border bg-card p-2.5 text-center hover:border-primary/30 transition-colors">
+          <span className="block text-base font-bold text-primary">{unlockedAchievements.length}</span>
+          <span className="text-[9px] text-muted-foreground">Badges</span>
+        </button>
+        <button onClick={() => setShowFlashcards(true)} className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-center hover:bg-primary/10 transition-colors">
+          <span className="block text-base">📇</span>
+          <span className="text-[9px] text-primary font-medium">Cards</span>
         </button>
       </div>
 
