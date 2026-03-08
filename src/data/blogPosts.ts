@@ -1167,7 +1167,6 @@ export const blogPosts: BlogPost[] = [
       "Work is a means, not an end. When you remember that your ultimate success is with Allah, workplace setbacks become manageable inconveniences rather than existential threats. Use HabibiChill daily to build your anger management muscle — it gets stronger with practice. 🤲"
     ],
   },
-  },
   {
     slug: "dua-for-anger-quran-sunnah-supplications",
     title: "15 Powerful Duas for Anger, Anxiety & Patience from Quran and Sunnah",
