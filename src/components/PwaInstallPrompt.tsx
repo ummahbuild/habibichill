@@ -13,46 +13,48 @@ const PwaInstallPrompt = () => {
     return () => clearTimeout(timer);
   }, [showBanner, isInstalled, isStandalone]);
 
-  if (!showBanner || isInstalled || isStandalone || autoDismissed) return null;
+  const visible = showBanner && !isInstalled && !isStandalone && !autoDismissed;
 
   return (
     <AnimatePresence>
-      <motion.div
-        className="fixed right-3 top-3 z-50 max-w-xs rounded-2xl border border-primary/20 bg-card p-3 shadow-lg shadow-primary/10"
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 40 }}
-      >
-        <button onClick={dismiss} className="absolute right-2 top-2 text-muted-foreground hover:text-foreground text-xs">✕</button>
-        <div className="flex items-start gap-2.5 pr-4">
-          <span className="text-2xl">📲</span>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-xs font-bold text-foreground font-heading">Install HabibiChill</h3>
-            <p className="mt-0.5 text-[10px] text-muted-foreground leading-relaxed">
-              {deviceType === "ios"
-                ? "Tap Share → Add to Home Screen"
-                : "Install for offline access"}
-            </p>
-            <div className="mt-2 flex gap-2">
-              {canPrompt ? (
-                <button
-                  onClick={install}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
-                >
-                  Install
+      {visible && (
+        <motion.div
+          className="fixed right-3 top-3 z-50 max-w-xs rounded-2xl border border-primary/20 bg-card p-3 shadow-lg shadow-primary/10"
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 40 }}
+        >
+          <button onClick={dismiss} className="absolute right-2 top-2 text-muted-foreground hover:text-foreground text-xs">✕</button>
+          <div className="flex items-start gap-2.5 pr-4">
+            <span className="text-2xl">📲</span>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xs font-bold text-foreground font-heading">Install HabibiChill</h3>
+              <p className="mt-0.5 text-[10px] text-muted-foreground leading-relaxed">
+                {deviceType === "ios"
+                  ? "Tap Share → Add to Home Screen"
+                  : "Install for offline access"}
+              </p>
+              <div className="mt-2 flex gap-2">
+                {canPrompt ? (
+                  <button
+                    onClick={install}
+                    className="rounded-lg bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
+                  >
+                    Install
+                  </button>
+                ) : (
+                  <span className="rounded-lg bg-muted px-2 py-1 text-[10px] text-foreground">
+                    {deviceType === "ios" ? "Use Safari Share ↗" : "Browser menu → Install"}
+                  </span>
+                )}
+                <button onClick={dismiss} className="rounded-lg border border-border px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground">
+                  Later
                 </button>
-              ) : (
-                <span className="rounded-lg bg-muted px-2 py-1 text-[10px] text-foreground">
-                  {deviceType === "ios" ? "Use Safari Share ↗" : "Browser menu → Install"}
-                </span>
-              )}
-              <button onClick={dismiss} className="rounded-lg border border-border px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground">
-                Later
-              </button>
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 };

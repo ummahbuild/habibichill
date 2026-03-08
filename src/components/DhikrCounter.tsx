@@ -73,6 +73,7 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
   }, [count, activeIndex, current.target, allComplete, completed]);
 
   const increment = () => {
+    if (count >= current.target) return;
     setCounts((prev) => {
       const next = [...prev];
       next[activeIndex]++;

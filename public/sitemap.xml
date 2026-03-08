@@ -132,4 +132,25 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  <!-- New Blog Posts -->
+  <url>
+    <loc>https://habibichill.com/blogs/ramadan-anger-management-fasting-patience</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/islamic-marriage-anger-management-couples</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/islamic-parenting-patience-anger-children</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://habibichill.com/blogs/workplace-stress-anger-islamic-strategies</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
