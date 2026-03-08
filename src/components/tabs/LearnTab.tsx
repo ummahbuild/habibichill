@@ -312,6 +312,10 @@ const lessons: Lesson[] = [
         "Start building patience with small daily tests",
       ],
       exercise: "Today, intentionally practice sabr in three small situations: waiting in line, dealing with a slow driver, or listening to someone you disagree with. After each, say 'Alhamdulillah' and notice how it feels.",
+      quiz: [
+        { question: "How many times is Sabr mentioned in the Quran?", options: ["About 20", "About 50", "Over 90", "About 10"], correctIndex: 2, explanation: "Sabr (patience) is mentioned over 90 times in the Quran — showing its central importance to Islam." },
+        { question: "What is the reward for those who practice Sabr?", options: ["Double their deeds", "Reward without limit", "Forgiveness only", "Extra years of life"], correctIndex: 1, explanation: "'Indeed, the patient will be given their reward without account (without limit).' (Qur'an 39:10)" },
+      ],
     },
   },
   {
