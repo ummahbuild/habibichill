@@ -79,8 +79,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-32">
-      <main className="flex-1">
+    <div className="flex min-h-screen flex-col bg-background pb-32" role="application" aria-label="HabibiChill App">
+      <a href="#main-content" className="skip-to-content">Skip to content</a>
+      <main id="main-content" className="flex-1" role="main">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
