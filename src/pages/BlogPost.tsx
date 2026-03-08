@@ -93,6 +93,30 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ReadingProgressBar />
+
+      {/* Breadcrumb */}
+      <div className="container mx-auto px-4 pt-16 pb-0">
+        <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
+          <ol className="flex items-center gap-1" itemScope itemType="https://schema.org/BreadcrumbList">
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <Link to="/" itemProp="item" className="hover:text-foreground"><span itemProp="name">Home</span></Link>
+              <meta itemProp="position" content="1" />
+            </li>
+            <li className="mx-1">/</li>
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <Link to="/blogs" itemProp="item" className="hover:text-foreground"><span itemProp="name">Blog</span></Link>
+              <meta itemProp="position" content="2" />
+            </li>
+            <li className="mx-1">/</li>
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <span itemProp="name" className="text-foreground truncate max-w-[200px] inline-block align-bottom">{post.title}</span>
+              <meta itemProp="position" content="3" />
+            </li>
+          </ol>
+        </nav>
+      </div>
+
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
         <div className="container mx-auto flex items-center justify-between px-4 py-3">
