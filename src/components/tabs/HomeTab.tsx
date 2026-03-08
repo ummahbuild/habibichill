@@ -7,6 +7,7 @@ import ReferenceTooltip from "@/components/ReferenceTooltip";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import WeeklyChallengeWidget from "@/components/WeeklyChallengeWidget";
 
 const wisdoms = [
   { arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", english: "Indeed, with hardship comes ease.", ref: "Qur'an 94:6", link: "https://quran.com/94/6" },
@@ -433,6 +434,11 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
         {isMobile && (
           <p className="mt-2 text-center text-[9px] text-muted-foreground/50">Swipe left or right for more</p>
         )}
+      </div>
+
+      {/* Weekly Challenge */}
+      <div className="mb-5">
+        <WeeklyChallengeWidget compact />
       </div>
 
       {/* Quick Quran — Read Gallery */}
