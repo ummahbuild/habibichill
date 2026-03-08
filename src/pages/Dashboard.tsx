@@ -164,13 +164,15 @@ const Dashboard = () => {
               )}
               <button
                 onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`tabpanel-${tab.id}`}
                 className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium transition-colors ${
                   activeTab === tab.id ? "text-primary" : "text-muted-foreground"
                 }`}
                 aria-label={tab.label}
-                aria-current={activeTab === tab.id ? "page" : undefined}
               >
-                <span className={`text-lg transition-transform ${activeTab === tab.id ? "scale-110" : ""}`}>{tab.icon}</span>
+                <span className={`text-lg transition-transform ${activeTab === tab.id ? "scale-110" : ""}`} aria-hidden="true">{tab.icon}</span>
                 {tab.label}
               </button>
             </React.Fragment>
