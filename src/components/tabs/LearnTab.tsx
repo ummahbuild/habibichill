@@ -905,6 +905,116 @@ const getRelatedLessons = (currentLesson: Lesson) => {
     .map(r => r.lesson);
 };
 
+/* ─── Flashcard Mode ───────────────────────────── */
+const FlashcardMode = ({ onBack }: { onBack: () => void }) => {
+  const cards = getAllFlashcards();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [mastered, setMastered] = useState<string[]>(() => {
+    const saved = localStorage.getItem("hc-flashcard-mastered");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const remaining = cards.filter(c => !mastered.includes(c.id));
+  const card = remaining[currentIndex % remaining.length];
+
+  const markMastered = () => {
+    const next = [...mastered, card.id];
+    setMastered(next);
+    localStorage.setItem("hc-flashcard-mastered", JSON.stringify(next));
+    setFlipped(false);
+    if (currentIndex >= remaining.length - 1) setCurrentIndex(0);
+  };
+
+  const nextCard = () => {
+    setFlipped(false);
+    setCurrentIndex(prev => (prev + 1) % remaining.length);
+  };
+
+  if (remaining.length === 0) {
+    return (
+      <div className="container mx-auto max-w-lg px-4 pt-6 pb-8 text-center">
+        <button onClick={onBack} className="mb-6 flex items-center gap-1 text-sm text-primary hover:underline">
+          <span>←</span> Back
+        </button>
+        <span className="mb-3 block text-4xl">🎉</span>
+        <h2 className="font-heading text-xl font-bold text-foreground mb-2">All Cards Mastered!</h2>
+        <p className="text-sm text-muted-foreground mb-4">You've reviewed all {cards.length} flashcards.</p>
+        <button
+          onClick={() => { setMastered([]); localStorage.removeItem("hc-flashcard-mastered"); }}
+          className="rounded-xl bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
+        >
+          Reset & Start Over
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto max-w-lg px-4 pt-6 pb-8">
+      <div className="mb-4 flex items-center justify-between">
+        <button onClick={onBack} className="flex items-center gap-1 text-sm text-primary hover:underline">
+          <span>←</span> Back
+        </button>
+        <span className="text-[10px] text-muted-foreground">{remaining.length} cards left · {mastered.length} mastered</span>
+      </div>
+      <h2 className="mb-5 font-heading text-lg font-bold text-foreground">📇 Flashcard Review</h2>
+
+      {/* Progress */}
+      <div className="mb-5 h-1.5 rounded-full bg-muted overflow-hidden">
+        <div className="h-full bg-primary transition-all" style={{ width: `${(mastered.length / cards.length) * 100}%` }} />
+      </div>
+
+      {/* Card */}
+      <motion.div
+        className="mb-6 cursor-pointer perspective-1000"
+        onClick={() => setFlipped(!flipped)}
+        whileTap={{ scale: 0.97 }}
+      >
+        <motion.div
+          className="relative min-h-[220px] rounded-2xl border border-border bg-card p-6 flex flex-col items-center justify-center text-center shadow-sm"
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={{ duration: 0.4 }}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          {!flipped ? (
+            <div>
+              <span className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
+                card.type === "ayah" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary-foreground"
+              }`}>
+                {card.type === "ayah" ? "📖 Qur'an" : "📚 Hadith"}
+              </span>
+              <p className="font-arabic text-xl leading-loose text-foreground mt-3" dir="rtl">{card.front}</p>
+              <p className="mt-4 text-[10px] text-muted-foreground">Tap to reveal translation</p>
+            </div>
+          ) : (
+            <div style={{ transform: "rotateY(180deg)" }}>
+              <p className="text-sm text-foreground italic leading-relaxed">"{card.back}"</p>
+              <p className="mt-3 text-[10px] text-primary font-medium">{card.source}</p>
+            </div>
+          )}
+        </motion.div>
+      </motion.div>
+
+      {/* Actions */}
+      <div className="flex gap-3">
+        <button
+          onClick={nextCard}
+          className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-muted-foreground/40 transition-colors"
+        >
+          Review Again
+        </button>
+        <button
+          onClick={markMastered}
+          className="flex-1 rounded-xl bg-success py-3 text-sm font-semibold text-success-foreground transition-all hover:scale-[1.02]"
+        >
+          ✓ Got It
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const LearnTab = () => {
   const [openLessonId, setOpenLessonId] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
