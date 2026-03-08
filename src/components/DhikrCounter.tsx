@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ShareButtons from "@/components/ShareButtons";
 
 const dhikrs = [
   {
