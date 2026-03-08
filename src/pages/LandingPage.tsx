@@ -326,7 +326,8 @@ const LandingPage = () => {
   const { setAppState } = useApp();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" lang="en">
+      <a href="#hero-cta" className="skip-to-content">Skip to main content</a>
       {/* Hero */}
       <header className="relative overflow-hidden bg-gradient-hero">
         <nav className="container mx-auto flex items-center justify-between px-4 py-4" aria-label="Main navigation">
