@@ -326,7 +326,8 @@ const LandingPage = () => {
   const { setAppState } = useApp();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" lang="en">
+      <a href="#hero-cta" className="skip-to-content">Skip to main content</a>
       {/* Hero */}
       <header className="relative overflow-hidden bg-gradient-hero">
         <nav className="container mx-auto flex items-center justify-between px-4 py-4" aria-label="Main navigation">
@@ -390,6 +391,7 @@ const LandingPage = () => {
             transition={{ delay: 0.6 }}
           >
             <button
+              id="hero-cta"
               onClick={() => setAppState("onboarding")}
               className="rounded-2xl bg-primary px-8 py-4 font-heading text-lg font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 hover:shadow-glow active:scale-95"
             >
@@ -455,7 +457,7 @@ const LandingPage = () => {
         <h2 className="mb-4 text-center font-heading text-3xl font-bold text-foreground">Why This Matters</h2>
         <p className="mb-10 text-center text-muted-foreground">Research-backed insights on anger and emotional health</p>
         <div className="relative">
-          <div className="flex animate-scroll-stats gap-5 w-max hover:[animation-play-state:paused]">
+          <div className="flex animate-scroll-stats gap-5 w-max hover:[animation-play-state:paused]" style={{ willChange: 'transform' }}>
             {[...researchStats, ...researchStats].map((item, i) => (
               <a
                 key={`${item.title}-${i}`}

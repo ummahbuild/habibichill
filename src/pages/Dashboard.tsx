@@ -79,8 +79,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-32">
-      <main className="flex-1">
+    <div className="flex min-h-screen flex-col bg-background pb-32" role="application" aria-label="HabibiChill App">
+      <a href="#main-content" className="skip-to-content">Skip to content</a>
+      <main id="main-content" className="flex-1" role="main">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -142,7 +143,8 @@ const Dashboard = () => {
       {/* Bottom Tab Bar */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md safe-area-bottom"
-        aria-label="App navigation"
+        role="tablist"
+        aria-label="Main navigation"
       >
         <div className="mx-auto flex max-w-lg items-center justify-around py-1.5">
           {tabs.map((tab, i) => (
@@ -162,13 +164,15 @@ const Dashboard = () => {
               )}
               <button
                 onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`tabpanel-${tab.id}`}
                 className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium transition-colors ${
                   activeTab === tab.id ? "text-primary" : "text-muted-foreground"
                 }`}
                 aria-label={tab.label}
-                aria-current={activeTab === tab.id ? "page" : undefined}
               >
-                <span className={`text-lg transition-transform ${activeTab === tab.id ? "scale-110" : ""}`}>{tab.icon}</span>
+                <span className={`text-lg transition-transform ${activeTab === tab.id ? "scale-110" : ""}`} aria-hidden="true">{tab.icon}</span>
                 {tab.label}
               </button>
             </React.Fragment>
