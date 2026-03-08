@@ -172,20 +172,6 @@ const QuranPlayer = ({ currentSurahId, onChangeSurah, onClose }: QuranPlayerProp
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        onEnded={playNext}
-        onPause={() => setIsPlaying(false)}
-        onPlay={() => { setIsPlaying(true); setLoading(false); setAudioError(false); }}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={() => {
-          setLoading(false);
-          if (audioRef.current) setDuration(audioRef.current.duration);
-        }}
-        onCanPlay={() => setLoading(false)}
-        onError={() => { setLoading(false); setAudioError(true); }}
-        preload="auto"
-      />
       <motion.div
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
