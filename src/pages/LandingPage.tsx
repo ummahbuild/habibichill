@@ -391,6 +391,7 @@ const LandingPage = () => {
             transition={{ delay: 0.6 }}
           >
             <button
+              id="hero-cta"
               onClick={() => setAppState("onboarding")}
               className="rounded-2xl bg-primary px-8 py-4 font-heading text-lg font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 hover:shadow-glow active:scale-95"
             >
