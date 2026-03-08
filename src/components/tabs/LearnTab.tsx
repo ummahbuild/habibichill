@@ -177,6 +177,10 @@ const lessons: Lesson[] = [
         "Practice these steps before anger strikes so they become automatic",
       ],
       exercise: "Memorize the four steps in order. Practice them today even when you are NOT angry, so your body remembers the sequence when you need it most.",
+      quiz: [
+        { question: "What is the FIRST step in the Sunnah anger protocol?", options: ["Make wudu", "Stay silent", "Seek refuge from Shaytan", "Lie down"], correctIndex: 2, explanation: "The first step is to say A'udhu billahi min ash-Shaytan ir-Rajeem — seeking refuge from Shaytan who fuels anger." },
+        { question: "Why does the Prophet ﷺ prescribe changing position?", options: ["To show respect", "To reduce blood pressure and signal the nervous system to calm", "To stretch muscles", "To look away from the person"], correctIndex: 1, explanation: "Lowering your body reduces blood pressure and signals to your nervous system to calm down, removing you from a confrontational stance." },
+      ],
     },
   },
   {
