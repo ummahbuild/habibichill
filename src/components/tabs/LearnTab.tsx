@@ -989,6 +989,50 @@ const LearnTab = () => {
         </div>
       </div>
 
+      {/* Stats Row */}
+      <div className="mb-5 grid grid-cols-3 gap-2">
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <span className="block text-lg font-bold text-primary">{completedLessons.length}</span>
+          <span className="text-[10px] text-muted-foreground">Completed</span>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <span className="block text-lg font-bold text-primary">{readingTime}</span>
+          <span className="text-[10px] text-muted-foreground">Min Read</span>
+        </div>
+        <button onClick={() => setShowAchievements(!showAchievements)} className="rounded-xl border border-border bg-card p-3 text-center hover:border-primary/30 transition-colors">
+          <span className="block text-lg font-bold text-primary">{unlockedAchievements.length}/{achievements.length}</span>
+          <span className="text-[10px] text-muted-foreground">Badges</span>
+        </button>
+      </div>
+
+      {/* Achievements */}
+      <AnimatePresence>
+        {showAchievements && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="mb-5 overflow-hidden"
+          >
+            <h3 className="mb-2 font-heading text-xs font-semibold uppercase tracking-wider text-muted-foreground">Achievements</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {achievements.map(a => {
+                const unlocked = a.check(completedLessons, streak.count);
+                return (
+                  <div key={a.id} className={`flex items-center gap-2.5 rounded-xl border p-3 transition-all ${unlocked ? "border-primary/30 bg-primary/5" : "border-border bg-card opacity-50"}`}>
+                    <span className={`text-xl ${unlocked ? "" : "grayscale"}`}>{a.emoji}</span>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{a.title}</p>
+                      <p className="text-[10px] text-muted-foreground">{a.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Daily Verse Card */}
       <motion.div
         className="mb-5 rounded-2xl bg-gradient-calm border border-primary/10 p-4"
@@ -1037,6 +1081,21 @@ const LearnTab = () => {
           <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
       </motion.div>
+
+      {/* Search */}
+      <div className="mb-4 relative">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search lessons..."
+          className="w-full rounded-xl border border-border bg-card px-4 py-2.5 pl-9 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">🔍</span>
+        {searchQuery && (
+          <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground">✕</button>
+        )}
+      </div>
 
       {/* Category Filters */}
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
