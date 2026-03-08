@@ -1055,9 +1055,14 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
     >
-      <button onClick={onBack} className="mb-4 flex items-center gap-1 text-sm text-primary hover:underline">
-        <span>←</span> Back to lessons
-      </button>
+      <div className="mb-4 flex items-center justify-between">
+        <button onClick={onBack} className="flex items-center gap-1 text-sm text-primary hover:underline">
+          <span>←</span> Back to lessons
+        </button>
+        <span className="text-[10px] text-muted-foreground font-medium">
+          {completedCount}/{totalLessons} completed
+        </span>
+      </div>
 
       {/* Header */}
       <div className="mb-6">
