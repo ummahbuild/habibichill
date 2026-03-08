@@ -543,6 +543,246 @@ const lessons: Lesson[] = [
       exercise: "Spend 10 minutes tonight in murāqabah (self-reflection). Sit quietly, make dhikr, and ask yourself: 'What is the fuel of my anger? Is it ego? Status? Control?' Write down what you discover. Repeat weekly.",
     },
   },
+  {
+    id: 9,
+    title: "The Tongue: Your Greatest Weapon",
+    duration: "7 min",
+    category: "Prevention",
+    emoji: "🗣️",
+    content: {
+      intro: "The Prophet ﷺ said: 'Whoever guarantees me what is between his jaws and what is between his legs, I guarantee him Paradise.' (Bukhari 6474). When anger strikes, the tongue becomes the most dangerous weapon — words spoken in rage destroy marriages, friendships, and family bonds in seconds.",
+      sections: [
+        {
+          heading: "Why Angry Words Are So Destructive",
+          body: "Unlike physical wounds that heal, verbal wounds scar the heart permanently. A spouse remembers 'I wish I never married you' for decades. A child internalizes 'You're useless' as truth. The Prophet ﷺ warned that a person may utter a word displeasing to Allah without thinking, and it causes them to slip into the Hellfire (Bukhari 6478).",
+        },
+        {
+          heading: "The Sunnah of Silence",
+          body: "The Prophet ﷺ said: 'If any of you becomes angry, let him be silent.' (Ahmad 329). This isn't passive — it's the most powerful anger management technique. Neuroscience confirms: speaking during the first 6-20 seconds of anger bypasses your rational brain entirely. Silence buys time for wisdom.",
+        },
+        {
+          heading: "Replacing Angry Speech with Dhikr",
+          body: "Instead of lashing out, redirect the tongue to remembrance of Allah. Say A'udhu billahi min ash-Shaytan ir-Rajeem, then SubhanAllah 10 times. By the time you finish, the urge to speak harshly will have passed. You've turned a potential sin into worship.",
+        },
+      ],
+      ayahs: [
+        {
+          arabic: "وَقُل لِّعِبَادِي يَقُولُوا الَّتِي هِيَ أَحْسَنُ إِنَّ الشَّيْطَانَ يَنزَغُ بَيْنَهُمْ",
+          transliteration: "Wa qul li'ibādī yaqūlul-latī hiya aḥsan. Innash-shayṭāna yanzaghu baynahum",
+          english: "And tell My servants to say that which is best. Indeed, Satan induces dissension among them.",
+          ref: "Qur'an 17:53",
+          link: "https://quran.com/17/53",
+        },
+        {
+          arabic: "وَاخْفِضْ صَوْتَكَ إِنَّ أَنكَرَ الْأَصْوَاتِ لَصَوْتُ الْحَمِيرِ",
+          transliteration: "Wakhfiḍ ṣawtaka inna ankaral-aṣwāti laṣawtul-ḥamīr",
+          english: "And lower your voice. Indeed, the most disagreeable of sounds is the voice of donkeys.",
+          ref: "Qur'an 31:19",
+          link: "https://quran.com/31/19",
+        },
+      ],
+      hadiths: [
+        {
+          arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
+          text: "Whoever believes in Allah and the Last Day, let him speak good or remain silent.",
+          narrator: "Narrated by Abu Hurayrah (رضي الله عنه)",
+          source: "Sahih al-Bukhari 6018",
+          link: "https://sunnah.com/bukhari:6018",
+          grade: "Sahih (Authentic)",
+        },
+        {
+          text: "Whoever guarantees me what is between his jaws (tongue) and what is between his legs, I guarantee him Paradise.",
+          narrator: "Narrated by Sahl ibn Sa'd (رضي الله عنه)",
+          source: "Sahih al-Bukhari 6474",
+          link: "https://sunnah.com/bukhari:6474",
+          grade: "Sahih (Authentic)",
+        },
+      ],
+      keyTakeaways: [
+        "Words spoken in anger cause permanent damage to relationships",
+        "Silence during anger is strength, not weakness",
+        "Replace angry speech with dhikr — turn sin into worship",
+        "The tongue is the key to Paradise or Hellfire",
+      ],
+      exercise: "For 24 hours, before speaking to anyone, pause for 2 seconds and ask: 'Is what I'm about to say good?' If not, stay silent. Track how many times you chose silence over harmful speech.",
+    },
+  },
+  {
+    id: 10,
+    title: "Gratitude: The Anger Antidote",
+    duration: "6 min",
+    category: "Prevention",
+    emoji: "🌟",
+    content: {
+      intro: "Gratitude (shukr) and anger cannot coexist in the same heart. When you're truly grateful, anger has no foothold. Allah promises: 'If you are grateful, I will surely increase you.' (Qur'an 14:7). This lesson explores how deliberate gratitude practice can dissolve anger at its root.",
+      sections: [
+        {
+          heading: "The Neuroscience of Gratitude",
+          body: "Research from UC Davis shows that people who practice daily gratitude have 23% lower cortisol (the stress hormone that fuels anger). Gratitude activates the same brain regions as receiving a reward — it literally replaces anger's neural pathways with peace.",
+        },
+        {
+          heading: "The Prophetic Gratitude Practice",
+          body: "The Prophet ﷺ prayed at night until his feet were swollen. When Aisha (RA) asked why, given that his past and future sins were forgiven, he replied: 'Should I not be a grateful servant?' (Bukhari 4837). His entire life was an expression of gratitude — and he was the most patient, least angry person who ever lived.",
+        },
+        {
+          heading: "Gratitude Reframes Everything",
+          body: "Angry about your job? Be grateful you have one. Frustrated with your spouse? Be grateful for companionship. Mad about traffic? Be grateful for a vehicle. This isn't toxic positivity — it's the Quranic command: 'And if you should count the favors of Allah, you could not enumerate them.' (Qur'an 16:18). Perspective kills anger.",
+        },
+      ],
+      ayahs: [
+        {
+          arabic: "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ وَلَئِن كَفَرْتُمْ إِنَّ عَذَابِي لَشَدِيدٌ",
+          transliteration: "La'in shakartum la'azīdannakum wa la'in kafartum inna 'adhābī lashadīd",
+          english: "If you are grateful, I will surely increase you [in favor]; but if you deny, indeed, My punishment is severe.",
+          ref: "Qur'an 14:7",
+          link: "https://quran.com/14/7",
+        },
+      ],
+      hadiths: [
+        {
+          text: "Look at those who are below you (in wealth/status) and do not look at those who are above you. This is more likely to prevent you from belittling the blessings of Allah.",
+          narrator: "Narrated by Abu Hurayrah (رضي الله عنه)",
+          source: "Sahih Muslim 2963",
+          link: "https://sunnah.com/muslim:2963",
+          grade: "Sahih (Authentic)",
+        },
+        {
+          text: "How wonderful is the affair of the believer, for his affairs are all good. If something good happens to him, he is thankful for it, and that is good for him. If something bad happens to him, he bears it with patience, and that is good for him.",
+          narrator: "Narrated by Suhayb (رضي الله عنه)",
+          source: "Sahih Muslim 2999",
+          link: "https://sunnah.com/muslim:2999",
+          grade: "Sahih (Authentic)",
+        },
+      ],
+      keyTakeaways: [
+        "Gratitude and anger cannot coexist — practice one to eliminate the other",
+        "Daily gratitude lowers cortisol by 23%, reducing anger threshold",
+        "Look at those below you in blessings, not above — this prevents resentment",
+        "Allah promises to increase blessings for the grateful",
+      ],
+      exercise: "Tonight before bed, write down 5 specific blessings from today. Do this every night for 7 days. On day 7, compare your anger levels to day 1.",
+    },
+  },
+  {
+    id: 11,
+    title: "Tawakkul: Trusting Allah's Plan",
+    duration: "8 min",
+    category: "Advanced",
+    emoji: "🕊️",
+    content: {
+      intro: "Most anger comes from wanting to control what you cannot control. Tawakkul — true reliance on Allah — dissolves this root cause by shifting your focus from controlling outcomes to trusting the Controller of all outcomes. This is advanced-level anger management.",
+      sections: [
+        {
+          heading: "The Root Cause of Most Anger",
+          body: "Someone cut you off in traffic — you couldn't control their driving. Your boss was unfair — you couldn't control their decision. Your child disobeyed — you couldn't control their choices. Anger is almost always a response to unmet expectations about things beyond your control. Tawakkul eliminates these expectations.",
+        },
+        {
+          heading: "What Tawakkul Really Means",
+          body: "Tawakkul is NOT passivity. The Prophet ﷺ said: 'If you put your trust in Allah as you should, He would provide for you as He provides for the birds: they go out in the morning empty and return full.' (Tirmidhi 2344). The birds GO OUT — they take action. But they don't WORRY about the outcome. Maximum effort + zero anxiety = Tawakkul.",
+        },
+        {
+          heading: "How Tawakkul Prevents Anger",
+          body: "When you truly believe Allah controls all outcomes: others' actions stop triggering you (it's Allah's decree). Fear-based anger dissolves (Allah is sufficient). You accept difficult situations without rage (you trust His wisdom). People lose power to make you angry (your success is in Allah's hands, not theirs).",
+        },
+      ],
+      ayahs: [
+        {
+          arabic: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ",
+          transliteration: "Wa man yatawakkal 'alallāhi fahuwa ḥasbuh",
+          english: "And whoever relies upon Allah — then He is sufficient for him.",
+          ref: "Qur'an 65:3",
+          link: "https://quran.com/65/3",
+        },
+        {
+          arabic: "عَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ",
+          transliteration: "'Asā an takrahū shay'an wa huwa khayrun lakum",
+          english: "Perhaps you hate a thing and it is good for you; and perhaps you love a thing and it is bad for you. And Allah knows, while you know not.",
+          ref: "Qur'an 2:216",
+          link: "https://quran.com/2/216",
+        },
+      ],
+      hadiths: [
+        {
+          text: "If you put your trust in Allah as you should, He would provide for you as He provides for the birds: they go out in the morning hungry and return full.",
+          narrator: "Narrated by Umar ibn al-Khattab (رضي الله عنه)",
+          source: "Sunan at-Tirmidhi 2344",
+          link: "https://sunnah.com/tirmidhi:2344",
+          grade: "Sahih (Authentic)",
+        },
+        {
+          arabic: "قَدَرُ اللَّهِ وَمَا شَاءَ فَعَلَ",
+          text: "It is the decree of Allah and He does what He wills.",
+          narrator: "Narrated by Abu Hurayrah (رضي الله عنه)",
+          source: "Sahih Muslim 2664",
+          link: "https://sunnah.com/muslim:2664",
+          grade: "Sahih (Authentic)",
+        },
+      ],
+      keyTakeaways: [
+        "Most anger stems from wanting to control what you cannot — Tawakkul eliminates this",
+        "Tawakkul is maximum effort + zero anxiety about results",
+        "When you trust Allah's plan, people lose power to make you angry",
+        "Every uncontrollable situation is an invitation to deepen Tawakkul",
+      ],
+      exercise: "Identify one situation that's been making you angry that you cannot control. Write it down. Then write: 'I trust that Allah has a plan for this that I cannot see.' Say 'Hasbiyallahu wa ni'mal wakeel' 7 times and feel the anger release.",
+    },
+  },
+  {
+    id: 12,
+    title: "Daily Habits That Prevent Anger",
+    duration: "6 min",
+    category: "Prevention",
+    emoji: "🌅",
+    content: {
+      intro: "The best anger management happens BEFORE anger arrives. By building a daily routine rooted in Sunnah practices, you create such strong emotional resilience that anger struggles to take hold. Prevention is always better than cure.",
+      sections: [
+        {
+          heading: "The Morning Shield",
+          body: "Wake before Fajr for even 2 rak'ahs. Recite morning adhkar — especially 'Allahumma inni a'udhu bika minal hammi wal hazan' (O Allah, I seek refuge from worry and grief). Read Qur'an for 5 minutes — Surah Ash-Sharh (94) addresses emotional distress directly. These practices build a spiritual shield that lasts all day.",
+        },
+        {
+          heading: "Physical and Nutritional Foundations",
+          body: "Exercise burns cortisol (stress hormone). Even a brisk walk to the masjid counts. Eat dates for blood sugar stability — low blood sugar is the #1 hidden trigger for irritability. Sleep well — the Prophet ﷺ slept after Isha. Sleep deprivation reduces anger threshold by up to 60%.",
+        },
+        {
+          heading: "The Evening Reset",
+          body: "Before bed, do muhasabah (self-accounting): 'Did I lose my temper today? What triggered it? How can I do better tomorrow?' Recite evening adhkar and Surah Al-Mulk. Forgive anyone who wronged you today — go to sleep with a clean heart. The Prophet ﷺ said: 'Do not go to sleep angry with your brother.'",
+        },
+      ],
+      ayahs: [
+        {
+          arabic: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+          transliteration: "Alā bi dhikrillāhi taṭma'innul-qulūb",
+          english: "Verily, in the remembrance of Allah do hearts find rest.",
+          ref: "Qur'an 13:28",
+          link: "https://quran.com/13/28",
+        },
+      ],
+      hadiths: [
+        {
+          text: "Take advantage of five before five: your youth before your old age, your health before your illness, your wealth before your poverty, your free time before your busyness, and your life before your death.",
+          narrator: "Narrated by Ibn Abbas (رضي الله عنه)",
+          source: "Mustadrak al-Hakim 7846",
+          link: "https://sunnah.com/urn/2053310",
+          grade: "Sahih (Authentic)",
+        },
+        {
+          text: "The most beloved deeds to Allah are the most consistent ones, even if small.",
+          narrator: "Narrated by Aisha (رضي الله عنها)",
+          source: "Sahih al-Bukhari 6464",
+          link: "https://sunnah.com/bukhari:6464",
+          grade: "Sahih (Authentic)",
+        },
+      ],
+      keyTakeaways: [
+        "Prevention through daily habits is more powerful than reaction during anger",
+        "Morning adhkar, exercise, and Qur'an create a daily spiritual shield",
+        "Low blood sugar, poor sleep, and skipped prayers lower your anger threshold",
+        "Evening self-accounting (muhasabah) builds continuous improvement",
+      ],
+      exercise: "For the next 3 days, try this routine: (1) Morning adhkar after Fajr, (2) 10-minute walk, (3) 3 dates for breakfast, (4) Evening muhasabah before sleep. Note your anger levels each day.",
+    },
+  },
 ];
 
 const categories = ["All", ...Array.from(new Set(lessons.map((l) => l.category)))];
