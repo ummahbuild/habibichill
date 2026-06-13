@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 
-const GITHUB_URL = "https://github.com/codingshot/habibichill";
+const GITHUB_URL = "https://github.com/ummahbuild/habibichill";
 
 const ContributePage = () => (
   <div className="min-h-screen bg-background">
