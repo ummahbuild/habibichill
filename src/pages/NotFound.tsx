@@ -31,8 +31,14 @@ const NotFound = () => {
             Launch App
           </Link>
           <Link
-            to="/pitch"
+            to="/products"
             className="rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+          >
+            Explore Products
+          </Link>
+          <Link
+            to="/pitch"
+            className="rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted sm:col-span-2"
           >
             View Quick Pitch
           </Link>

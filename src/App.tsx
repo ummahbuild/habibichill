@@ -16,6 +16,8 @@ const ContributePage = lazy(() => import("./pages/ContributePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const SurahPage = lazy(() => import("./pages/SurahPage"));
 const PitchPage = lazy(() => import("./pages/PitchPage"));
+const ProductsPage = lazy(() => import("./pages/ProductsPage"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => (
               <Route path="/guides" element={<GuidesPage />} />
               <Route path="/contribute" element={<ContributePage />} />
               <Route path="/pitch" element={<PitchPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/product/:slug" element={<ProductDetailPage />} />
               <Route path="/privacy" element={<LegalPage />} />
               <Route path="/terms" element={<LegalPage />} />
               <Route path="/legal" element={<LegalPage />} />

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ProductsMenu from "@/components/ProductsMenu";
 
 const SiteFooter = () => (
   <footer className="border-t border-border bg-card py-8">
@@ -11,6 +12,8 @@ const SiteFooter = () => (
       </p>
       <div className="flex flex-wrap items-center justify-center gap-4">
         <Link to="/" className="transition-colors hover:text-foreground">Home</Link>
+        <ProductsMenu />
+        <Link to="/products" className="transition-colors hover:text-foreground">All Products</Link>
         <Link to="/pitch" className="transition-colors hover:text-foreground">Pitch</Link>
         <Link to="/blogs" className="transition-colors hover:text-foreground">Blog</Link>
         <Link to="/guides" className="transition-colors hover:text-foreground">Guides</Link>

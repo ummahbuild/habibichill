@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { blogPosts } from "@/data/blogPosts";
 import logo from "@/assets/habibichill-logo.png";
 import SiteFooter from "@/components/SiteFooter";
+import { usePageSeo } from "@/hooks/use-page-seo";
 
 const corePillars = [
   {
@@ -33,6 +34,14 @@ const featuredInsights = blogPosts.slice(0, 4).map((post) => ({
 }));
 
 const PitchPage = () => {
+  usePageSeo({
+    title: "HabibiChill Pitch — Muslim Anger Management App | Ummah Build",
+    description:
+      "Quick pitch for HabibiChill: a faith-grounded anger management app using Qur'an, Sunnah, and Islamic psychology. Free, private, real-time emotional mastery for Muslims.",
+    path: "/pitch",
+    keywords: ["habibichill pitch", "muslim anger app", "ummah build", "islamic emotional wellness"],
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
@@ -111,8 +120,7 @@ const PitchPage = () => {
         </section>
 
         <section className="rounded-3xl border border-border bg-gradient-calm p-8 text-center">
-          <h2 className="mb-3 font-heading text-3xl font-bold text-foreground">One-Line Value Proposition</h2>
-          <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
+          <p className="mx-auto mb-6 max-w-2xl text-lg text-muted-foreground">
             HabibiChill gives Muslims a real-time, faith-grounded system to regulate anger and build long-term emotional discipline.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">

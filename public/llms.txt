@@ -1,0 +1,51 @@
+# HabibiChill — llms.txt
+# Machine-readable site summary for AI assistants and search engines.
+# https://habibichill.com/llms.txt
+
+> HabibiChill is the Muslim anger and emotional mastery app by Ummah Build.
+> Turn anger into reward using Qur'an, Sunnah, and Islamic psychology — free, private, offline-first.
+
+## Primary site
+- Home: https://habibichill.com/
+- Pitch: https://habibichill.com/pitch
+- Products ecosystem: https://habibichill.com/products
+- Blog: https://habibichill.com/blogs
+- Guides: https://habibichill.com/guides
+- Contribute: https://habibichill.com/contribute
+
+## About Ummah Build
+Ummah Build (https://ummah.build) is an Islamic technology venture studio and ecosystem.
+Motto: Ummaceleration — building faith-aligned products for the global Muslim ummah.
+
+## Product ecosystem
+Each product has a detail page on HabibiChill and its own live site:
+
+| Product | Tagline | URL | Detail page |
+|---------|---------|-----|-------------|
+| HabibiChill | Turn anger into reward | https://habibichill.com | https://habibichill.com/product/habibichill |
+| SunnahSleep | Cure insomnia with Islam | https://sunnahsleep.com | https://habibichill.com/product/sunnahsleep |
+| MosqueSteps | Earn blessings for walking to the mosque | https://mosquesteps.com | https://habibichill.com/product/mosquesteps |
+| MosqueList | Explore magnificent mosques worldwide | https://mosquelist.com | https://habibichill.com/product/mosquelist |
+| TryRamadan | Fast like a Muslim | https://tryramadan.app | https://habibichill.com/product/tryramadan |
+| ShariaCheck | Check halal compliance of products and businesses | https://shariacheck.com | https://habibichill.com/product/shariacheck |
+| MuslimName | Find your Muslim name | https://muslimname.me | https://habibichill.com/product/muslimname |
+| PRAYSAP | Coordinate prayer in real life | https://praysap.com | https://habibichill.com/product/praysap |
+
+## Key features (HabibiChill)
+- Emergency Sunnah-based anger protocol (silence, isti'adhah, posture, wudu)
+- Dhikr counter, Quran player, breathing exercises, silence timer
+- Anger journal, mood tracking, prayer times, Sabr points
+- Free PWA, no account, works offline, data stays on device
+
+## Content topics
+Islamic anger management, prophetic hadith on anger, Qur'anic verses on patience (sabr),
+Imam Ghazali emotional mastery, Muslim mental health, marriage/parenting/workplace anger,
+Ramadan fasting and irritability, dhikr, wudu neuroscience, forgiveness in Islam.
+
+## Contact & social
+- Studio: https://ummah.build
+- X: https://x.com/ummahbuild
+- GitHub: https://github.com/ummahbuild/habibichill
+
+## Sitemap
+https://habibichill.com/sitemap.xml

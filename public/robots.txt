@@ -3,6 +3,27 @@ Allow: /
 
 Sitemap: https://habibichill.com/sitemap.xml
 
+# AI / LLM discovery
+# See https://habibichill.com/llms.txt for structured site summary
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
 # Social / crawlers
 User-agent: Googlebot
 Allow: /
