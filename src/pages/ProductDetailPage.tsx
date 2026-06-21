@@ -1,7 +1,8 @@
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import logo from "@/assets/habibichill-logo.png";
+import MarketingNav from "@/components/MarketingNav";
 import RelatedProductsCarousel from "@/components/RelatedProductsCarousel";
+import ShareButtons from "@/components/ShareButtons";
 import SiteFooter from "@/components/SiteFooter";
 import {
   getProductBySlug,
@@ -10,22 +11,29 @@ import {
 } from "@/data/ummahProducts";
 import { usePageSeo } from "@/hooks/use-page-seo";
 
+const statusLabel = {
+  live: "Live",
+  beta: "Beta",
+  "coming-soon": "Coming Soon",
+} as const;
+
 const ProductDetailPage = () => {
   const { slug = "" } = useParams<{ slug: string }>();
   const product = getProductBySlug(slug);
   const related = getRelatedProducts(slug, 6);
+  const detailPath = `/product/${slug}`;
 
   usePageSeo({
     title: product
       ? `${product.name} — ${product.tagline} | Ummah Build`
       : "Product Not Found | HabibiChill",
     description: product
-      ? `${product.description} Part of the ${ummahBuildMeta.name} Islamic tech ecosystem (${ummahBuildMeta.motto}).`
+      ? `${product.longDescription || product.description} Part of the ${ummahBuildMeta.name} Islamic tech ecosystem (${ummahBuildMeta.motto}).`
       : "This Ummah Build product page could not be found.",
-    path: `/product/${slug}`,
+    path: detailPath,
     image: product?.image ? `https://habibichill.com${product.image}` : undefined,
     type: "website",
-    keywords: product ? [product.name, ...product.tags, "ummah build", "islamic app"] : [],
+    keywords: product ? [product.name, product.category, ...product.tags, "ummah build", "islamic app"] : [],
     jsonLd: product
       ? [
           {
@@ -33,7 +41,7 @@ const ProductDetailPage = () => {
             "@type": "SoftwareApplication",
             name: product.name,
             url: product.url,
-            description: product.description,
+            description: product.longDescription || product.description,
             applicationCategory: product.appType,
             operatingSystem: "Any",
             offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -53,7 +61,29 @@ const ProductDetailPage = () => {
                 "@type": "ListItem",
                 position: 3,
                 name: product.name,
-                item: `https://habibichill.com/product/${product.slug}`,
+                item: `https://habibichill.com${detailPath}`,
+              },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: `What is ${product.name}?`,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: product.longDescription || product.description,
+                },
+              },
+              {
+                "@type": "Question",
+                name: `Who built ${product.name}?`,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: `${product.name} is built by ${ummahBuildMeta.name}, an Islamic technology venture studio (${ummahBuildMeta.motto}).`,
+                },
               },
             ],
           },
@@ -79,17 +109,7 @@ const ProductDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="HabibiChill" className="h-8 w-8 rounded-full object-cover" width={32} height={32} />
-            <span className="font-heading text-lg font-bold text-foreground">HabibiChill</span>
-          </Link>
-          <Link to="/products" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-            ← All Products
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav backTo={{ label: "← All Products", href: "/products" }} />
 
       <nav aria-label="Breadcrumb" className="container mx-auto px-4 pt-6 text-xs text-muted-foreground">
         <ol className="flex flex-wrap items-center gap-1">
@@ -106,32 +126,51 @@ const ProductDetailPage = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-calm text-4xl">
-              {product.image ? (
-                <img src={product.image} alt={product.name} className="h-full w-full rounded-2xl object-cover" />
-              ) : (
-                product.emoji
-              )}
-            </div>
-            <div className="min-w-0">
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-border px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                  {product.appType}
-                </span>
-                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                  Ummah Build
-                </span>
+          <div className={`mb-6 overflow-hidden rounded-3xl border border-border bg-gradient-to-br p-6 ${product.accent}`}>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-background/90 text-4xl backdrop-blur-sm">
+                {product.image ? (
+                  <img src={product.image} alt={product.name} className="h-full w-full rounded-2xl object-cover" />
+                ) : (
+                  product.emoji
+                )}
               </div>
-              <h1 className="mb-2 font-heading text-3xl font-extrabold text-foreground md:text-4xl">
-                {product.name}
-              </h1>
-              <p className="text-lg font-medium text-primary">{product.tagline}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{product.domain}</p>
+              <div className="min-w-0">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-border bg-background/80 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    {product.appType}
+                  </span>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    {product.category}
+                  </span>
+                  <span className="rounded-full bg-secondary/10 px-2.5 py-0.5 text-[10px] font-semibold text-secondary-foreground">
+                    {statusLabel[product.status]}
+                  </span>
+                </div>
+                <h1 className="mb-2 font-heading text-3xl font-extrabold text-foreground md:text-4xl">
+                  {product.name}
+                </h1>
+                <p className="text-lg font-medium text-primary">{product.tagline}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{product.domain}</p>
+              </div>
             </div>
           </div>
 
-          <p className="mb-6 text-base leading-relaxed text-muted-foreground">{product.description}</p>
+          <p className="mb-6 text-base leading-relaxed text-muted-foreground">
+            {product.longDescription || product.description}
+          </p>
+
+          <section className="mb-8">
+            <h2 className="mb-3 font-heading text-lg font-bold text-foreground">Key Highlights</h2>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {product.highlights.map((item) => (
+                <li key={item} className="flex items-start gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-muted-foreground">
+                  <span className="text-primary" aria-hidden>✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
 
           <div className="mb-8 flex flex-wrap gap-2">
             {product.tags.map((tag) => (
@@ -141,7 +180,7 @@ const ProductDetailPage = () => {
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="mb-6 flex flex-wrap gap-3">
             {product.isCurrentApp ? (
               <Link
                 to={ctaHref}
@@ -166,6 +205,13 @@ const ProductDetailPage = () => {
               Explore Ecosystem
             </Link>
           </div>
+
+          <ShareButtons
+            url={detailPath}
+            title={`${product.name} — ${product.tagline}`}
+            text={`${product.name} by Ummah Build: ${product.tagline}`}
+            compact
+          />
         </motion.header>
 
         <section className="mt-12 rounded-2xl border border-border bg-gradient-calm p-6">
@@ -185,7 +231,7 @@ const ProductDetailPage = () => {
       </article>
 
       <section className="container mx-auto px-4 pb-16">
-        <RelatedProductsCarousel products={related.filter((p) => p.slug !== product.slug)} />
+        <RelatedProductsCarousel products={related} />
       </section>
 
       <SiteFooter />

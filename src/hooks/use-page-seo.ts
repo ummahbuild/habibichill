@@ -29,6 +29,7 @@ export interface PageSeoOptions {
   image?: string;
   type?: "website" | "article" | "product";
   keywords?: string[];
+  noindex?: boolean;
   jsonLd?: object | object[];
 }
 
@@ -39,6 +40,7 @@ export const usePageSeo = ({
   image = "https://habibichill.com/habibichillmeta.png",
   type = "website",
   keywords = [],
+  noindex = false,
   jsonLd,
 }: PageSeoOptions) => {
   useEffect(() => {
@@ -46,7 +48,9 @@ export const usePageSeo = ({
 
     document.title = title;
     setMeta("description", description);
-    setCanonical(url);
+    setCanonical(noindex ? `${SITE_URL}/` : url);
+
+    setMeta("robots", noindex ? "noindex, follow" : "index, follow, max-image-preview:large, max-snippet:-1");
 
     setMeta("og:title", title, "property");
     setMeta("og:description", description, "property");
@@ -56,6 +60,7 @@ export const usePageSeo = ({
     setMeta("og:site_name", "HabibiChill", "property");
 
     setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:site", "@ummahbuild");
     setMeta("twitter:title", title);
     setMeta("twitter:description", description);
     setMeta("twitter:image", image);
@@ -63,6 +68,10 @@ export const usePageSeo = ({
     if (keywords.length > 0) {
       setMeta("keywords", keywords.join(", "));
     }
+
+    // AI / LLM discovery hints
+    setMeta("abstract", description);
+    setMeta("summary", description);
 
     document.querySelectorAll('[id^="page-json-ld"]').forEach((el) => el.remove());
 
@@ -80,5 +89,5 @@ export const usePageSeo = ({
     return () => {
       document.querySelectorAll('[id^="page-json-ld"]').forEach((el) => el.remove());
     };
-  }, [title, description, path, image, type, keywords.join(",")]);
+  }, [title, description, path, image, type, keywords.join(","), noindex]);
 };

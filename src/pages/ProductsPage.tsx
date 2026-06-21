@@ -1,12 +1,31 @@
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import logo from "@/assets/habibichill-logo.png";
 import ProductCard from "@/components/ProductCard";
+import MarketingNav from "@/components/MarketingNav";
 import SiteFooter from "@/components/SiteFooter";
-import { ummahProducts, ummahBuildMeta } from "@/data/ummahProducts";
+import {
+  filterProducts,
+  productCategories,
+  ummahProducts,
+  ummahBuildMeta,
+  type ProductCategory,
+} from "@/data/ummahProducts";
 import { usePageSeo } from "@/hooks/use-page-seo";
 
+const categoryStats = productCategories.map((cat) => ({
+  category: cat,
+  count: ummahProducts.filter((p) => p.category === cat).length,
+}));
+
 const ProductsPage = () => {
+  const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<ProductCategory | "">("");
+
+  const filtered = useMemo(
+    () => filterProducts(query, activeCategory),
+    [query, activeCategory],
+  );
+
   usePageSeo({
     title: "Ummah Build Products — Islamic Tech Ecosystem | HabibiChill",
     description:
@@ -53,17 +72,7 @@ const ProductsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="HabibiChill" className="h-8 w-8 rounded-full object-cover" width={32} height={32} />
-            <span className="font-heading text-lg font-bold text-foreground">HabibiChill</span>
-          </Link>
-          <Link to="/" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-            Launch App
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav />
 
       <header className="bg-gradient-hero py-14 md:py-20">
         <div className="container mx-auto px-4 text-center">
@@ -103,27 +112,88 @@ const ProductsPage = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-14">
-        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="font-heading text-2xl font-bold text-foreground">All Products</h2>
-            <p className="text-sm text-muted-foreground">{ummahProducts.length} faith-aligned apps in the ecosystem</p>
+      <section className="border-b border-border bg-card/50">
+        <div className="container mx-auto grid grid-cols-2 gap-3 px-4 py-6 sm:grid-cols-4 lg:grid-cols-5">
+          {categoryStats.map(({ category, count }) => (
+            <div key={category} className="rounded-xl border border-border bg-background px-3 py-3 text-center">
+              <p className="font-heading text-xl font-bold text-foreground">{count}</p>
+              <p className="text-xs text-muted-foreground">{category}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <main className="container mx-auto px-4 py-10">
+        <div className="mb-6 space-y-4">
+          <div className="relative max-w-md">
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search products..."
+              aria-label="Search products"
+              className="w-full rounded-xl border border-border bg-card px-4 py-2.5 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">🔍</span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveCategory("")}
+              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${!activeCategory ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}
+            >
+              All
+            </button>
+            {productCategories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(activeCategory === cat ? "" : cat)}
+                className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {ummahProducts.map((product, i) => (
-            <motion.div
-              key={product.slug}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.04 }}
+        <div className="mb-6 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            {filtered.length} product{filtered.length !== 1 ? "s" : ""}
+            {activeCategory ? ` in ${activeCategory}` : ""}
+          </p>
+          {(query || activeCategory) && (
+            <button
+              type="button"
+              onClick={() => { setQuery(""); setActiveCategory(""); }}
+              className="text-xs text-primary underline hover:text-primary/80"
             >
-              <ProductCard product={product} />
-            </motion.div>
-          ))}
+              Clear filters
+            </button>
+          )}
         </div>
+
+        {filtered.length === 0 ? (
+          <div className="rounded-2xl border border-border bg-card py-16 text-center">
+            <p className="mb-2 text-4xl">📦</p>
+            <p className="text-muted-foreground">No products match your search.</p>
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((product, i) => (
+              <motion.div
+                key={product.slug}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.03 }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </main>
 
       <SiteFooter />

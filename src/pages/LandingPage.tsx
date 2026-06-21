@@ -7,6 +7,7 @@ import { blogPosts } from "@/data/blogPosts";
 import AppWalkthrough from "@/components/AppWalkthrough";
 import ArabicTooltip from "@/components/ArabicTooltip";
 import HadithTooltip from "@/components/HadithTooltip";
+import EcosystemProductsSection from "@/components/EcosystemProductsSection";
 import SiteFooter from "@/components/SiteFooter";
 
 const features = [
@@ -489,6 +490,8 @@ const LandingPage = () => {
         </div>
         <BlogCarousel />
       </section>
+
+      <EcosystemProductsSection />
 
       {/* CTA */}
       <section className="container mx-auto px-4 py-16 text-center">

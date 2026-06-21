@@ -9,6 +9,12 @@ interface ProductCardProps {
   className?: string;
 }
 
+const statusLabel: Record<UmmahProduct["status"], string> = {
+  live: "Live",
+  beta: "Beta",
+  "coming-soon": "Soon",
+};
+
 const ProductCard = ({ product, variant = "full", className }: ProductCardProps) => {
   const detailPath = getProductDetailPath(product.slug);
   const isCompact = variant === "compact";
@@ -17,15 +23,23 @@ const ProductCard = ({ product, variant = "full", className }: ProductCardProps)
     <Link
       to={detailPath}
       className={cn(
-        "group flex flex-col rounded-2xl border border-border bg-card transition-all hover:border-primary/40 hover:shadow-calm",
+        "group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary/40 hover:shadow-calm",
         isCompact ? "p-3" : "h-full p-5",
         className,
       )}
     >
-      <div className={cn("flex items-start gap-3", isCompact ? "gap-2.5" : "mb-3")}>
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b opacity-60",
+          product.accent,
+        )}
+        aria-hidden
+      />
+
+      <div className={cn("relative flex items-start gap-3", isCompact ? "gap-2.5" : "mb-3")}>
         <div
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-xl bg-gradient-calm",
+            "flex shrink-0 items-center justify-center rounded-xl border border-border/50 bg-background/80 backdrop-blur-sm",
             isCompact ? "h-10 w-10 text-xl" : "h-14 w-14 text-3xl",
           )}
           aria-hidden
@@ -60,7 +74,14 @@ const ProductCard = ({ product, variant = "full", className }: ProductCardProps)
           </div>
 
           {!isCompact && (
-            <p className="mb-2 text-xs text-muted-foreground">{product.domain}</p>
+            <div className="mb-2 flex flex-wrap items-center gap-1.5">
+              <span className="rounded-full border border-border bg-background/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                {product.category}
+              </span>
+              <span className="rounded-full bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                {statusLabel[product.status]}
+              </span>
+            </div>
           )}
 
           <p
@@ -76,10 +97,10 @@ const ProductCard = ({ product, variant = "full", className }: ProductCardProps)
 
       {!isCompact && (
         <>
-          <p className="mb-4 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+          <p className="relative mb-4 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">
             {product.description}
           </p>
-          <div className="flex items-center justify-between gap-2">
+          <div className="relative flex items-center justify-between gap-2">
             <span className="rounded-full border border-border px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
               {product.appType}
             </span>
@@ -89,8 +110,8 @@ const ProductCard = ({ product, variant = "full", className }: ProductCardProps)
       )}
 
       {isCompact && (
-        <span className="mt-2 hidden text-[10px] font-medium text-primary sm:inline">
-          {product.appType}
+        <span className="relative mt-2 hidden text-[10px] font-medium text-muted-foreground sm:inline">
+          {product.appType} · {product.category}
         </span>
       )}
     </Link>

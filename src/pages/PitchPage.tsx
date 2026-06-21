@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { blogPosts } from "@/data/blogPosts";
-import logo from "@/assets/habibichill-logo.png";
+import EcosystemProductsSection from "@/components/EcosystemProductsSection";
+import MarketingNav from "@/components/MarketingNav";
 import SiteFooter from "@/components/SiteFooter";
+import { ummahBuildMeta } from "@/data/ummahProducts";
 import { usePageSeo } from "@/hooks/use-page-seo";
 
 const corePillars = [
@@ -44,22 +46,7 @@ const PitchPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="HabibiChill" className="h-8 w-8 rounded-full object-cover" width={32} height={32} />
-            <span className="font-heading text-lg font-bold text-foreground">HabibiChill</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Link to="/blogs" className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted">
-              Blog
-            </Link>
-            <Link to="/" className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">
-              Launch App
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav />
 
       <header className="bg-gradient-hero py-16">
         <div className="container mx-auto px-4 text-center">
@@ -119,6 +106,15 @@ const PitchPage = () => {
           </div>
         </section>
 
+        <section className="rounded-3xl border border-border bg-card p-7">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary">{ummahBuildMeta.motto}</p>
+          <h2 className="mb-3 font-heading text-2xl font-bold text-foreground">Part of {ummahBuildMeta.name}</h2>
+          <p className="mb-4 text-muted-foreground">{ummahBuildMeta.description}</p>
+          <Link to="/products" className="text-sm font-semibold text-primary underline hover:text-primary/80">
+            Explore the full product ecosystem →
+          </Link>
+        </section>
+
         <section className="rounded-3xl border border-border bg-gradient-calm p-8 text-center">
           <p className="mx-auto mb-6 max-w-2xl text-lg text-muted-foreground">
             HabibiChill gives Muslims a real-time, faith-grounded system to regulate anger and build long-term emotional discipline.
@@ -133,6 +129,8 @@ const PitchPage = () => {
           </div>
         </section>
       </main>
+
+      <EcosystemProductsSection title="Sibling Products in the Ecosystem" limit={4} />
 
       <SiteFooter />
     </div>

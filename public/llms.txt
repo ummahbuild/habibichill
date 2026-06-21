@@ -17,23 +17,37 @@
 Ummah Build (https://ummah.build) is an Islamic technology venture studio and ecosystem.
 Motto: Ummaceleration — building faith-aligned products for the global Muslim ummah.
 
-## Product ecosystem
-Each product has a detail page on HabibiChill and its own live site:
+## Product ecosystem (8 apps)
 
-| Product | Tagline | URL | Detail page |
-|---------|---------|-----|-------------|
-| HabibiChill | Turn anger into reward | https://habibichill.com | https://habibichill.com/product/habibichill |
-| SunnahSleep | Cure insomnia with Islam | https://sunnahsleep.com | https://habibichill.com/product/sunnahsleep |
-| MosqueSteps | Earn blessings for walking to the mosque | https://mosquesteps.com | https://habibichill.com/product/mosquesteps |
-| MosqueList | Explore magnificent mosques worldwide | https://mosquelist.com | https://habibichill.com/product/mosquelist |
-| TryRamadan | Fast like a Muslim | https://tryramadan.app | https://habibichill.com/product/tryramadan |
-| ShariaCheck | Check halal compliance of products and businesses | https://shariacheck.com | https://habibichill.com/product/shariacheck |
-| MuslimName | Find your Muslim name | https://muslimname.me | https://habibichill.com/product/muslimname |
-| PRAYSAP | Coordinate prayer in real life | https://praysap.com | https://habibichill.com/product/praysap |
+### Wellness
+- HabibiChill (PWA, live) — Turn anger into reward. Emergency Sunnah calm, dhikr, Quran, journaling.
+  URL: https://habibichill.com | Detail: https://habibichill.com/product/habibichill
+- SunnahSleep (Web App, live) — Cure insomnia with Islam. Prophetic night routines and Qur'an wind-down.
+  URL: https://sunnahsleep.com | Detail: https://habibichill.com/product/sunnahsleep
+
+### Worship
+- MosqueSteps (Mobile App, live) — Earn blessings for walking to the mosque.
+  URL: https://mosquesteps.com | Detail: https://habibichill.com/product/mosquesteps
+- TryRamadan (Web App, live) — Fast like a Muslim. Guided Ramadan for newcomers.
+  URL: https://tryramadan.app | Detail: https://habibichill.com/product/tryramadan
+- PRAYSAP (Mobile App, live) — Pray anywhere. Coordinate salah IRL with prayer partners.
+  URL: https://praysap.com | Detail: https://habibichill.com/product/praysap
+
+### Discovery
+- MosqueList (Directory, live) — Explore magnificent mosques worldwide.
+  URL: https://mosquelist.com | Detail: https://habibichill.com/product/mosquelist
+
+### Commerce
+- ShariaCheck (Tool, live) — Check if products and businesses are halal, with reasoning.
+  URL: https://shariacheck.com | Detail: https://habibichill.com/product/shariacheck
+
+### Identity
+- MuslimName (Tool, live) — Find your Muslim name with meanings and pronunciation.
+  URL: https://muslimname.me | Detail: https://habibichill.com/product/muslimname
 
 ## Key features (HabibiChill)
 - Emergency Sunnah-based anger protocol (silence, isti'adhah, posture, wudu)
-- Dhikr counter, Quran player, breathing exercises, silence timer
+- Dhikr counter, Quran player (6 reciters), breathing exercises, silence timer
 - Anger journal, mood tracking, prayer times, Sabr points
 - Free PWA, no account, works offline, data stays on device
 
