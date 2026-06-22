@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import ProductsMenu from "@/components/ProductsMenu";
+import ProductLogo from "@/components/ProductLogo";
 import { ummahProducts, ummahBuildMeta, getProductDetailPath } from "@/data/ummahProducts";
 
 const featuredProducts = ummahProducts.filter((p) => p.featured).slice(0, 5);
@@ -31,7 +32,7 @@ const SiteFooter = () => (
                   to={getProductDetailPath(product.slug)}
                   className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <span aria-hidden>{product.emoji}</span>
+                  <ProductLogo product={product} size="xs" className="border-0 bg-transparent" />
                   <span className="truncate">{product.name}</span>
                 </Link>
               </li>

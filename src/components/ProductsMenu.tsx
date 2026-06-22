@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import ProductLogo from "@/components/ProductLogo";
+import { ProductStatusDot } from "@/components/ProductBadges";
 import {
   productCategories,
   ummahProducts,
@@ -79,16 +81,15 @@ const ProductsMenu = () => {
                         onClick={() => setOpen(false)}
                         className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-muted"
                       >
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-background text-lg">
-                          {product.emoji}
-                        </span>
+                        <ProductLogo product={product} size="sm" className="border-0 bg-background" />
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-1.5">
                             <span className="truncate text-sm font-semibold text-foreground">
                               {product.name}
                             </span>
+                            <ProductStatusDot status={product.status} />
                             {product.isCurrentApp && (
-                              <span className="shrink-0 rounded bg-primary/10 px-1 py-0.5 text-[8px] font-bold uppercase text-primary">
+                              <span className="shrink-0 rounded bg-primary px-1 py-0.5 text-[8px] font-bold uppercase text-primary-foreground">
                                 Here
                               </span>
                             )}

@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import SiteFooter from "@/components/SiteFooter";
+import ProductLogo from "@/components/ProductLogo";
 import { getRelatedProducts } from "@/data/ummahProducts";
 import { getProductDetailPath } from "@/data/ummahProducts";
 import { usePageSeo } from "@/hooks/use-page-seo";
@@ -76,7 +77,7 @@ const NotFound = () => {
                   to={getProductDetailPath(product.slug)}
                   className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
                 >
-                  <span aria-hidden>{product.emoji}</span>
+                  <ProductLogo product={product} size="xs" className="border-0 bg-transparent" />
                   {product.name}
                 </Link>
               ))}

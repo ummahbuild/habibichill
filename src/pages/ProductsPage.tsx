@@ -117,7 +117,7 @@ const ProductsPage = () => {
           {categoryStats.map(({ category, count }) => (
             <div key={category} className="rounded-xl border border-border bg-background px-3 py-3 text-center">
               <p className="font-heading text-xl font-bold text-foreground">{count}</p>
-              <p className="text-xs text-muted-foreground">{category}</p>
+              <p className="text-xs font-medium text-foreground/70">{category}</p>
             </div>
           ))}
         </div>

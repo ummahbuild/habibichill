@@ -1,21 +1,22 @@
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import MarketingNav from "@/components/MarketingNav";
+import ProductLogo from "@/components/ProductLogo";
+import {
+  ProductMetaBadges,
+  ProductStatusBadge,
+  ProductTagBadge,
+} from "@/components/ProductBadges";
 import RelatedProductsCarousel from "@/components/RelatedProductsCarousel";
 import ShareButtons from "@/components/ShareButtons";
 import SiteFooter from "@/components/SiteFooter";
 import {
   getProductBySlug,
   getRelatedProducts,
+  getProductLogoUrl,
   ummahBuildMeta,
 } from "@/data/ummahProducts";
 import { usePageSeo } from "@/hooks/use-page-seo";
-
-const statusLabel = {
-  live: "Live",
-  beta: "Beta",
-  "coming-soon": "Coming Soon",
-} as const;
 
 const ProductDetailPage = () => {
   const { slug = "" } = useParams<{ slug: string }>();
@@ -31,7 +32,7 @@ const ProductDetailPage = () => {
       ? `${product.longDescription || product.description} Part of the ${ummahBuildMeta.name} Islamic tech ecosystem (${ummahBuildMeta.motto}).`
       : "This Ummah Build product page could not be found.",
     path: detailPath,
-    image: product?.image ? `https://habibichill.com${product.image}` : undefined,
+    image: getProductLogoUrl(slug) ?? "https://habibichill.com/habibichillmeta.png",
     type: "website",
     keywords: product ? [product.name, product.category, ...product.tags, "ummah build", "islamic app"] : [],
     jsonLd: product
@@ -41,6 +42,7 @@ const ProductDetailPage = () => {
             "@type": "SoftwareApplication",
             name: product.name,
             url: product.url,
+            image: getProductLogoUrl(product.slug),
             description: product.longDescription || product.description,
             applicationCategory: product.appType,
             operatingSystem: "Any",
@@ -128,25 +130,13 @@ const ProductDetailPage = () => {
         >
           <div className={`mb-6 overflow-hidden rounded-3xl border border-border bg-gradient-to-br p-6 ${product.accent}`}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-background/90 text-4xl backdrop-blur-sm">
-                {product.image ? (
-                  <img src={product.image} alt={product.name} className="h-full w-full rounded-2xl object-cover" />
-                ) : (
-                  product.emoji
-                )}
-              </div>
+              <ProductLogo product={product} size="lg" className="border-border/50 bg-background/90" />
               <div className="min-w-0">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-border bg-background/80 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                    {product.appType}
-                  </span>
-                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                    {product.category}
-                  </span>
-                  <span className="rounded-full bg-secondary/10 px-2.5 py-0.5 text-[10px] font-semibold text-secondary-foreground">
-                    {statusLabel[product.status]}
-                  </span>
-                </div>
+                <ProductMetaBadges
+                  product={product}
+                  showAppType
+                  className="mb-3"
+                />
                 <h1 className="mb-2 font-heading text-3xl font-extrabold text-foreground md:text-4xl">
                   {product.name}
                 </h1>
@@ -174,9 +164,7 @@ const ProductDetailPage = () => {
 
           <div className="mb-8 flex flex-wrap gap-2">
             {product.tags.map((tag) => (
-              <span key={tag} className="rounded-full border border-border px-3 py-0.5 text-[11px] text-muted-foreground">
-                #{tag}
-              </span>
+              <ProductTagBadge key={tag} tag={tag} />
             ))}
           </div>
 
