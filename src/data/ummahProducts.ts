@@ -40,6 +40,29 @@ export const productCategories: ProductCategory[] = [
   "Identity",
 ];
 
+/** Maps product slug → filename in /public/ummahlogos/ */
+const productLogoFiles: Record<string, string> = {
+  habibichill: "habibichill.png",
+  sunnahsleep: "sunnahsleep.png",
+  mosquesteps: "mosquesteps.png",
+  mosquelist: "mosquelist.png",
+  tryramadan: "tryramadan.png",
+  shariacheck: "shariacheck.png",
+  muslimname: "muslimname.png",
+  praysap: "PRAYSAP.png",
+};
+
+export const getProductLogo = (product: Pick<UmmahProduct, "slug" | "image" | "emoji">) => {
+  if (product.image) return product.image;
+  const file = productLogoFiles[product.slug];
+  return file ? `/ummahlogos/${file}` : undefined;
+};
+
+export const getProductLogoUrl = (slug: string) => {
+  const file = productLogoFiles[slug];
+  return file ? `https://habibichill.com/ummahlogos/${file}` : undefined;
+};
+
 export const ummahProducts: UmmahProduct[] = [
   {
     slug: "habibichill",
@@ -55,7 +78,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "PWA",
     category: "Wellness",
     status: "live",
-    image: "/habibichillmeta.png",
+    image: "/ummahlogos/habibichill.png",
     accent: "from-orange-500/20 to-teal-500/20",
     tags: ["anger management", "mental health", "emotional wellness", "sunnah"],
     highlights: ["Emergency calm protocol", "Offline PWA", "No account required", "100% private"],
@@ -77,6 +100,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "Web App",
     category: "Wellness",
     status: "live",
+    image: "/ummahlogos/sunnahsleep.png",
     accent: "from-indigo-500/20 to-slate-500/20",
     tags: ["sleep", "insomnia", "wellness", "sunnah"],
     highlights: ["Prophetic sleep routines", "Qur'an wind-down", "Insomnia support", "Faith-first design"],
@@ -97,6 +121,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "Mobile App",
     category: "Worship",
     status: "live",
+    image: "/ummahlogos/mosquesteps.png",
     accent: "from-emerald-500/20 to-teal-500/20",
     tags: ["mosque", "fitness", "worship", "community"],
     highlights: ["Step tracking to masjid", "Reward framing", "Community motivation", "Daily consistency"],
@@ -117,6 +142,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "Directory",
     category: "Discovery",
     status: "live",
+    image: "/ummahlogos/mosquelist.png",
     accent: "from-amber-500/20 to-orange-500/20",
     tags: ["mosques", "travel", "islamic history", "architecture"],
     highlights: ["Global mosque directory", "Architecture & history", "Travel inspiration", "Curated collections"],
@@ -137,6 +163,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "Web App",
     category: "Worship",
     status: "live",
+    image: "/ummahlogos/tryramadan.png",
     accent: "from-purple-500/20 to-indigo-500/20",
     tags: ["ramadan", "fasting", "dawah", "education"],
     highlights: ["Beginner-friendly fasting", "Spiritual education", "Daily rhythm guides", "Welcoming dawah"],
@@ -157,6 +184,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "Tool",
     category: "Commerce",
     status: "live",
+    image: "/ummahlogos/shariacheck.png",
     accent: "from-green-500/20 to-emerald-500/20",
     tags: ["halal", "commerce", "sharia", "consumer"],
     highlights: ["Halal verification", "Clear reasoning", "Business checks", "Consumer confidence"],
@@ -177,6 +205,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "Tool",
     category: "Identity",
     status: "live",
+    image: "/ummahlogos/muslimname.png",
     accent: "from-rose-500/20 to-pink-500/20",
     tags: ["names", "identity", "converts", "culture"],
     highlights: ["Meaning & origin", "Pronunciation guides", "Convert-friendly", "Curated collections"],
@@ -197,6 +226,7 @@ export const ummahProducts: UmmahProduct[] = [
     appType: "Mobile App",
     category: "Worship",
     status: "live",
+    image: "/ummahlogos/PRAYSAP.png",
     accent: "from-cyan-500/20 to-blue-500/20",
     tags: ["prayer", "salah", "community", "coordination"],
     highlights: ["IRL prayer coordination", "Jama'ah finder", "Community building", "Pray anywhere"],
