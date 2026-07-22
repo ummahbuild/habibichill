@@ -95,13 +95,17 @@ const ProductDetailPage = () => {
 
   if (!product) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
-        <p className="mb-2 text-5xl">📦</p>
-        <h1 className="mb-2 font-heading text-2xl font-bold text-foreground">Product Not Found</h1>
-        <p className="mb-6 text-muted-foreground">This Ummah Build product does not exist yet.</p>
-        <Link to="/products" className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground">
-          View All Products
-        </Link>
+      <div className="min-h-screen bg-background">
+        <MarketingNav backTo={{ label: "← All Products", href: "/products" }} />
+        <div className="flex flex-col items-center justify-center px-4 py-24 text-center">
+          <p className="mb-2 text-5xl">📦</p>
+          <h1 className="mb-2 font-heading text-2xl font-bold text-foreground">Product Not Found</h1>
+          <p className="mb-6 text-muted-foreground">This Ummah Build product does not exist yet.</p>
+          <Link to="/products" className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground">
+            View All Products
+          </Link>
+        </div>
+        <SiteFooter />
       </div>
     );
   }

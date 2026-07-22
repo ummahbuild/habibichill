@@ -280,9 +280,13 @@
   transform: translateZ(0);
 }
 
-/* Improve touch targets for mobile */
+/* Improve touch targets for mobile — opt-in to avoid bloating dots/chips */
 @media (pointer: coarse) {
-  button, a, [role="button"] {
+  .touch-target,
+  .touch-target button,
+  .touch-target a,
+  button.touch-target,
+  a.touch-target {
     min-height: 44px;
     min-width: 44px;
   }

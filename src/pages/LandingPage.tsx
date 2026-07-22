@@ -178,23 +178,23 @@ const quotesData = [
 
 const RotatingQuote = () => {
   const [index, setIndex] = useState(0);
-  const [hovered, setHovered] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const quote = quotesData[index];
 
   useEffect(() => {
-    if (hovered) return;
+    if (expanded) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % quotesData.length);
     }, 8000);
     return () => clearInterval(timer);
-  }, [hovered]);
+  }, [expanded]);
 
   return (
     <section className="bg-gradient-calm py-12 text-center" aria-label="Islamic inspiration">
       <div
         className="container mx-auto px-4 relative"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => setExpanded(false)}
       >
         <AnimatePresence mode="wait">
           <motion.blockquote
@@ -209,12 +209,12 @@ const RotatingQuote = () => {
                 {quote.type === "Quran" ? "📖 Qur'an" : "📿 Sunnah"}
               </span>
             </div>
-            <p className="font-arabic text-2xl leading-relaxed text-foreground md:text-3xl" dir="rtl">
+            <p className="font-arabic text-xl leading-relaxed text-foreground sm:text-2xl md:text-3xl" dir="rtl">
               {quote.arabic}
             </p>
-            <footer className="mt-4 text-muted-foreground">
+            <footer className="mt-4 text-sm text-muted-foreground sm:text-base">
               "{quote.translation}"
-              <cite className="block text-sm mt-1">
+              <cite className="block text-sm mt-1 not-italic">
                 — {quote.reference} ·{" "}
                 <a href={quote.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
                   View Source
@@ -222,9 +222,17 @@ const RotatingQuote = () => {
               </cite>
             </footer>
 
-            {/* Hover context */}
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-3 text-xs font-semibold text-primary underline md:hidden"
+              aria-expanded={expanded}
+            >
+              {expanded ? "Hide context" : "Show full context"}
+            </button>
+
             <AnimatePresence>
-              {hovered && (
+              {expanded && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -249,12 +257,13 @@ const RotatingQuote = () => {
           </motion.blockquote>
         </AnimatePresence>
 
-        {/* Dots */}
+        {/* Dots — no blanket 44px so they stay small */}
         <div className="mt-4 flex items-center justify-center gap-1.5">
           {quotesData.map((_, i) => (
             <button
               key={i}
-              onClick={() => setIndex(i)}
+              type="button"
+              onClick={() => { setIndex(i); setExpanded(false); }}
               className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"}`}
               aria-label={`Quote ${i + 1}`}
             />
@@ -274,10 +283,16 @@ const BlogCarousel = () => {
     let paused = false;
     let animId: number;
     let lastTime = 0;
-    
-    el.addEventListener("mouseenter", () => { paused = true; });
-    el.addEventListener("mouseleave", () => { paused = false; });
-    
+
+    const pause = () => { paused = true; };
+    const resume = () => { paused = false; };
+
+    el.addEventListener("mouseenter", pause);
+    el.addEventListener("mouseleave", resume);
+    el.addEventListener("touchstart", pause, { passive: true });
+    el.addEventListener("touchend", resume, { passive: true });
+    el.addEventListener("pointerdown", pause);
+
     const tick = (time: number) => {
       if (!paused && time - lastTime >= 33) { // ~30fps cap
         const maxScroll = el.scrollWidth - el.clientWidth;
@@ -291,20 +306,27 @@ const BlogCarousel = () => {
       animId = requestAnimationFrame(tick);
     };
     animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      cancelAnimationFrame(animId);
+      el.removeEventListener("mouseenter", pause);
+      el.removeEventListener("mouseleave", resume);
+      el.removeEventListener("touchstart", pause);
+      el.removeEventListener("touchend", resume);
+      el.removeEventListener("pointerdown", pause);
+    };
   }, []);
 
   return (
     <div
       ref={scrollRef}
-      className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
-      style={{ scrollBehavior: "auto" }}
+      className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide sm:gap-4"
+      style={{ scrollBehavior: "auto", WebkitOverflowScrolling: "touch" }}
     >
       {blogPosts.map((post) => (
         <Link
           key={post.slug}
           to={`/blogs/${post.slug}`}
-          className="group flex-shrink-0 w-72 rounded-2xl border border-border bg-card p-5 transition-all hover:shadow-calm hover:border-primary/30"
+          className="group w-[min(18rem,85vw)] flex-shrink-0 rounded-2xl border border-border bg-card p-5 transition-all hover:shadow-calm hover:border-primary/30"
         >
           <div className="mb-2 flex items-center gap-2">
             <span className="text-2xl">{post.emoji}</span>
@@ -344,12 +366,12 @@ const LandingPage = () => {
           </button>
         </nav>
 
-        <section className="container mx-auto px-4 pb-16 pt-12 text-center md:pb-24 md:pt-20">
+        <section className="container mx-auto px-4 pb-12 pt-10 text-center md:pb-24 md:pt-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="relative mx-auto mb-8 h-40 w-40 md:h-52 md:w-52"
+            className="relative mx-auto mb-8 h-32 w-32 sm:h-40 sm:w-40 md:h-52 md:w-52"
           >
             {/* Fire side (left) */}
             <div className="absolute inset-0 -left-4 -top-4 animate-fire-glow rounded-3xl opacity-60" />
@@ -367,7 +389,7 @@ const LandingPage = () => {
           </motion.div>
 
           <motion.h1
-            className="mb-4 font-heading text-4xl font-extrabold leading-tight text-foreground md:text-6xl"
+            className="mb-4 font-heading text-3xl font-extrabold leading-tight text-foreground sm:text-4xl md:text-6xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -377,7 +399,7 @@ const LandingPage = () => {
           </motion.h1>
 
           <motion.p
-            className="mx-auto mb-8 max-w-xl text-lg text-muted-foreground md:text-xl"
+            className="mx-auto mb-8 max-w-xl text-base text-muted-foreground sm:text-lg md:text-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -415,11 +437,11 @@ const LandingPage = () => {
       <RotatingQuote />
 
       {/* Features */}
-      <section className="container mx-auto px-4 py-16" aria-label="Key features">
-        <h2 className="mb-12 text-center font-heading text-3xl font-bold text-foreground">
+      <section className="container mx-auto px-4 py-12 sm:py-16" aria-label="Key features">
+        <h2 className="mb-8 text-center font-heading text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl">
           Your Sunnah-Powered Calm System
         </h2>
-        <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2">
+        <div className="mx-auto grid max-w-4xl gap-4 sm:gap-6 sm:grid-cols-2">
           {features.map((f, i) => (
             <motion.article
               key={f.title}
@@ -465,7 +487,7 @@ const LandingPage = () => {
                 href={item.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 w-72 rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-calm hover:border-primary/30"
+                className="flex-shrink-0 w-[min(18rem,85vw)] rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-calm hover:border-primary/30"
               >
                 <div className="mb-2 flex items-center gap-3">
                   <span className="text-3xl">{item.emoji}</span>
@@ -481,10 +503,10 @@ const LandingPage = () => {
       </section>
 
       {/* Blog Carousel */}
-      <section className="container mx-auto px-4 py-16" aria-label="Latest articles">
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="font-heading text-3xl font-bold text-foreground">Latest Articles</h2>
-          <Link to="/blogs" className="rounded-xl bg-primary/10 px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+      <section className="container mx-auto px-4 py-12 sm:py-16" aria-label="Latest articles">
+        <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="font-heading text-2xl font-bold text-foreground sm:text-3xl">Latest Articles</h2>
+          <Link to="/blogs" className="self-start rounded-xl bg-primary/10 px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
             See All Posts →
           </Link>
         </div>

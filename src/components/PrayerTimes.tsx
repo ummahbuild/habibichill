@@ -3,9 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { X, MapPin, Search, Settings, Check, ChevronDown } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const PRAYER_NAMES = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"] as const;
+
+/** Local calendar date (YYYY-MM-DD) — avoids UTC day-roll bugs. */
+const localDateStr = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
 const PRAYER_EMOJIS: Record<string, string> = { Fajr: "🌅", Dhuhr: "☀️", Asr: "🌤️", Maghrib: "🌅", Isha: "🌙" };
 
 const CALCULATION_METHODS = [
@@ -50,8 +54,8 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
   const [journalNote, setJournalNote] = useState("");
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
 
-  // Get today's logged prayers
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // Get today's logged prayers (local date)
+  const todayStr = localDateStr();
   const todayPrayers = prayerLog.filter((p) => p.date.slice(0, 10) === todayStr);
   const isPrayerDone = (name: string) => todayPrayers.some((p) => p.prayer === name);
 
@@ -180,7 +184,8 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
     for (let i = times.length - 1; i >= 0; i--) {
       if (nowMin >= times[i].min) {
         current = times[i].name;
-        next = i < times.length - 1 ? times[i + 1].name : null;
+        // After Isha, next prayer is Fajr (tomorrow)
+        next = i < times.length - 1 ? times[i + 1].name : "Fajr";
         break;
       }
     }
@@ -346,7 +351,9 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
             {/* Next prayer highlight */}
             {nextPrayer && (
               <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">Next Prayer</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">
+                  Next Prayer{nextPrayer === "Fajr" && currentPrayer === "Isha" ? " (tomorrow)" : ""}
+                </p>
                 <p className="text-2xl mb-0.5">{PRAYER_EMOJIS[nextPrayer]}</p>
                 <p className="font-heading text-lg font-bold text-foreground">{nextPrayer}</p>
                 <p className="text-sm text-muted-foreground">{prayerTimes[nextPrayer as keyof PrayerTimes]}</p>
@@ -366,18 +373,22 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
               const isPast = nowMin > prayerMin && !isCurrent;
 
               return (
-                <motion.div
+                <motion.button
                   key={name}
-                  className={`flex items-center gap-3 rounded-xl border p-3 transition-all ${
-                    done ? "border-success/30 bg-success/5" :
-                    isCurrent ? "border-primary/30 bg-primary/5" :
-                    isNext ? "border-accent/30 bg-accent/5" :
-                    isPast ? "border-border bg-muted/30 opacity-60" :
-                    "border-border bg-card"
+                  type="button"
+                  disabled={done}
+                  onClick={() => handleMarkPrayer(name)}
+                  className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all touch-target ${
+                    done ? "border-success/30 bg-success/5 cursor-default" :
+                    isCurrent ? "border-primary/30 bg-primary/5 hover:bg-primary/10 active:scale-[0.99]" :
+                    isNext ? "border-accent/30 bg-accent/5 hover:bg-accent/10 active:scale-[0.99]" :
+                    isPast ? "border-border bg-muted/30 opacity-80 hover:opacity-100 active:scale-[0.99]" :
+                    "border-border bg-card hover:border-primary/30 hover:bg-muted/40 active:scale-[0.99]"
                   }`}
+                  aria-label={done ? `${name} already logged` : `Mark ${name} as prayed`}
                 >
-                  <span className="text-xl">{PRAYER_EMOJIS[name]}</span>
-                  <div className="flex-1">
+                  <span className="text-xl" aria-hidden>{PRAYER_EMOJIS[name]}</span>
+                  <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : "text-foreground"}`}>
                       {name}
                       {isCurrent && <span className="ml-2 text-[10px] font-normal text-primary">Current</span>}
@@ -385,18 +396,16 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
                     <p className="text-xs text-muted-foreground">{timeStr}</p>
                   </div>
                   {done ? (
-                    <div className="flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1">
+                    <div className="flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1.5">
                       <Check className="h-3.5 w-3.5 text-success" />
                       <span className="text-[10px] font-medium text-success">Done</span>
                     </div>
                   ) : (
-                    <Checkbox
-                      checked={false}
-                      onCheckedChange={() => handleMarkPrayer(name)}
-                      className="h-5 w-5 rounded-md border-2 border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                    />
+                    <span className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground">
+                      Mark ✓
+                    </span>
                   )}
-                </motion.div>
+                </motion.button>
               );
             })}
 
@@ -454,7 +463,7 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
 
       {/* Prayer Journal Dialog */}
       <Dialog open={!!showJournal} onOpenChange={(open) => !open && setShowJournal(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="z-[100] max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {showJournal && PRAYER_EMOJIS[showJournal]} Mark {showJournal} as Prayed

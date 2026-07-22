@@ -130,7 +130,11 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
   const total = angerLog.length;
   const controlRate = total > 0 ? Math.round((controlled / total) * 100) : 0;
 
-  const todayMoods = moodLog.filter((e) => e.date.slice(0, 10) === new Date().toISOString().slice(0, 10));
+  const todayMoods = moodLog.filter((e) => {
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return e.date.slice(0, 10) === today;
+  });
   const latestTodayMood = todayMoods.length > 0 ? todayMoods[0] : null;
   const last7Moods = moodLog.slice(0, 7);
   const [moodNote, setMoodNote] = useState("");
