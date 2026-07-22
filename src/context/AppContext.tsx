@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { localDateStr, readLocalJson } from "@/lib/utils";
 
 type AppState = "landing" | "onboarding" | "app";
 
@@ -127,10 +128,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return (saved as AppState) || "landing";
   });
 
-  const [onboardingData, setOnboardingDataInternal] = useState<OnboardingData>(() => {
-    const saved = localStorage.getItem("hc-onboarding");
-    return saved ? JSON.parse(saved) : { topTrigger: "", reciter: "", notifications: false, isMuslim: true };
-  });
+  const [onboardingData, setOnboardingDataInternal] = useState<OnboardingData>(() =>
+    readLocalJson("hc-onboarding", { topTrigger: "", reciter: "", notifications: false, isMuslim: true }),
+  );
 
   const [sabrPoints, setSabrPoints] = useState(() => {
     return parseInt(localStorage.getItem("hc-sabr-points") || "0");
@@ -140,39 +140,31 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return parseInt(localStorage.getItem("hc-streak") || "0");
   });
 
-  const [angerLog, setAngerLog] = useState<AngerEntry[]>(() => {
-    const saved = localStorage.getItem("hc-anger-log");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [angerLog, setAngerLog] = useState<AngerEntry[]>(() => readLocalJson("hc-anger-log", []));
 
   const [settings, setSettings] = useState<AppSettings>(() => {
-    const saved = localStorage.getItem("hc-settings");
-    return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+    const saved = readLocalJson<Partial<AppSettings> | null>("hc-settings", null);
+    return saved ? { ...defaultSettings, ...saved } : defaultSettings;
   });
 
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
-    const saved = localStorage.getItem("hc-bookmarks");
-    return saved ? JSON.parse(saved) : [];
+    const saved = readLocalJson<unknown>("hc-bookmarks", []);
+    // Guard against LearnTab legacy string[] corruption
+    if (Array.isArray(saved) && (saved.length === 0 || (typeof saved[0] === "object" && saved[0] !== null))) {
+      return saved as Bookmark[];
+    }
+    return [];
   });
 
-  const [moodLog, setMoodLog] = useState<MoodEntry[]>(() => {
-    const saved = localStorage.getItem("hc-mood-log");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [moodLog, setMoodLog] = useState<MoodEntry[]>(() => readLocalJson("hc-mood-log", []));
 
-  const [activityLog, setActivityLog] = useState<ActivityEntry[]>(() => {
-    const saved = localStorage.getItem("hc-activity-log");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [activityLog, setActivityLog] = useState<ActivityEntry[]>(() => readLocalJson("hc-activity-log", []));
 
-  const [prayerLog, setPrayerLog] = useState<PrayerEntry[]>(() => {
-    const saved = localStorage.getItem("hc-prayer-log");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [prayerLog, setPrayerLog] = useState<PrayerEntry[]>(() => readLocalJson("hc-prayer-log", []));
 
   const [prayerSettings, setPrayerSettings] = useState<PrayerSettings>(() => {
-    const saved = localStorage.getItem("hc-prayer-settings");
-    return saved ? { ...defaultPrayerSettings, ...JSON.parse(saved) } : defaultPrayerSettings;
+    const saved = readLocalJson<Partial<PrayerSettings> | null>("hc-prayer-settings", null);
+    return saved ? { ...defaultPrayerSettings, ...saved } : defaultPrayerSettings;
   });
 
   const setAppState = (state: AppState) => {
@@ -207,10 +199,27 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (entry.controlled) {
       addSabrPoints(10);
       setStreak((prev) => {
-        const next = prev + 1;
+        const today = localDateStr();
+        const yesterday = localDateStr(new Date(Date.now() - 86400000));
+        const lastStreakDay = localStorage.getItem("hc-streak-day");
+
+        // Only count once per calendar day
+        if (lastStreakDay === today) return prev;
+
+        let next = 1;
+        if (lastStreakDay === yesterday) next = prev + 1;
+        else if (lastStreakDay && lastStreakDay !== today) next = 1;
+        else if (!lastStreakDay && prev > 0) next = prev + 1; // migrate old counter
+
         localStorage.setItem("hc-streak", String(next));
+        localStorage.setItem("hc-streak-day", today);
         return next;
       });
+    } else {
+      // Lost control breaks the streak
+      setStreak(0);
+      localStorage.setItem("hc-streak", "0");
+      localStorage.removeItem("hc-streak-day");
     }
   };
 

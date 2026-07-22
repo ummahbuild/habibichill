@@ -201,8 +201,20 @@ const InlineSilenceTimer = ({ onComplete }: { onComplete: () => void }) => {
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
   const mot = silenceMotivations[currentMotivation];
 
+  useEffect(() => {
+    if (phase === "done") stopAudio();
+  }, [phase]);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   if (phase === "done") {
-    stopAudio();
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-success/30 bg-success/5 p-4 text-center">
         <span className="text-3xl">✅</span>
@@ -539,7 +551,12 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
 
   const handleCheckin = (feeling: number) => {
     if (feeling <= 2) setPhase("reward");
-    else { setCurrentStep(0); setPhase("steps"); }
+    else {
+      setCurrentStep(0);
+      setStepCompleted(new Set());
+      setShowInlineTool(false);
+      setPhase("steps");
+    }
   };
 
   const toggleTactic = (tactic: string) => {

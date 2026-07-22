@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Share2, Check, Link2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface ShareButtonsProps {
   url: string;
@@ -11,7 +10,11 @@ interface ShareButtonsProps {
 
 const ShareButtons = ({ url, title, text, compact = false }: ShareButtonsProps) => {
   const [copied, setCopied] = useState(false);
-  const [showNative, setShowNative] = useState(false);
+  const [canNativeShare, setCanNativeShare] = useState(false);
+
+  useEffect(() => {
+    setCanNativeShare(typeof navigator !== "undefined" && typeof navigator.share === "function");
+  }, []);
 
   const fullUrl = url.startsWith("http") ? url : `https://habibichill.com${url}`;
   const shareText = text || title;
@@ -22,7 +25,6 @@ const ShareButtons = ({ url, title, text, compact = false }: ShareButtonsProps) 
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback
       const input = document.createElement("input");
       input.value = fullUrl;
       document.body.appendChild(input);
@@ -35,12 +37,11 @@ const ShareButtons = ({ url, title, text, compact = false }: ShareButtonsProps) 
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text: shareText, url: fullUrl });
-      } catch {}
-    } else {
-      setShowNative(true);
+    if (!canNativeShare) return;
+    try {
+      await navigator.share({ title, text: shareText, url: fullUrl });
+    } catch {
+      // User cancelled or share failed — ignore
     }
   };
 
@@ -51,8 +52,9 @@ const ShareButtons = ({ url, title, text, compact = false }: ShareButtonsProps) 
   if (compact) {
     return (
       <div className="flex items-center gap-1.5">
-        {navigator.share && (
+        {canNativeShare && (
           <button
+            type="button"
             onClick={handleNativeShare}
             className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             aria-label="Share"
@@ -79,6 +81,7 @@ const ShareButtons = ({ url, title, text, compact = false }: ShareButtonsProps) 
           <span className="text-sm">𝕏</span>
         </a>
         <button
+          type="button"
           onClick={handleCopy}
           className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${
             copied
@@ -96,9 +99,10 @@ const ShareButtons = ({ url, title, text, compact = false }: ShareButtonsProps) 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-xs font-medium text-muted-foreground mr-1">Share:</span>
-      
-      {navigator.share && (
+
+      {canNativeShare && (
         <button
+          type="button"
           onClick={handleNativeShare}
           className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           aria-label="Share"
@@ -136,6 +140,7 @@ const ShareButtons = ({ url, title, text, compact = false }: ShareButtonsProps) 
       </a>
 
       <button
+        type="button"
         onClick={handleCopy}
         className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
           copied

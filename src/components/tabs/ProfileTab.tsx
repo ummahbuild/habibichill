@@ -67,6 +67,9 @@ const ProfileTab = () => {
         if (data.dhikrCounts) localStorage.setItem("hc-dhikr-counts", JSON.stringify(data.dhikrCounts));
         if (data.bookmarks) localStorage.setItem("hc-bookmarks", JSON.stringify(data.bookmarks));
         if (data.moodLog) localStorage.setItem("hc-mood-log", JSON.stringify(data.moodLog));
+        if (data.activityLog) localStorage.setItem("hc-activity-log", JSON.stringify(data.activityLog));
+        if (data.prayerLog) localStorage.setItem("hc-prayer-log", JSON.stringify(data.prayerLog));
+        if (data.prayerSettings) localStorage.setItem("hc-prayer-settings", JSON.stringify(data.prayerSettings));
 
         window.location.reload();
       } catch {

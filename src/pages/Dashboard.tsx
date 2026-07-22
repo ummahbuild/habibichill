@@ -53,13 +53,23 @@ const Dashboard = () => {
   const [showPrayer, setShowPrayer] = useState(false);
   const [initialReadSurah, setInitialReadSurah] = useState<number | null>(null);
 
+  const modalOpen =
+    showEmergency || showDhikr || showWudu || showJournal || showSituations ||
+    showSilenceTimer || showBreathing || showPrayer;
+
   const shortcuts = useMemo(() => [
-    { key: "f", handler: () => setShowEmergency(true) },
-    { key: "1", handler: () => setActiveTab("home") },
-    { key: "2", handler: () => setActiveTab("quran") },
-    { key: "3", handler: () => setActiveTab("learn") },
-    { key: "4", handler: () => setActiveTab("me") },
-  ], []);
+    {
+      key: "f",
+      handler: () => {
+        if (modalOpen) return;
+        setShowEmergency(true);
+      },
+    },
+    { key: "1", handler: () => { if (!modalOpen) setActiveTab("home"); } },
+    { key: "2", handler: () => { if (!modalOpen) setActiveTab("quran"); } },
+    { key: "3", handler: () => { if (!modalOpen) setActiveTab("learn"); } },
+    { key: "4", handler: () => { if (!modalOpen) setActiveTab("me"); } },
+  ], [modalOpen]);
 
   useKeyboardShortcuts(shortcuts);
 

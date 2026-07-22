@@ -1415,12 +1415,29 @@ interface LessonViewProps {
 const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onComplete, onBack, totalLessons, completedCount, onNavigate, prevLesson, nextLesson, relatedLessons, rating, onRate }: LessonViewProps) => {
   const { content } = lesson;
   const [bookmarks, setBookmarks] = useState<string[]>(() => {
-    const saved = localStorage.getItem("hc-bookmarks");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      // Prefer dedicated key; migrate away from colliding with ayah bookmarks
+      const lessonSaved = localStorage.getItem("hc-lesson-bookmarks");
+      if (lessonSaved) return JSON.parse(lessonSaved);
+      const legacy = localStorage.getItem("hc-bookmarks");
+      if (legacy) {
+        const parsed = JSON.parse(legacy);
+        // Only migrate if it looks like string[] lesson IDs, not Bookmark objects
+        if (Array.isArray(parsed) && (parsed.length === 0 || typeof parsed[0] === "string")) {
+          localStorage.setItem("hc-lesson-bookmarks", JSON.stringify(parsed));
+          return parsed as string[];
+        }
+      }
+    } catch {}
+    return [];
   });
   const [notes, setNotes] = useState<Record<number, string>>(() => {
-    const saved = localStorage.getItem("hc-lesson-notes");
-    return saved ? JSON.parse(saved) : {};
+    try {
+      const saved = localStorage.getItem("hc-lesson-notes");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
   });
   const [showNotes, setShowNotes] = useState(false);
   const [quizState, setQuizState] = useState<{ started: boolean; currentQ: number; answers: (number | null)[]; showResult: boolean }>({
@@ -1428,7 +1445,7 @@ const LessonView = ({ lesson, completed, expandedSection, onToggleSection, onCom
   });
 
   useEffect(() => {
-    localStorage.setItem("hc-bookmarks", JSON.stringify(bookmarks));
+    localStorage.setItem("hc-lesson-bookmarks", JSON.stringify(bookmarks));
   }, [bookmarks]);
 
   useEffect(() => {

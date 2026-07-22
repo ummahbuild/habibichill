@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { format, subDays, startOfDay, parseISO, eachDayOfInterval } from "date-fns";
 import logo from "@/assets/habibichill-logo.png";
 import { PwaInstallCard } from "@/components/PwaInstallPrompt";
+import { localDateStr } from "@/lib/utils";
 
 const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];
 const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
@@ -114,7 +115,7 @@ const MeTab = () => {
 
   // Today's mood timeline
   const todayMoodTimeline = useMemo(() => {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = localDateStr();
     return moodLog
       .filter((e) => e.date.slice(0, 10) === todayStr)
       .reverse()
@@ -191,6 +192,11 @@ const MeTab = () => {
         if (data.settings) localStorage.setItem("hc-settings", JSON.stringify(data.settings));
         if (data.bookmarks) localStorage.setItem("hc-bookmarks", JSON.stringify(data.bookmarks));
         if (data.moodLog) localStorage.setItem("hc-mood-log", JSON.stringify(data.moodLog));
+        if (data.activityLog) localStorage.setItem("hc-activity-log", JSON.stringify(data.activityLog));
+        if (data.prayerLog) localStorage.setItem("hc-prayer-log", JSON.stringify(data.prayerLog));
+        if (data.prayerSettings) localStorage.setItem("hc-prayer-settings", JSON.stringify(data.prayerSettings));
+        if (data.completedLessons) localStorage.setItem("hc-completed-lessons", JSON.stringify(data.completedLessons));
+        if (data.dhikrCounts) localStorage.setItem("hc-dhikr-counts", JSON.stringify(data.dhikrCounts));
         window.location.reload();
       } catch { alert("Failed to read backup file."); }
     };
@@ -969,34 +975,35 @@ const MeTab = () => {
   );
 };
 
-// Notification helpers
+// Notification helpers — keep interval id in memory (localStorage IDs don't survive reload meaningfully)
+let reminderIntervalId: ReturnType<typeof setInterval> | null = null;
+
 function scheduleReminders() {
-  if ("serviceWorker" in navigator && "Notification" in window) {
-    // Use setInterval as a simple reminder — checks every minute, fires at ~9 AM
-    const checkInterval = setInterval(() => {
-      const now = new Date();
-      const lastShown = localStorage.getItem("hc-last-reminder-date");
-      const today = now.toISOString().slice(0, 10);
-      if (lastShown === today) return;
-      if (now.getHours() >= 9) {
-        localStorage.setItem("hc-last-reminder-date", today);
-        new Notification("HabibiChill 🧘", {
-          body: "Time for your daily mood check-in and dhikr! Remember: patience is strength.",
-          icon: "/web-app-manifest-192x192.png",
-          tag: "daily-reminder",
-        });
-      }
-    }, 60000);
-    localStorage.setItem("hc-reminder-interval", String(checkInterval));
-  }
+  if (!("Notification" in window)) return;
+  if (reminderIntervalId) clearInterval(reminderIntervalId);
+
+  reminderIntervalId = setInterval(() => {
+    const now = new Date();
+    const lastShown = localStorage.getItem("hc-last-reminder-date");
+    const today = localDateStr(now);
+    if (lastShown === today) return;
+    if (now.getHours() >= 9 && Notification.permission === "granted") {
+      localStorage.setItem("hc-last-reminder-date", today);
+      new Notification("HabibiChill 🧘", {
+        body: "Time for your daily mood check-in and dhikr! Remember: patience is strength.",
+        icon: "/web-app-manifest-192x192.png",
+        tag: "daily-reminder",
+      });
+    }
+  }, 60000);
 }
 
 function clearReminders() {
-  const intervalId = localStorage.getItem("hc-reminder-interval");
-  if (intervalId) {
-    clearInterval(parseInt(intervalId));
-    localStorage.removeItem("hc-reminder-interval");
+  if (reminderIntervalId) {
+    clearInterval(reminderIntervalId);
+    reminderIntervalId = null;
   }
+  localStorage.removeItem("hc-reminder-interval");
 }
 
 // Auto-start reminders if enabled

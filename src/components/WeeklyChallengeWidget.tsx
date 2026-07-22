@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
 import ShareButtons from "@/components/ShareButtons";
+import { localDateStr } from "@/lib/utils";
 
 export interface Challenge {
   id: string;
@@ -224,7 +225,7 @@ export function useWeeklyChallenges() {
           break;
         case "general": {
           // Unique tool types used today
-          const todayStr = new Date().toISOString().slice(0, 10);
+          const todayStr = localDateStr();
           const todayTypes = new Set(
             weekActivities
               .filter((a) => a.date.slice(0, 10) === todayStr)
@@ -243,10 +244,14 @@ export function useWeeklyChallenges() {
     });
   }, [activeChallenges, activityLog, prayerLog, moodLog, angerLog, weekStart, weekEnd]);
 
-  // Track claimed rewards
-  const [claimedWeeks] = useState<string[]>(() => {
-    const saved = localStorage.getItem("hc-challenge-claimed");
-    return saved ? JSON.parse(saved) : [];
+  // Track claimed rewards — must update React state so canClaim flips false
+  const [claimedWeeks, setClaimedWeeks] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("hc-challenge-claimed");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   const canClaim = challengeProgress.every((cp) => cp.completed) && !claimedWeeks.includes(String(weekNum));
@@ -255,6 +260,7 @@ export function useWeeklyChallenges() {
     if (!canClaim) return;
     addSabrPoints(25);
     const next = [...claimedWeeks, String(weekNum)];
+    setClaimedWeeks(next);
     localStorage.setItem("hc-challenge-claimed", JSON.stringify(next));
   };
 
@@ -317,7 +323,7 @@ const WeeklyChallengeWidget = ({ compact = false }: WeeklyChallengeWidgetProps) 
             </div>
             {!compact && challenge.hadith && (
               <button
-                onClick={() => setShowDetail(showDetail === challenge.id ? false : challenge.id as any)}
+                onClick={() => setShowDetail(showDetail === challenge.id ? false : challenge.id)}
                 className="mt-1 text-[9px] text-primary hover:underline"
               >
                 {showDetail === challenge.id ? "Hide hadith ▲" : "View hadith ▼"}
