@@ -4,6 +4,7 @@ import { useApp } from "@/context/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { X, MapPin, Search, Settings, Check, ChevronDown } from "lucide-react";
 import { localDateStr } from "@/lib/utils";
+import ModalShell from "@/components/ModalShell";
 
 const PRAYER_NAMES = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"] as const;
 const PRAYER_EMOJIS: Record<string, string> = { Fajr: "🌅", Dhuhr: "☀️", Asr: "🌤️", Maghrib: "🌅", Isha: "🌙" };
@@ -139,6 +140,7 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
   const searchCity = async () => {
     if (!citySearch.trim()) return;
     setLoading(true);
+    setError(false);
     try {
       const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(citySearch)}&country=&method=${prayerSettings.method}`);
       const data = await res.json();
@@ -160,8 +162,12 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
           Sunset: data.data.timings.Sunset,
         });
         setShowSettings(false);
+      } else {
+        setError(true);
       }
-    } catch {}
+    } catch {
+      setError(true);
+    }
     setLoading(false);
   };
 
@@ -213,12 +219,7 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-background overflow-y-auto"
-    >
+    <ModalShell onClose={onClose} title="Prayer Times" className="bg-background" labelledById="prayer-modal-title">
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
@@ -227,12 +228,14 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
             <button
               onClick={() => setShowSettings(!showSettings)}
               className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Prayer settings"
             >
               <Settings className="h-4 w-4" />
             </button>
             <button
               onClick={onClose}
               className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Close"
             >
               <X className="h-4 w-4" />
             </button>
@@ -517,7 +520,7 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
           </div>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </ModalShell>
   );
 };
 

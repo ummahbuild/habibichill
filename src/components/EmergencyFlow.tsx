@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
-import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ModalShell from "@/components/ModalShell";
 import HadithTooltip from "@/components/HadithTooltip";
 import wuduHands from "@/assets/wudu-hands.png";
 import wuduMouth from "@/assets/wudu-mouth.png";
@@ -497,7 +497,6 @@ const InlineWudu = ({ onComplete }: { onComplete: () => void }) => {
 
 const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
   const { addAngerEntry } = useApp();
-  useEscapeKey(onClose);
   const [phase, setPhase] = useState<"intensity" | "steps" | "checkin" | "reward" | "journal">("intensity");
   const [intensity, setIntensity] = useState(3);
   const [currentStep, setCurrentStep] = useState(0);
@@ -513,6 +512,23 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
   const [journalSituation, setJournalSituation] = useState("");
   const [tacticsUsed, setTacticsUsed] = useState<string[]>([]);
   const [journalReflection, setJournalReflection] = useState("");
+
+  const handleClose = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const handleIntensitySelect = (level: number) => {
     setIntensity(level);
@@ -566,13 +582,13 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
   const handleJournalSave = () => {
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
     addAngerEntry({ trigger: journalTrigger || "Emergency", situation: journalSituation || journalTrigger || "Emergency flow", intensity, controlled: true, reflection: journalReflection, tacticsUsed, durationSeconds });
-    onClose();
+    handleClose();
   };
 
   const handleSkipJournal = () => {
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
     addAngerEntry({ trigger: "Emergency", intensity, controlled: true, situation: "Emergency flow", durationSeconds });
-    onClose();
+    handleClose();
   };
 
   const durationSoFar = Math.round((Date.now() - startTimeRef.current) / 1000);
@@ -582,10 +598,10 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
   const isCompleted = stepCompleted.has(currentStep);
 
   return (
-    <motion.div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/95 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <button onClick={() => { if (audioRef.current) audioRef.current.pause(); onClose(); }} className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground transition-colors hover:text-foreground" aria-label="Close">✕</button>
+    <ModalShell onClose={handleClose} title="Emergency Calm Protocol" className="flex items-center justify-center" labelledById="emergency-modal-title">
+      <button onClick={handleClose} className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground transition-colors hover:text-foreground" aria-label="Close">✕</button>
 
-      <div className="w-full max-w-sm px-4 py-8">
+      <div className="w-full max-w-sm px-4 py-8 mx-auto">
         <AnimatePresence mode="wait">
           {phase === "intensity" && (
             <motion.div key="intensity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center">
@@ -789,7 +805,7 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </ModalShell>
   );
 };
 

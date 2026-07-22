@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ModalShell from "@/components/ModalShell";
 import HadithTooltip from "@/components/HadithTooltip";
 
 const motivations = [
@@ -31,7 +31,6 @@ interface SilenceTimerProps {
 }
 
 const SilenceTimer = ({ onClose }: SilenceTimerProps) => {
-  useEscapeKey(onClose);
   const [phase, setPhase] = useState<"select" | "running" | "done">("select");
   const [totalSeconds, setTotalSeconds] = useState(120);
   const [remaining, setRemaining] = useState(0);
@@ -72,30 +71,46 @@ const SilenceTimer = ({ onClose }: SilenceTimerProps) => {
     return () => clearInterval(iv);
   }, [phase]);
 
-  const playQuran = (surahId: string) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      if (playingSurah === surahId) {
-        setPlayingSurah(null);
-        return;
-      }
-    }
-    const audio = new Audio(`https://cdn.islamic.network/quran/audio/128/ar.alafasy/${surahId === "93" ? "1" : surahId === "94" ? "1" : surahId === "112" ? "1" : "1"}.mp3`);
-    // Use full surah audio
-    const surahAudioUrl = `https://server8.mp3quran.net/afs/${surahId.padStart(3, "0")}.mp3`;
-    const surahAudio = new Audio(surahAudioUrl);
-    audioRef.current = surahAudio;
-    setPlayingSurah(surahId);
-    surahAudio.play().catch(() => {});
-    surahAudio.onended = () => setPlayingSurah(null);
-  };
-
-  const stopAudio = () => {
+  const stopAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
     }
     setPlayingSurah(null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  const handleClose = useCallback(() => {
+    stopAudio();
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    onClose();
+  }, [onClose, stopAudio]);
+
+  const playQuran = (surahId: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      if (playingSurah === surahId) {
+        setPlayingSurah(null);
+        audioRef.current = null;
+        return;
+      }
+    }
+    const surahAudioUrl = `https://server8.mp3quran.net/afs/${surahId.padStart(3, "0")}.mp3`;
+    const surahAudio = new Audio(surahAudioUrl);
+    audioRef.current = surahAudio;
+    setPlayingSurah(surahId);
+    surahAudio.play().catch(() => setPlayingSurah(null));
+    surahAudio.onended = () => setPlayingSurah(null);
+    surahAudio.onerror = () => setPlayingSurah(null);
   };
 
   const formatTime = (sec: number) => {
@@ -108,21 +123,16 @@ const SilenceTimer = ({ onClose }: SilenceTimerProps) => {
   const circumference = 2 * Math.PI * 120;
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/95 backdrop-blur-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <ModalShell onClose={handleClose} title="Silence Timer" className="flex items-center justify-center" labelledById="silence-modal-title">
       <button
-        onClick={() => { stopAudio(); if (intervalRef.current) clearInterval(intervalRef.current); onClose(); }}
+        onClick={handleClose}
         className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground hover:text-foreground"
         aria-label="Close"
       >
         ✕
       </button>
 
-      <div className="w-full max-w-sm px-4 text-center">
+      <div className="w-full max-w-sm px-4 text-center mx-auto">
         <AnimatePresence mode="wait">
           {phase === "select" && (
             <motion.div key="select" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -245,7 +255,7 @@ const SilenceTimer = ({ onClose }: SilenceTimerProps) => {
                 </HadithTooltip>
               </div>
               <button
-                onClick={() => { stopAudio(); onClose(); }}
+                onClick={handleClose}
                 className="w-full rounded-xl bg-primary py-4 font-heading font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
               >
                 Return Home
@@ -254,7 +264,7 @@ const SilenceTimer = ({ onClose }: SilenceTimerProps) => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </ModalShell>
   );
 };
 

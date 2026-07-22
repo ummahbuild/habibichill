@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ModalShell from "@/components/ModalShell";
 
 const situations = [
   {
@@ -94,17 +94,11 @@ interface SituationGuideProps {
 }
 
 const SituationGuide = ({ onClose }: SituationGuideProps) => {
-  useEscapeKey(onClose);
   const [selected, setSelected] = useState<string | null>(null);
   const situation = situations.find((s) => s.id === selected);
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 overflow-y-auto bg-background/95 backdrop-blur-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <ModalShell onClose={onClose} title="Situation Guide" labelledById="situation-modal-title">
       <button onClick={onClose} className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground hover:text-foreground" aria-label="Close">✕</button>
 
       <div className="mx-auto w-full max-w-sm px-4 py-12">
@@ -160,7 +154,7 @@ const SituationGuide = ({ onClose }: SituationGuideProps) => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </ModalShell>
   );
 };
 

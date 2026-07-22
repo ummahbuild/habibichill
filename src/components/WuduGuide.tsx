@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ModalShell from "@/components/ModalShell";
 import HadithTooltip from "@/components/HadithTooltip";
 import wuduHands from "@/assets/wudu-hands.png";
 import wuduMouth from "@/assets/wudu-mouth.png";
@@ -140,19 +140,13 @@ interface WuduGuideProps {
 }
 
 const WuduGuide = ({ onClose }: WuduGuideProps) => {
-  useEscapeKey(onClose);
   const [currentStep, setCurrentStep] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const [completed, setCompleted] = useState(false);
   const step = wuduSteps[currentStep];
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 overflow-y-auto bg-background/95 backdrop-blur-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <ModalShell onClose={onClose} title="Wudu Guide" labelledById="wudu-modal-title">
       <button onClick={onClose} className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground hover:text-foreground" aria-label="Close">✕</button>
 
       <div className="mx-auto w-full max-w-sm px-4 py-12 text-center">
@@ -274,7 +268,7 @@ const WuduGuide = ({ onClose }: WuduGuideProps) => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </ModalShell>
   );
 };
 

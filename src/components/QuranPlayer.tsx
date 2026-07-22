@@ -77,6 +77,7 @@ const QuranPlayer = ({ currentSurahId, onChangeSurah, onClose }: QuranPlayerProp
         audioRef.current.pause();
         audioRef.current.removeAttribute("src");
         audioRef.current.load();
+        audioRef.current = null;
       }
     };
   }, []);

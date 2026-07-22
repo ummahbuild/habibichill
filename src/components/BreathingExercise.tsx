@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ModalShell from "@/components/ModalShell";
 
 interface Technique {
   name: string;
@@ -65,7 +65,6 @@ interface BreathingExerciseProps {
 }
 
 const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
-  useEscapeKey(onClose);
   const [selectedTechnique, setSelectedTechnique] = useState<Technique | null>(null);
   const [started, setStarted] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
@@ -77,6 +76,17 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
   const totalCycles = selectedTechnique?.cycles ?? 5;
   const phase = phases[phaseIndex];
   const done = cycleCount >= totalCycles;
+
+  const handleClose = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   const startTechnique = (t: Technique) => {
     setSelectedTechnique(t);
@@ -114,21 +124,16 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
   const cycleDuration = phases.reduce((sum, p) => sum + p.duration, 0);
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/95 backdrop-blur-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <ModalShell onClose={handleClose} title="Breathing Exercise" className="flex items-center justify-center" labelledById="breathing-modal-title">
       <button
-        onClick={() => { if (intervalRef.current) clearInterval(intervalRef.current); onClose(); }}
+        onClick={handleClose}
         className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground hover:text-foreground"
         aria-label="Close"
       >
         ✕
       </button>
 
-      <div className="w-full max-w-sm px-4 py-8 text-center">
+      <div className="w-full max-w-sm px-4 py-8 text-center mx-auto">
         <AnimatePresence mode="wait">
           {!started && !done && (
             <motion.div key="select" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -231,7 +236,7 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
                   Try Another
                 </button>
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="flex-1 rounded-xl bg-primary py-4 font-heading font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95"
                 >
                   Done
@@ -241,7 +246,7 @@ const BreathingExercise = ({ onClose }: BreathingExerciseProps) => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </ModalShell>
   );
 };
 

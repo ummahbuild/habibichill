@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
-import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ModalShell from "@/components/ModalShell";
 
 interface AngerJournalProps {
   onClose: () => void;
@@ -10,7 +10,6 @@ interface AngerJournalProps {
 const triggers = ["Work stress", "Family dispute", "Online argument", "Traffic", "Parenting", "Relationship", "Financial", "Other"];
 
 const AngerJournal = ({ onClose }: AngerJournalProps) => {
-  useEscapeKey(onClose);
   const { addAngerEntry } = useApp();
   const [step, setStep] = useState(0);
   const [trigger, setTrigger] = useState("");
@@ -19,8 +18,11 @@ const AngerJournal = ({ onClose }: AngerJournalProps) => {
   const [intensity, setIntensity] = useState(3);
   const [reflection, setReflection] = useState("");
   const [saved, setSaved] = useState(false);
+  const submittingRef = useRef(false);
 
   const handleSubmit = () => {
+    if (saved || submittingRef.current) return;
+    submittingRef.current = true;
     addAngerEntry({
       trigger: trigger || "Unspecified",
       situation: situation || trigger,
@@ -32,15 +34,10 @@ const AngerJournal = ({ onClose }: AngerJournalProps) => {
   };
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <ModalShell onClose={onClose} title="Anger Journal" className="flex items-center justify-center" labelledById="journal-modal-title">
       <button onClick={onClose} className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:text-foreground" aria-label="Close">✕</button>
 
-      <div className="w-full max-w-sm px-4">
+      <div className="w-full max-w-sm px-4 mx-auto">
         {/* Progress indicators */}
         {!saved && (
           <div className="mb-6 flex gap-1">
@@ -194,7 +191,7 @@ const AngerJournal = ({ onClose }: AngerJournalProps) => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </ModalShell>
   );
 };
 

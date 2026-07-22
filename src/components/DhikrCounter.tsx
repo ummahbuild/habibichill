@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEscapeKey } from "@/hooks/use-keyboard-shortcuts";
+import ModalShell from "@/components/ModalShell";
 import ShareButtons from "@/components/ShareButtons";
 
 const dhikrs = [
@@ -38,11 +38,15 @@ interface DhikrCounterProps {
 }
 
 const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
-  useEscapeKey(onClose);
   const [activeIndex, setActiveIndex] = useState(0);
   const [counts, setCounts] = useState<number[]>(() => {
-    const saved = localStorage.getItem("hc-dhikr-counts");
-    return saved ? JSON.parse(saved) : [0, 0, 0];
+    try {
+      const saved = localStorage.getItem("hc-dhikr-counts");
+      const parsed = saved ? JSON.parse(saved) : [0, 0, 0];
+      return Array.isArray(parsed) && parsed.length === 3 ? parsed.map((n) => Number(n) || 0) : [0, 0, 0];
+    } catch {
+      return [0, 0, 0];
+    }
   });
   const [showReward, setShowReward] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -89,12 +93,7 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
   };
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <ModalShell onClose={onClose} title="Dhikr Counter" className="flex flex-col items-center justify-center bg-background" labelledById="dhikr-modal-title">
       <button onClick={onClose} className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:text-foreground z-10" aria-label="Close">✕</button>
 
       {/* First-time intro overlay */}
@@ -269,7 +268,7 @@ const DhikrCounter = ({ onClose }: DhikrCounterProps) => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </ModalShell>
   );
 };
 
