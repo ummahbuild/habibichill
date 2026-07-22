@@ -162,15 +162,18 @@ const OnboardingFlow = () => {
           </motion.div>
         </AnimatePresence>
 
-        <div className="mt-8 flex justify-between">
-          {step > 0 ? (
-            <button onClick={() => setStep(step - 1)} className="rounded-xl px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+        <div className={`mt-8 flex items-center ${step > 0 ? "justify-between" : "justify-center"}`}>
+          {step > 0 && (
+            <button
+              type="button"
+              onClick={() => setStep(step - 1)}
+              className="rounded-xl px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
               Back
             </button>
-          ) : (
-            <div />
           )}
           <button
+            type="button"
             onClick={isLast ? finish : () => setStep(step + 1)}
             className="rounded-xl bg-primary px-8 py-3 font-heading font-semibold text-primary-foreground shadow-calm transition-all hover:scale-105 active:scale-95"
           >

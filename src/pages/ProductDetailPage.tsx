@@ -1,10 +1,10 @@
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import MarketingNav from "@/components/MarketingNav";
 import ProductLogo from "@/components/ProductLogo";
 import {
   ProductMetaBadges,
-  ProductStatusBadge,
   ProductTagBadge,
 } from "@/components/ProductBadges";
 import RelatedProductsCarousel from "@/components/RelatedProductsCarousel";
@@ -23,6 +23,10 @@ const ProductDetailPage = () => {
   const product = getProductBySlug(slug);
   const related = getRelatedProducts(slug, 6);
   const detailPath = `/product/${slug}`;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
 
   usePageSeo({
     title: product
@@ -95,7 +99,7 @@ const ProductDetailPage = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background text-foreground">
         <MarketingNav backTo={{ label: "← All Products", href: "/products" }} />
         <div className="flex flex-col items-center justify-center px-4 py-24 text-center">
           <p className="mb-2 text-5xl">📦</p>
@@ -114,7 +118,7 @@ const ProductDetailPage = () => {
   const ctaLabel = product.isCurrentApp ? "Open HabibiChill" : `Visit ${product.domain}`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <MarketingNav backTo={{ label: "← All Products", href: "/products" }} />
 
       <nav aria-label="Breadcrumb" className="container mx-auto px-4 pt-6 text-xs text-muted-foreground">
@@ -157,7 +161,7 @@ const ProductDetailPage = () => {
           <section className="mb-8">
             <h2 className="mb-3 font-heading text-lg font-bold text-foreground">Key Highlights</h2>
             <ul className="grid gap-2 sm:grid-cols-2">
-              {product.highlights.map((item) => (
+              {(product.highlights ?? []).map((item) => (
                 <li key={item} className="flex items-start gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-muted-foreground">
                   <span className="text-primary" aria-hidden>✓</span>
                   {item}
@@ -167,7 +171,7 @@ const ProductDetailPage = () => {
           </section>
 
           <div className="mb-8 flex flex-wrap gap-2">
-            {product.tags.map((tag) => (
+            {(product.tags ?? []).map((tag) => (
               <ProductTagBadge key={tag} tag={tag} />
             ))}
           </div>

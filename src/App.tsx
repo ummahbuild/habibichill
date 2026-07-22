@@ -1,23 +1,25 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "@/context/AppContext";
+import RouteErrorBoundary from "@/components/RouteErrorBoundary";
+import { lazyWithRetry } from "@/lib/lazyWithRetry";
 import Index from "./pages/Index";
 
-// Lazy-load non-critical routes
-const LegalPage = lazy(() => import("./pages/LegalPage"));
-const BlogList = lazy(() => import("./pages/BlogList"));
-const BlogPost = lazy(() => import("./pages/BlogPost"));
-const GuidesPage = lazy(() => import("./pages/GuidesPage"));
-const ContributePage = lazy(() => import("./pages/ContributePage"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const SurahPage = lazy(() => import("./pages/SurahPage"));
-const PitchPage = lazy(() => import("./pages/PitchPage"));
-const ProductsPage = lazy(() => import("./pages/ProductsPage"));
-const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+// Lazy-load non-critical routes (with retry so deploy/cache misses don't white-screen)
+const LegalPage = lazyWithRetry(() => import("./pages/LegalPage"));
+const BlogList = lazyWithRetry(() => import("./pages/BlogList"));
+const BlogPost = lazyWithRetry(() => import("./pages/BlogPost"));
+const GuidesPage = lazyWithRetry(() => import("./pages/GuidesPage"));
+const ContributePage = lazyWithRetry(() => import("./pages/ContributePage"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const SurahPage = lazyWithRetry(() => import("./pages/SurahPage"));
+const PitchPage = lazyWithRetry(() => import("./pages/PitchPage"));
+const ProductsPage = lazyWithRetry(() => import("./pages/ProductsPage"));
+const ProductDetailPage = lazyWithRetry(() => import("./pages/ProductDetailPage"));
 
 const queryClient = new QueryClient();
 
@@ -37,23 +39,25 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/blogs" element={<BlogList />} />
-              <Route path="/blogs/:slug" element={<BlogPost />} />
-              <Route path="/guides" element={<GuidesPage />} />
-              <Route path="/contribute" element={<ContributePage />} />
-              <Route path="/pitch" element={<PitchPage />} />
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/product/:slug" element={<ProductDetailPage />} />
-              <Route path="/privacy" element={<LegalPage />} />
-              <Route path="/terms" element={<LegalPage />} />
-              <Route path="/legal" element={<LegalPage />} />
-              <Route path="/surah/:id" element={<SurahPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <RouteErrorBoundary>
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/blogs" element={<BlogList />} />
+                <Route path="/blogs/:slug" element={<BlogPost />} />
+                <Route path="/guides" element={<GuidesPage />} />
+                <Route path="/contribute" element={<ContributePage />} />
+                <Route path="/pitch" element={<PitchPage />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/product/:slug" element={<ProductDetailPage />} />
+                <Route path="/privacy" element={<LegalPage />} />
+                <Route path="/terms" element={<LegalPage />} />
+                <Route path="/legal" element={<LegalPage />} />
+                <Route path="/surah/:id" element={<SurahPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </RouteErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     </AppProvider>

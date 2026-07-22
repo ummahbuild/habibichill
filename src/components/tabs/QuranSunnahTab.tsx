@@ -44,6 +44,7 @@ const surahCollections = [
 const angerHadiths = [
   { arabic: "لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ", transliteration: "Laysa ash-shadīdu biṣ-ṣur'ah, innamā ash-shadīdu alladhī yamliku nafsahu 'indal-ghaḍab", english: "The strong person is not the one who can overpower others. The strong person is the one who controls himself when he is angry.", narrator: "Abu Hurayrah (رضي الله عنه)", source: "Sahih al-Bukhari 6114", link: "https://sunnah.com/bukhari:6114", theme: "Strength" },
   { arabic: "لاَ تَغْضَبْ", transliteration: "Lā taghḍab", english: "Do not get angry.", narrator: "Abu Hurayrah (رضي الله عنه) — A man asked the Prophet ﷺ for advice, and he repeated this three times.", source: "Sahih al-Bukhari 6116", link: "https://sunnah.com/bukhari:6116", theme: "Advice" },
+  { arabic: "تَكْفِيرُ كُلِّ لِحَاءٍ رَكْعَتَانِ", transliteration: "Takfīru kulli liḥā'in rakʿatān", english: "The expiation for every quarrel is two rak'ahs.", narrator: "Abu Hurayrah (رضي الله عنه)", source: "Silsilah as-Sahihah 1789 (hasan)", link: "https://hadithanswers.com/the-expiation-for-a-quarrel/", theme: "Prayer" },
   { arabic: "إِذَا غَضِبَ أَحَدُكُمْ وَهُوَ قَائِمٌ فَلْيَجْلِسْ فَإِنْ ذَهَبَ عَنْهُ الْغَضَبُ وَإِلاَّ فَلْيَضْطَجِعْ", transliteration: "Idhā ghaḍiba aḥadukum wa huwa qā'imun falyajlis, fa in dhahaba 'anhu al-ghaḍabu wa illā falyaḍṭaji'", english: "If any of you becomes angry and he is standing, let him sit down so his anger will go away. If it does not go away, let him lie down.", narrator: "Abu Dharr (رضي الله عنه)", source: "Sunan Abu Dawud 4782", link: "https://sunnah.com/abudawud:4782", theme: "Action" },
   { arabic: "إِنَّ الْغَضَبَ مِنَ الشَّيْطَانِ وَإِنَّ الشَّيْطَانَ خُلِقَ مِنَ النَّارِ", transliteration: "Innal-ghaḍaba minash-shayṭān, wa innash-shayṭāna khuliqa minan-nār", english: "Anger comes from Shaytan. Shaytan was created from fire, and fire is extinguished only with water. So when any of you becomes angry, let him perform wudu.", narrator: "Atiyyah as-Sa'di (رضي الله عنه)", source: "Sunan Abu Dawud 4784", link: "https://sunnah.com/abudawud:4784", theme: "Wudu" },
   { arabic: "إِذَا غَضِبَ أَحَدُكُمْ فَلْيَسْكُتْ", transliteration: "Idhā ghaḍiba aḥadukum falyaskut", english: "If any of you becomes angry, let him keep silent.", narrator: "Ibn Abbas (رضي الله عنه)", source: "Musnad Ahmad 2136", link: "https://sunnah.com/ahmad:2136", theme: "Silence" },
@@ -737,10 +738,28 @@ const QuranSunnahTab = ({ onPlayQuran, initialReadSurah, onClearInitialRead, pla
         {subTab === "saved" && (
           <motion.div key="saved" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
             {bookmarks.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <div className="flex flex-col items-center gap-3 py-10 text-center">
                 <span className="text-4xl">🤍</span>
-                <p className="text-sm text-muted-foreground">No saved items yet</p>
-                <p className="text-xs text-muted-foreground">Tap the heart icon on any ayah, hadith, or dua to save it here</p>
+                <p className="text-sm font-medium text-foreground">No saved items yet</p>
+                <p className="max-w-xs text-xs text-muted-foreground">
+                  Tap the heart on an ayah, hadith, or dua to save it here.
+                </p>
+                <div className="mt-1 flex flex-wrap justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSubTab("ayahs")}
+                    className="rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-calm transition-all hover:scale-[1.02] active:scale-95"
+                  >
+                    Browse ayahs
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSubTab("duas")}
+                    className="rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                  >
+                    Browse duas
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col gap-3">

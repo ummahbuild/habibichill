@@ -8,6 +8,7 @@ import ArabicTooltip from "@/components/ArabicTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import WeeklyChallengeWidget from "@/components/WeeklyChallengeWidget";
+import EmptyState from "@/components/EmptyState";
 import { localDateStr } from "@/lib/utils";
 
 const wisdoms = [
@@ -462,13 +463,23 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
         </div>
       </div>
 
-      {/* Recent activity — expandable */}
-      {angerLog.length > 0 && (
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Recent</h2>
+      {/* Recent activity — expandable, or empty CTA */}
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Recent</h2>
+          {angerLog.length > 0 ? (
             <p className="text-[9px] text-muted-foreground">Tap to expand</p>
-          </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenJournal}
+              className="text-[10px] font-semibold text-primary hover:underline"
+            >
+              + Log
+            </button>
+          )}
+        </div>
+        {angerLog.length > 0 ? (
           <div className="flex flex-col gap-1.5">
             {angerLog.slice(0, 3).map((entry) => (
               <div key={entry.id}>
@@ -498,8 +509,19 @@ const HomeTab = ({ onPlayQuran, onNavigateToRead, onOpenDhikr, onOpenWudu, onOpe
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <EmptyState
+            compact
+            emoji="📓"
+            title="No incidents logged"
+            description="Reflect after a hard moment — or log how you handled it calmly."
+            actionLabel="Log an incident"
+            onAction={onOpenJournal}
+            secondaryLabel="Need calm now?"
+            onSecondary={onOpenSituations}
+          />
+        )}
+      </div>
     </div>
   );
 };

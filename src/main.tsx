@@ -14,4 +14,10 @@ const restoreRedirectedPath = () => {
 
 restoreRedirectedPath();
 
-createRoot(document.getElementById("root")!).render(<App />);
+const rootEl = document.getElementById("root");
+if (!rootEl) {
+  document.body.innerHTML =
+    '<main style="font-family:system-ui;padding:2rem;text-align:center"><h1>HabibiChill failed to start</h1><p>Please reload the page.</p><button onclick="location.reload()">Reload</button></main>';
+} else {
+  createRoot(rootEl).render(<App />);
+}

@@ -130,7 +130,11 @@ const Dashboard = () => {
             )}
             {activeTab === "me" && (
               <Suspense fallback={<TabFallback />}>
-                <MeTab />
+                <MeTab
+                  onOpenJournal={handleOpenJournal}
+                  onGoHome={() => setActiveTab("home")}
+                  onOpenPrayer={handleOpenPrayer}
+                />
               </Suspense>
             )}
           </motion.div>

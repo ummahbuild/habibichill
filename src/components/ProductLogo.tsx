@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { UmmahProduct } from "@/data/ummahProducts";
 import { getProductLogo } from "@/data/ummahProducts";
@@ -17,6 +18,8 @@ const sizeClasses = {
 
 const ProductLogo = ({ product, size = "md", className }: ProductLogoProps) => {
   const logo = getProductLogo(product);
+  const [broken, setBroken] = useState(false);
+  const showImage = Boolean(logo) && !broken;
 
   return (
     <div
@@ -25,9 +28,9 @@ const ProductLogo = ({ product, size = "md", className }: ProductLogoProps) => {
         sizeClasses[size],
         className,
       )}
-      aria-hidden={!logo}
+      aria-hidden={!showImage}
     >
-      {logo ? (
+      {showImage ? (
         <img
           src={logo}
           alt={`${product.name} logo`}
@@ -35,9 +38,10 @@ const ProductLogo = ({ product, size = "md", className }: ProductLogoProps) => {
           loading="lazy"
           width={size === "lg" ? 80 : size === "md" ? 56 : size === "sm" ? 36 : 28}
           height={size === "lg" ? 80 : size === "md" ? 56 : size === "sm" ? 36 : 28}
+          onError={() => setBroken(true)}
         />
       ) : (
-        <span>{product.emoji}</span>
+        <span>{product.emoji || "📦"}</span>
       )}
     </div>
   );

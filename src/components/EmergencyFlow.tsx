@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
 import ModalShell from "@/components/ModalShell";
 import HadithTooltip from "@/components/HadithTooltip";
+import AngerNaflGuide from "@/components/AngerNaflGuide";
 import wuduHands from "@/assets/wudu-hands.png";
 import wuduMouth from "@/assets/wudu-mouth.png";
 import wuduArms from "@/assets/wudu-arms.png";
@@ -22,7 +23,7 @@ interface StepData {
   hadithFull?: string;
   hadithLink?: string;
   audioUrl?: string;
-  inlineTool?: "silence" | "breathing" | "wudu";
+  inlineTool?: "silence" | "breathing" | "wudu" | "nafl";
   verifyType?: "time" | "steps" | "action";
   verifyMinSeconds?: number;
 }
@@ -96,6 +97,21 @@ const steps: StepData[] = [
     inlineTool: "wudu",
     verifyType: "steps",
   },
+  {
+    instruction: "Pray 2 Rakʿahs",
+    icon: "🕌",
+    arabic: "تَكْفِيرُ كُلِّ لِحَاءٍ رَكْعَتَانِ",
+    transliteration: "Takfīru kulli liḥā'in rakʿatān",
+    translation: "The expiation for every quarrel is two rak'ahs",
+    desc: "After wudu, pray two rakʿahs. Scholars explain this cools the heart and expiates harsh words from a dispute.",
+    hadithSource: "Silsilah as-Sahihah 1789 (hasan)",
+    hadithBook: "Graded hasan by al-Albani",
+    hadithNarrator: "Narrated by Abu Hurayrah (رضي الله عنه)",
+    hadithFull: "The Prophet ﷺ said: \"The expiation for every quarrel is two rak'ahs.\" Commentators note: perform wudu first (it removes anger), then offer these two rak'ahs seeking Allah's pleasure.",
+    hadithLink: "https://hadithanswers.com/the-expiation-for-a-quarrel/",
+    inlineTool: "nafl",
+    verifyType: "action",
+  },
 ];
 
 // Mini wudu steps for inline use
@@ -118,7 +134,7 @@ const breathingPhases = [
 ];
 
 const emojis = ["😐", "😠", "😡", "🤬", "😤"];
-const tacticOptions = ["Stayed Silent", "Deep Breathing", "Changed Position", "Said A'udhu Billah", "Made Wudu", "Dhikr", "Quran Recitation", "Walked Away", "Made Dua"];
+const tacticOptions = ["Stayed Silent", "Deep Breathing", "Changed Position", "Said A'udhu Billah", "Made Wudu", "Prayed 2 Rakʿahs", "Dhikr", "Quran Recitation", "Walked Away", "Made Dua"];
 
 interface EmergencyFlowProps {
   onClose: () => void;
@@ -664,6 +680,7 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
                       {step.inlineTool === "silence" && "⏱️ Start Silence Timer"}
                       {step.inlineTool === "breathing" && "🌊 Start Breathing Exercise"}
                       {step.inlineTool === "wudu" && "💧 Start Wudu Guide"}
+                      {step.inlineTool === "nafl" && "🕌 Open 2 Rakʿah Guide"}
                     </button>
                   ) : showInlineTool && !isCompleted ? (
                     <AnimatePresence>
@@ -671,6 +688,7 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
                         {step.inlineTool === "silence" && <InlineSilenceTimer onComplete={markStepComplete} />}
                         {step.inlineTool === "breathing" && <InlineBreathing onComplete={markStepComplete} />}
                         {step.inlineTool === "wudu" && <InlineWudu onComplete={markStepComplete} />}
+                        {step.inlineTool === "nafl" && <AngerNaflGuide variant="compact" onComplete={markStepComplete} />}
                       </motion.div>
                     </AnimatePresence>
                   ) : null}
@@ -757,7 +775,7 @@ const EmergencyFlow = ({ onClose }: EmergencyFlowProps) => {
                 <button onClick={handleSkipJournal} className="flex-1 rounded-xl border border-border bg-card py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted">Skip</button>
                 <button onClick={() => {
                   // Pre-populate tactics based on completed steps
-                  const stepToTactic: Record<number, string> = { 0: "Stayed Silent", 1: "Deep Breathing", 2: "Changed Position", 3: "Said A'udhu Billah", 4: "Made Wudu" };
+                  const stepToTactic: Record<number, string> = { 0: "Stayed Silent", 1: "Deep Breathing", 2: "Changed Position", 3: "Said A'udhu Billah", 4: "Made Wudu", 5: "Prayed 2 Rakʿahs" };
                   const auto = Array.from(stepCompleted).map((i) => stepToTactic[i]).filter(Boolean);
                   setTacticsUsed(auto);
                   setPhase("journal");

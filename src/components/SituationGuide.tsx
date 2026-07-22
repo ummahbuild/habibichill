@@ -10,6 +10,7 @@ const situations = [
     steps: [
       "Take a pause — walk to another room if needed",
       "Make wudu to cool your body and spirit",
+      "Pray two rakʿahs — \"The expiation for every quarrel is two rak'ahs\" (Sahihah 1789)",
       "Remember: \"The best of you are those who are best to their families\" — Tirmidhi",
       "Speak only when calm. The Prophet ﷺ never raised his voice at his wives",
       "If you were wrong, apologize sincerely. Forgiveness is strength.",
@@ -25,6 +26,7 @@ const situations = [
       "Close the app or tab immediately",
       "Say 'A'udhu billahi min ash-shaytan ir-rajeem'",
       "Wait at least 10 minutes before responding",
+      "Make wudu, then pray two rakʿahs as expiation for the quarrel",
       "Ask yourself: Will this matter in a year?",
       "If you must respond, be brief and kind. Silence is gold.",
     ],

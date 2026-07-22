@@ -34,11 +34,14 @@ interface BadgeBaseProps {
   className?: string;
 }
 
+const getStatusConfig = (status: UmmahProduct["status"] | string | undefined) =>
+  (status && statusConfig[status as UmmahProduct["status"]]) || statusConfig["coming-soon"];
+
 export const ProductStatusDot = ({
   status,
   className,
 }: { status: UmmahProduct["status"]; className?: string }) => {
-  const config = statusConfig[status];
+  const config = getStatusConfig(status);
   return (
     <span
       className={cn(
@@ -59,7 +62,7 @@ export const ProductStatusBadge = ({
   showDot = true,
   className,
 }: BadgeBaseProps & { status: UmmahProduct["status"]; showDot?: boolean }) => {
-  const config = statusConfig[status];
+  const config = getStatusConfig(status);
 
   return (
     <span

@@ -7,7 +7,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { format, subDays, startOfDay, parseISO, eachDayOfInterval } from "date-fns";
 import logo from "@/assets/habibichill-logo.png";
 import { PwaInstallCard } from "@/components/PwaInstallPrompt";
+import EmptyState from "@/components/EmptyState";
+import PrayerSettingsPanel from "@/components/PrayerSettingsPanel";
 import { localDateStr } from "@/lib/utils";
+import { getMethodLabel } from "@/data/prayerMethods";
 
 const moodEmojis = ["😊", "🙂", "😐", "😟", "😢"];
 const moodLabels = ["Great", "Good", "Okay", "Low", "Struggling"];
@@ -21,8 +24,14 @@ const CHART_COLORS = {
 
 type SubTab = "progress" | "mood" | "journal" | "settings";
 
-const MeTab = () => {
-  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog, updateMoodEntry, deleteMoodEntry, activityLog, prayerLog, prayerSettings, updatePrayerSettings } = useApp();
+interface MeTabProps {
+  onOpenJournal?: () => void;
+  onGoHome?: () => void;
+  onOpenPrayer?: () => void;
+}
+
+const MeTab = ({ onOpenJournal, onGoHome, onOpenPrayer }: MeTabProps) => {
+  const { sabrPoints, streak, angerLog, settings, updateSettings, setAppState, bookmarks, moodLog, updateMoodEntry, deleteMoodEntry, activityLog, prayerLog, prayerSettings } = useApp();
   const t = useTerminology();
 
   const achievements = [
@@ -300,6 +309,21 @@ const MeTab = () => {
         </div>
       )}
 
+      {/* First-action nudge when profile has no incidents */}
+      {total === 0 && onOpenJournal && (
+        <button
+          type="button"
+          onClick={onOpenJournal}
+          className="mb-4 flex w-full items-center justify-between rounded-xl border border-dashed border-primary/30 bg-primary/5 px-4 py-3 text-left transition-colors hover:bg-primary/10"
+        >
+          <div>
+            <p className="text-sm font-medium text-foreground">Log your first incident</p>
+            <p className="text-[10px] text-muted-foreground">Unlock control rate, charts, and insights</p>
+          </div>
+          <span className="text-sm font-semibold text-primary">Log →</span>
+        </button>
+      )}
+
       {/* Sub-tabs */}
       <div className="mb-5 flex gap-1 rounded-xl bg-muted p-1">
         {subTabs.map((t) => (
@@ -349,7 +373,14 @@ const MeTab = () => {
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="py-8 text-center text-sm text-muted-foreground">Log anger incidents to see weekly patterns</p>
+                <EmptyState
+                  compact
+                  emoji="📓"
+                  title="No weekly data yet"
+                  description="Log an anger incident to unlock patterns and insights."
+                  actionLabel="Log an incident"
+                  onAction={onOpenJournal}
+                />
               )}
               <div className="mt-2 flex justify-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: CHART_COLORS.controlled }} /> Controlled</span>
@@ -459,7 +490,14 @@ const MeTab = () => {
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📋 Activity Log</h2>
             <div className="mb-5 rounded-2xl border border-border bg-card p-4">
               {activityLog.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground py-4">Use tools to see activity stats here</p>
+                <EmptyState
+                  compact
+                  emoji="🛠️"
+                  title="No tool activity yet"
+                  description="Dhikr, breathing, silence, and wudu show up here when you use them."
+                  actionLabel="Go to Home"
+                  onAction={onGoHome}
+                />
               ) : (() => {
                 const typeCounts: Record<string, number> = {};
                 activityLog.forEach((a) => { typeCounts[a.type] = (typeCounts[a.type] || 0) + 1; });
@@ -473,6 +511,7 @@ const MeTab = () => {
                   learning: { emoji: "🧠", label: "Learning" },
                   mood_checkin: { emoji: "😊", label: "Mood Check-in" },
                   prayer: { emoji: "🕌", label: "Prayer" },
+                  nafl: { emoji: "🤲", label: "2 Rakʿahs" },
                 };
                 const sorted = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
                 return (
@@ -501,7 +540,14 @@ const MeTab = () => {
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🕌 Prayer Tracking</h2>
             <div className="mb-5 rounded-2xl border border-border bg-card p-4">
               {prayerLog.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground py-4">Mark prayers as complete to see stats here</p>
+                <EmptyState
+                  compact
+                  emoji="🕌"
+                  title="No prayers tracked yet"
+                  description="Mark today's prayers to see completion stats here."
+                  actionLabel="Open prayer times"
+                  onAction={onOpenPrayer}
+                />
               ) : (() => {
                 const prayerCounts: Record<string, number> = { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 };
                 const last7Days = new Set<string>();
@@ -574,10 +620,13 @@ const MeTab = () => {
         {subTab === "mood" && (
           <motion.div key="mood" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
             {moodLog.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-card p-6 text-center">
-                <p className="text-3xl mb-2">🧠</p>
-                <p className="text-muted-foreground">No mood entries yet. Check in on the Home tab throughout the day.</p>
-              </div>
+              <EmptyState
+                emoji="🧠"
+                title="No mood check-ins yet"
+                description="A quick check-in on Home builds your mood timeline over days."
+                actionLabel="Check in on Home"
+                onAction={onGoHome}
+              />
             ) : (
               <>
                 {/* Today's Timeline */}
@@ -618,7 +667,14 @@ const MeTab = () => {
                       </div>
                     </>
                   ) : (
-                    <p className="py-6 text-center text-sm text-muted-foreground">No mood check-ins today. Tap a mood emoji on the Home tab.</p>
+                    <EmptyState
+                      compact
+                      emoji="🌤️"
+                      title="No check-ins today"
+                      description="Tap a mood emoji on Home to start today's timeline."
+                      actionLabel="Go to Home"
+                      onAction={onGoHome}
+                    />
                   )}
                 </div>
 
@@ -755,11 +811,26 @@ const MeTab = () => {
         {/* ── Journal ── */}
         {subTab === "journal" && (
           <motion.div key="journal" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📋 Anger Journal</h2>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">📋 Anger Journal</h2>
+              {onOpenJournal && (
+                <button
+                  type="button"
+                  onClick={onOpenJournal}
+                  className="rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-semibold text-primary transition-colors hover:bg-primary/15"
+                >
+                  + Log
+                </button>
+              )}
+            </div>
             {angerLog.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-card p-6 text-center">
-                <p className="text-muted-foreground">No entries yet. Use the 🔥 button when anger strikes.</p>
-              </div>
+              <EmptyState
+                emoji="📓"
+                title="Journal is empty"
+                description="After a hard moment — or a calm one — log what happened and what helped."
+                actionLabel="Log an incident"
+                onAction={onOpenJournal}
+              />
             ) : (
               <div className="flex flex-col gap-2">
                 {angerLog.map((entry) => (
@@ -804,42 +875,19 @@ const MeTab = () => {
 
             {/* Prayer Settings */}
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🕌 Prayer Settings</h2>
-            <div className="mb-5 flex flex-col gap-2">
-              <div className="rounded-xl border border-border bg-card p-4">
-                <p className="text-sm font-medium text-foreground mb-2">Location</p>
-                <p className="text-xs text-muted-foreground mb-2">
-                  {prayerSettings.city ? `${prayerSettings.city}${prayerSettings.country ? `, ${prayerSettings.country}` : ""}` : "Not set — open Prayer Times to auto-detect"}
+            <div className="mb-5">
+              <div className="mb-3 rounded-xl border border-dashed border-primary/25 bg-primary/5 px-3 py-2.5">
+                <p className="text-xs text-foreground">
+                  <span className="font-semibold text-primary">{getMethodLabel(prayerSettings.method, true)}</span>
+                  {prayerSettings.city ? ` · ${prayerSettings.city}` : " · location not set"}
+                  {" · "}
+                  {prayerLog.length} prayer{prayerLog.length === 1 ? "" : "s"} logged
                 </p>
-                {prayerSettings.latitude && (
-                  <p className="text-[10px] text-muted-foreground">Lat: {prayerSettings.latitude?.toFixed(4)}, Lng: {prayerSettings.longitude?.toFixed(4)}</p>
-                )}
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
+                  Change method, location, or fine-tune minutes below — or double-tap a time in Prayer.
+                </p>
               </div>
-              <div className="rounded-xl border border-border bg-card p-4">
-                <p className="text-sm font-medium text-foreground mb-2">Calculation Method</p>
-                <select
-                  value={prayerSettings.method}
-                  onChange={(e) => updatePrayerSettings({ method: parseInt(e.target.value) })}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                >
-                  {[
-                    { id: 1, name: "Univ. Islamic Sciences, Karachi" },
-                    { id: 2, name: "ISNA" },
-                    { id: 3, name: "Muslim World League" },
-                    { id: 4, name: "Umm Al-Qura, Makkah" },
-                    { id: 5, name: "Egyptian General Authority" },
-                    { id: 7, name: "Univ. Tehran" },
-                    { id: 8, name: "Gulf Region" },
-                    { id: 13, name: "Diyanet (Turkey)" },
-                    { id: 15, name: "Moonsighting Committee" },
-                  ].map((m) => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="rounded-xl border border-border bg-card p-4">
-                <p className="text-sm font-medium text-foreground mb-1">Prayer Stats</p>
-                <p className="text-xs text-muted-foreground">{prayerLog.length} prayers logged total</p>
-              </div>
+              <PrayerSettingsPanel onOpenPrayer={onOpenPrayer} />
             </div>
 
             <h2 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">🎨 Appearance</h2>

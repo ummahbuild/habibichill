@@ -1,32 +1,24 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/context/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { X, MapPin, Search, Settings, Check, ChevronDown } from "lucide-react";
+import { X, Settings, Check, ChevronDown } from "lucide-react";
 import { localDateStr } from "@/lib/utils";
 import ModalShell from "@/components/ModalShell";
+import AngerNaflGuide from "@/components/AngerNaflGuide";
+import PrayerSettingsPanel from "@/components/PrayerSettingsPanel";
+import {
+  PRAYER_NAMES,
+  PRAYER_EMOJIS,
+  applyOffset,
+  clampOffset,
+  formatOffsetLabel,
+  getMethodLabel,
+  parseTimeToMinutes,
+  type PrayerName,
+} from "@/data/prayerMethods";
 
-const PRAYER_NAMES = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"] as const;
-const PRAYER_EMOJIS: Record<string, string> = { Fajr: "🌅", Dhuhr: "☀️", Asr: "🌤️", Maghrib: "🌅", Isha: "🌙" };
-
-const CALCULATION_METHODS = [
-  { id: 1, name: "University of Islamic Sciences, Karachi" },
-  { id: 2, name: "Islamic Society of North America (ISNA)" },
-  { id: 3, name: "Muslim World League (MWL)" },
-  { id: 4, name: "Umm Al-Qura University, Makkah" },
-  { id: 5, name: "Egyptian General Authority of Survey" },
-  { id: 7, name: "Institute of Geophysics, University of Tehran" },
-  { id: 8, name: "Gulf Region" },
-  { id: 9, name: "Kuwait" },
-  { id: 10, name: "Qatar" },
-  { id: 11, name: "Majlis Ugama Islam Singapura" },
-  { id: 12, name: "UOIF (France)" },
-  { id: 13, name: "Diyanet İşleri Başkanlığı (Turkey)" },
-  { id: 14, name: "Spiritual Administration of Muslims of Russia" },
-  { id: 15, name: "Moonsighting Committee" },
-];
-
-interface PrayerTimes {
+interface ApiPrayerTimes {
   Fajr: string;
   Dhuhr: string;
   Asr: string;
@@ -40,25 +32,29 @@ interface PrayerTimesProps {
   onClose: () => void;
 }
 
+const DOUBLE_TAP_MS = 320;
+
 const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
   const { prayerSettings, updatePrayerSettings, prayerLog, logPrayer, activityLog } = useApp();
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
+  const [rawTimes, setRawTimes] = useState<ApiPrayerTimes | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [citySearch, setCitySearch] = useState("");
-  const [showJournal, setShowJournal] = useState<typeof PRAYER_NAMES[number] | null>(null);
+  const [showJournal, setShowJournal] = useState<PrayerName | null>(null);
   const [journalNote, setJournalNote] = useState("");
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [showNaflGuide, setShowNaflGuide] = useState(false);
+  const [adjustPrayer, setAdjustPrayer] = useState<PrayerName | null>(null);
+  const [hintPulse, setHintPulse] = useState(false);
 
-  // Get today's logged prayers (local date)
+  const fetchIdRef = useRef(0);
+  const lastTapRef = useRef<{ name: PrayerName; at: number } | null>(null);
+
   const todayStr = localDateStr();
   const todayPrayers = prayerLog.filter((p) => p.date.slice(0, 10) === todayStr);
   const isPrayerDone = (name: string) => todayPrayers.some((p) => p.prayer === name);
 
-  // Recent tools used today for prefill
   const todayActivities = activityLog.filter((a) => a.date.slice(0, 10) === todayStr);
-  const recentTools = [...new Set(todayActivities.map((a) => a.type).filter((t) => t !== "prayer" && t !== "mood_checkin"))];
   const toolLabels: Record<string, string> = {
     breathing: "🌊 Breathing",
     silence: "🤫 Silence",
@@ -67,39 +63,38 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
     reading: "📜 Quran Reading",
     quran_listen: "🎧 Quran Listening",
     learning: "🧠 Learning",
+    nafl: "🤲 2 Rakʿahs",
   };
 
-  // Auto-detect location on first load
-  const detectLocation = useCallback(async () => {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      if (data.latitude && data.longitude) {
-        updatePrayerSettings({
-          latitude: data.latitude,
-          longitude: data.longitude,
-          city: data.city || "",
-          country: data.country_name || "",
-          autoDetect: true,
-        });
-        return { lat: data.latitude, lng: data.longitude };
-      }
-    } catch {}
-    return null;
-  }, [updatePrayerSettings]);
+  // Apply per-prayer offsets for display / current-next logic
+  const prayerTimes = useMemo(() => {
+    if (!rawTimes) return null;
+    const offsets = prayerSettings.offsets || {};
+    return {
+      ...rawTimes,
+      Fajr: applyOffset(rawTimes.Fajr, offsets.Fajr),
+      Dhuhr: applyOffset(rawTimes.Dhuhr, offsets.Dhuhr),
+      Asr: applyOffset(rawTimes.Asr, offsets.Asr),
+      Maghrib: applyOffset(rawTimes.Maghrib, offsets.Maghrib),
+      Isha: applyOffset(rawTimes.Isha, offsets.Isha),
+    };
+  }, [rawTimes, prayerSettings.offsets]);
 
   const fetchPrayerTimes = useCallback(async (lat: number, lng: number, method: number) => {
+    const id = ++fetchIdRef.current;
     setLoading(true);
-    setError(false);
+    setError(null);
     try {
       const today = new Date();
       const dateStr = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
       const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lng}&method=${method}`
+        `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lng}&method=${method}`,
       );
+      if (!res.ok) throw new Error("network");
       const data = await res.json();
+      if (id !== fetchIdRef.current) return; // stale response
       if (data.data?.timings) {
-        setPrayerTimes({
+        setRawTimes({
           Fajr: data.data.timings.Fajr,
           Dhuhr: data.data.timings.Dhuhr,
           Asr: data.data.timings.Asr,
@@ -108,133 +103,172 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
           Sunrise: data.data.timings.Sunrise,
           Sunset: data.data.timings.Sunset,
         });
+        setError(null);
       } else {
-        setError(true);
+        setError("Couldn’t load prayer times for this location.");
       }
     } catch {
-      setError(true);
+      if (id !== fetchIdRef.current) return;
+      setError("Network error loading prayer times. Check connection or try another city.");
+    } finally {
+      if (id === fetchIdRef.current) setLoading(false);
     }
-    setLoading(false);
   }, []);
 
+  const refreshFromSettings = useCallback(() => {
+    if (prayerSettings.latitude != null && prayerSettings.longitude != null) {
+      void fetchPrayerTimes(prayerSettings.latitude, prayerSettings.longitude, prayerSettings.method);
+    }
+  }, [prayerSettings.latitude, prayerSettings.longitude, prayerSettings.method, fetchPrayerTimes]);
+
   useEffect(() => {
-    const init = async () => {
-      if (prayerSettings.latitude && prayerSettings.longitude) {
-        await fetchPrayerTimes(prayerSettings.latitude, prayerSettings.longitude, prayerSettings.method);
-      } else if (prayerSettings.autoDetect) {
-        const loc = await detectLocation();
-        if (loc) {
-          await fetchPrayerTimes(loc.lat, loc.lng, prayerSettings.method);
-        } else {
+    if (prayerSettings.latitude == null || prayerSettings.longitude == null) {
+      // Keep attempting location setup only when missing coords
+      const setup = async () => {
+        if (!prayerSettings.autoDetect) {
           setLoading(false);
           setShowSettings(true);
+          setError("Set your location to see prayer times.");
+          return;
         }
-      } else {
+        setLoading(true);
+        try {
+          const res = await fetch("https://ipapi.co/json/");
+          const data = await res.json();
+          if (data.latitude && data.longitude) {
+            updatePrayerSettings({
+              latitude: data.latitude,
+              longitude: data.longitude,
+              city: data.city || "",
+              country: data.country_name || "",
+              autoDetect: true,
+            });
+            return;
+          }
+        } catch {
+          /* fall through */
+        }
         setLoading(false);
         setShowSettings(true);
-      }
-    };
-    init();
-  }, [prayerSettings.latitude, prayerSettings.longitude, prayerSettings.method, prayerSettings.autoDetect, fetchPrayerTimes, detectLocation]);
+        setError("Set your location to see prayer times.");
+      };
+      void setup();
+      return;
+    }
 
-  const searchCity = async () => {
-    if (!citySearch.trim()) return;
-    setLoading(true);
-    setError(false);
+    void fetchPrayerTimes(prayerSettings.latitude, prayerSettings.longitude, prayerSettings.method);
+  }, [
+    prayerSettings.latitude,
+    prayerSettings.longitude,
+    prayerSettings.method,
+    prayerSettings.autoDetect,
+    fetchPrayerTimes,
+    updatePrayerSettings,
+  ]);
+
+  useEffect(() => {
+    // Soft hint once per session
     try {
-      const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(citySearch)}&country=&method=${prayerSettings.method}`);
-      const data = await res.json();
-      if (data.data?.timings && data.data?.meta) {
-        updatePrayerSettings({
-          latitude: data.data.meta.latitude,
-          longitude: data.data.meta.longitude,
-          city: citySearch,
-          country: "",
-          autoDetect: false,
-        });
-        setPrayerTimes({
-          Fajr: data.data.timings.Fajr,
-          Dhuhr: data.data.timings.Dhuhr,
-          Asr: data.data.timings.Asr,
-          Maghrib: data.data.timings.Maghrib,
-          Isha: data.data.timings.Isha,
-          Sunrise: data.data.timings.Sunrise,
-          Sunset: data.data.timings.Sunset,
-        });
-        setShowSettings(false);
-      } else {
-        setError(true);
+      if (!sessionStorage.getItem("hc-prayer-dbltap-hint")) {
+        setHintPulse(true);
+        sessionStorage.setItem("hc-prayer-dbltap-hint", "1");
+        const t = window.setTimeout(() => setHintPulse(false), 5000);
+        return () => clearTimeout(t);
       }
     } catch {
-      setError(true);
+      /* ignore */
     }
-    setLoading(false);
-  };
+  }, []);
 
-  // Determine current/next prayer
-  const getCurrentPrayer = (): { current: string | null; next: string | null } => {
+  const getCurrentPrayer = (): { current: PrayerName | null; next: PrayerName | null } => {
     if (!prayerTimes) return { current: null, next: null };
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
-    const toMin = (t: string) => {
-      const [h, m] = t.split(":").map(Number);
-      return h * 60 + m;
-    };
-    const times = PRAYER_NAMES.map((n) => ({ name: n, min: toMin(prayerTimes[n]) }));
-    let current: string | null = null;
-    let next: string | null = null;
+    const times = PRAYER_NAMES.map((n) => ({
+      name: n,
+      min: parseTimeToMinutes(prayerTimes[n]) ?? 0,
+    }));
+    let current: PrayerName | null = null;
+    let next: PrayerName | null = null;
     for (let i = times.length - 1; i >= 0; i--) {
       if (nowMin >= times[i].min) {
         current = times[i].name;
-        // After Isha, next prayer is Fajr (tomorrow)
         next = i < times.length - 1 ? times[i + 1].name : "Fajr";
         break;
       }
     }
     if (!current) {
-      next = times[0].name;
+      current = null;
+      next = "Fajr";
     }
     return { current, next };
   };
 
   const { current: currentPrayer, next: nextPrayer } = getCurrentPrayer();
 
-  const handleMarkPrayer = (prayer: typeof PRAYER_NAMES[number]) => {
+  const handleMarkPrayer = (prayer: PrayerName) => {
     if (isPrayerDone(prayer)) return;
     setShowJournal(prayer);
     setJournalNote("");
-    setSelectedTools(recentTools.slice(0, 3));
+    const recent = [...new Set(todayActivities.map((a) => a.type).filter((t) => t !== "prayer" && t !== "mood_checkin"))];
+    setSelectedTools(recent);
   };
 
   const submitPrayerLog = () => {
     if (!showJournal) return;
-    logPrayer(showJournal, journalNote || undefined, selectedTools.length > 0 ? selectedTools : undefined);
+    logPrayer(showJournal, journalNote || undefined, selectedTools.length ? selectedTools : undefined);
     setShowJournal(null);
-    setJournalNote("");
-    setSelectedTools([]);
   };
 
   const toggleTool = (tool: string) => {
-    setSelectedTools((prev) => prev.includes(tool) ? prev.filter((t) => t !== tool) : [...prev, tool]);
+    setSelectedTools((prev) => (prev.includes(tool) ? prev.filter((t) => t !== tool) : [...prev, tool]));
+  };
+
+  const openAdjust = (name: PrayerName) => {
+    setAdjustPrayer(name);
+    setHintPulse(false);
+  };
+
+  const handleTimeInteraction = (name: PrayerName, e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const now = Date.now();
+    const last = lastTapRef.current;
+    if (last && last.name === name && now - last.at < DOUBLE_TAP_MS) {
+      lastTapRef.current = null;
+      openAdjust(name);
+      return;
+    }
+    lastTapRef.current = { name, at: now };
+  };
+
+  const adjustOffset = (delta: number) => {
+    if (!adjustPrayer) return;
+    const current = prayerSettings.offsets?.[adjustPrayer] || 0;
+    updatePrayerSettings({ offsets: { [adjustPrayer]: clampOffset(current + delta) } });
   };
 
   return (
     <ModalShell onClose={onClose} title="Prayer Times" className="bg-background" labelledById="prayer-modal-title">
-      {/* Header */}
       <div className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
-          <h1 className="font-heading text-lg font-bold text-foreground">🕌 Prayer Times</h1>
+          <h1 id="prayer-modal-title" className="font-heading text-lg font-bold text-foreground">
+            🕌 Prayer Times
+          </h1>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setShowSettings(!showSettings)}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label="Prayer settings"
+              aria-expanded={showSettings}
             >
               <Settings className="h-4 w-4" />
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -244,88 +278,80 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
       </div>
 
       <div className="mx-auto max-w-lg px-4 py-4">
-        {/* Location info - clickable to change */}
         <button
+          type="button"
           onClick={() => setShowSettings(!showSettings)}
-          className="mb-4 flex w-full items-center gap-2 rounded-xl border border-border bg-card p-3 text-left hover:bg-muted/50 transition-colors"
+          className="mb-3 flex w-full items-center gap-2 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:bg-muted/50"
         >
-          <MapPin className="h-4 w-4 text-primary shrink-0" />
-          <span className="text-sm text-foreground flex-1 truncate">
-            {prayerSettings.city
-              ? `${prayerSettings.city}${prayerSettings.country ? `, ${prayerSettings.country}` : ""}`
-              : "Set your location"}
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm text-foreground">
+              {prayerSettings.city
+                ? `${prayerSettings.city}${prayerSettings.country ? `, ${prayerSettings.country}` : ""}`
+                : "Set your location"}
+            </span>
+            <span className="block text-[10px] text-muted-foreground">
+              {getMethodLabel(prayerSettings.method, true)} · tap to change method & times
+            </span>
           </span>
-          <span className="hidden sm:inline text-[10px] text-muted-foreground mr-1">
-            {CALCULATION_METHODS.find((m) => m.id === prayerSettings.method)?.name.split(",")[0] || "ISNA"}
-          </span>
-          <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform shrink-0 ${showSettings ? "rotate-180" : ""}`} />
+          <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${showSettings ? "rotate-180" : ""}`} />
         </button>
 
-        {/* Settings Panel */}
         <AnimatePresence>
           {showSettings && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="mb-4 overflow-hidden rounded-2xl border border-border bg-card"
+              className="mb-4 overflow-hidden"
             >
-              <div className="p-4 space-y-4">
-                {/* Auto-detect */}
-                <button
-                  onClick={async () => {
-                    const loc = await detectLocation();
-                    if (loc) {
-                      await fetchPrayerTimes(loc.lat, loc.lng, prayerSettings.method);
-                      setShowSettings(false);
-                    }
-                  }}
-                  className="flex w-full items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-left text-sm font-medium text-foreground hover:bg-primary/10 transition-colors"
-                >
-                  <MapPin className="h-4 w-4 text-primary" />
-                  Auto-detect my location
-                </button>
-
-                {/* City search */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Or search by city</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={citySearch}
-                      onChange={(e) => setCitySearch(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && searchCity()}
-                      placeholder="e.g., London, Dubai, New York"
-                      className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                    <button
-                      onClick={searchCity}
-                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-                    >
-                      <Search className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Calculation method */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Calculation Method</label>
-                  <select
-                    value={prayerSettings.method}
-                    onChange={(e) => updatePrayerSettings({ method: parseInt(e.target.value) })}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    {CALCULATION_METHODS.map((m) => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <PrayerSettingsPanel onSettingsChanged={refreshFromSettings} />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Loading/Error */}
+        {/* 2 rakʿah quick action */}
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={() => setShowNaflGuide((v) => !v)}
+            className={`flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left transition-colors ${
+              showNaflGuide
+                ? "border-primary/40 bg-primary/10"
+                : "border-border bg-card hover:border-primary/30 hover:bg-muted/40"
+            }`}
+            aria-expanded={showNaflGuide}
+          >
+            <span className="text-2xl" aria-hidden>
+              🤲
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-foreground">Angry or argued?</span>
+              <span className="block text-[11px] text-muted-foreground">Pray 2 rakʿahs — sunnah expiation for a quarrel</span>
+            </span>
+            <span className="text-xs font-semibold text-primary">{showNaflGuide ? "Hide" : "Start"}</span>
+          </button>
+          <AnimatePresence>
+            {showNaflGuide && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="mt-2 rounded-2xl border border-border bg-card p-4">
+                  <AngerNaflGuide variant="full" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {hintPulse && prayerTimes && (
+          <p className="mb-3 rounded-lg bg-primary/10 px-3 py-2 text-center text-[11px] text-primary">
+            Tip: double-tap a prayer time to adjust minutes or calculation method
+          </p>
+        )}
+
         {loading && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -336,26 +362,28 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
         )}
 
         {error && !loading && (
-          <div className="rounded-2xl border border-border bg-card p-6 text-center">
-            <p className="text-muted-foreground mb-3">Could not load prayer times. Set your location in settings.</p>
-            <button onClick={() => setShowSettings(true)} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-              Open Settings
+          <div className="mb-4 rounded-2xl border border-border bg-card p-6 text-center">
+            <p className="mb-3 text-sm text-muted-foreground">{error}</p>
+            <button
+              type="button"
+              onClick={() => setShowSettings(true)}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            >
+              Open settings
             </button>
           </div>
         )}
 
-        {/* Prayer Times List */}
         {prayerTimes && !loading && (
           <div className="space-y-2">
-            {/* Next prayer highlight */}
             {nextPrayer && (
               <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
                   Next Prayer{nextPrayer === "Fajr" && currentPrayer === "Isha" ? " (tomorrow)" : ""}
                 </p>
-                <p className="text-2xl mb-0.5">{PRAYER_EMOJIS[nextPrayer]}</p>
+                <p className="mb-0.5 text-2xl">{PRAYER_EMOJIS[nextPrayer]}</p>
                 <p className="font-heading text-lg font-bold text-foreground">{nextPrayer}</p>
-                <p className="text-sm text-muted-foreground">{prayerTimes[nextPrayer as keyof PrayerTimes]}</p>
+                <p className="text-sm text-muted-foreground">{prayerTimes[nextPrayer]}</p>
               </div>
             )}
 
@@ -364,35 +392,54 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
               const isCurrent = name === currentPrayer;
               const isNext = name === nextPrayer;
               const timeStr = prayerTimes[name];
-              // Determine if past
+              const offset = prayerSettings.offsets?.[name] || 0;
               const now = new Date();
               const nowMin = now.getHours() * 60 + now.getMinutes();
-              const [h, m] = timeStr.split(":").map(Number);
-              const prayerMin = h * 60 + m;
+              const prayerMin = parseTimeToMinutes(timeStr) ?? 0;
               const isPast = nowMin > prayerMin && !isCurrent;
 
               return (
-                <motion.button
+                <div
                   key={name}
-                  type="button"
-                  disabled={done}
-                  onClick={() => handleMarkPrayer(name)}
-                  className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all touch-target ${
-                    done ? "border-success/30 bg-success/5 cursor-default" :
-                    isCurrent ? "border-primary/30 bg-primary/5 hover:bg-primary/10 active:scale-[0.99]" :
-                    isNext ? "border-accent/30 bg-accent/5 hover:bg-accent/10 active:scale-[0.99]" :
-                    isPast ? "border-border bg-muted/30 opacity-80 hover:opacity-100 active:scale-[0.99]" :
-                    "border-border bg-card hover:border-primary/30 hover:bg-muted/40 active:scale-[0.99]"
+                  className={`flex w-full items-center gap-2 rounded-xl border p-2.5 transition-all ${
+                    done
+                      ? "border-success/30 bg-success/5"
+                      : isCurrent
+                        ? "border-primary/30 bg-primary/5"
+                        : isNext
+                          ? "border-accent/30 bg-accent/5"
+                          : isPast
+                            ? "border-border bg-muted/30 opacity-80"
+                            : "border-border bg-card"
                   }`}
-                  aria-label={done ? `${name} already logged` : `Mark ${name} as prayed`}
                 >
-                  <span className="text-xl" aria-hidden>{PRAYER_EMOJIS[name]}</span>
-                  <div className="flex-1 min-w-0">
+                  <span className="pl-1 text-xl" aria-hidden>
+                    {PRAYER_EMOJIS[name]}
+                  </span>
+                  <div className="min-w-0 flex-1">
                     <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : "text-foreground"}`}>
                       {name}
                       {isCurrent && <span className="ml-2 text-[10px] font-normal text-primary">Current</span>}
                     </p>
-                    <p className="text-xs text-muted-foreground">{timeStr}</p>
+                    {/* Double-tap / double-click target */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleTimeInteraction(name, e)}
+                      onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        openAdjust(name);
+                      }}
+                      className="group inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-left text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      aria-label={`${name} at ${timeStr}. Double-tap to adjust time or calculation method`}
+                      title="Double-tap to adjust"
+                    >
+                      <span className="font-medium tabular-nums text-foreground/80 group-hover:text-foreground">{timeStr}</span>
+                      {offset !== 0 && (
+                        <span className="text-[9px] text-primary">{formatOffsetLabel(offset)}</span>
+                      )}
+                      <span className="text-[9px] opacity-0 transition-opacity group-hover:opacity-70">✎</span>
+                    </button>
                   </div>
                   {done ? (
                     <div className="flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1.5">
@@ -400,56 +447,49 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
                       <span className="text-[10px] font-medium text-success">Done</span>
                     </div>
                   ) : (
-                    <span className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground">
+                    <button
+                      type="button"
+                      onClick={() => handleMarkPrayer(name)}
+                      className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground touch-target"
+                      aria-label={`Mark ${name} as prayed`}
+                    >
                       Mark ✓
-                    </span>
+                    </button>
                   )}
-                </motion.button>
+                </div>
               );
             })}
 
-            {/* Today's summary */}
             <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-center">
-              <p className="text-sm font-medium text-foreground">
-                Today: {todayPrayers.length}/5 prayers logged
-              </p>
+              <p className="text-sm font-medium text-foreground">Today: {todayPrayers.length}/5 prayers logged</p>
               <div className="mt-2 flex justify-center gap-2">
                 {PRAYER_NAMES.map((name) => (
-                  <span
-                    key={name}
-                    className={`text-lg ${isPrayerDone(name) ? "" : "opacity-20"}`}
-                    title={name}
-                  >
+                  <span key={name} className={`text-lg ${isPrayerDone(name) ? "" : "opacity-20"}`} title={name}>
                     {PRAYER_EMOJIS[name]}
                   </span>
                 ))}
               </div>
               {todayPrayers.length === 5 && (
-                <p className="mt-2 text-xs text-success font-medium">MashaAllah! All prayers completed today 🎉</p>
+                <p className="mt-2 text-xs font-medium text-success">MashaAllah! All prayers completed today 🎉</p>
               )}
             </div>
 
-            {/* Recent prayer log */}
             {prayerLog.length > 0 && (
               <div className="mt-4">
-                <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">Recent Prayer Log</h2>
+                <h2 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Recent Prayer Log
+                </h2>
                 <div className="space-y-1.5">
                   {prayerLog.slice(0, 10).map((entry) => (
                     <div key={entry.id} className="flex items-center gap-2 rounded-lg border border-border bg-card p-2.5">
-                      <span className="text-sm">{PRAYER_EMOJIS[entry.prayer]}</span>
-                      <div className="flex-1 min-w-0">
+                      <span className="text-sm">{PRAYER_EMOJIS[entry.prayer as PrayerName] || "🕌"}</span>
+                      <div className="min-w-0 flex-1">
                         <p className="text-xs font-medium text-foreground">{entry.prayer}</p>
                         <p className="text-[10px] text-muted-foreground">
-                          {new Date(entry.date).toLocaleDateString()} · {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(entry.date).toLocaleDateString()} ·{" "}
+                          {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
-                      {entry.toolsUsed && entry.toolsUsed.length > 0 && (
-                        <div className="flex gap-0.5">
-                          {entry.toolsUsed.map((t) => (
-                            <span key={t} className="text-[10px]">{toolLabels[t]?.slice(0, 2) || "🔧"}</span>
-                          ))}
-                        </div>
-                      )}
                       {entry.journalNote && <span className="text-[10px] text-muted-foreground">📝</span>}
                     </div>
                   ))}
@@ -460,6 +500,118 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
         )}
       </div>
 
+      {/* Double-tap adjust dialog */}
+      <Dialog open={!!adjustPrayer} onOpenChange={(open) => !open && setAdjustPrayer(null)}>
+        <DialogContent className="z-[100] max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {adjustPrayer && PRAYER_EMOJIS[adjustPrayer]} Adjust {adjustPrayer}
+            </DialogTitle>
+          </DialogHeader>
+          {adjustPrayer && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border bg-muted/40 p-4 text-center">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Displayed time</p>
+                <p className="font-heading text-3xl font-bold tabular-nums text-foreground">
+                  {prayerTimes?.[adjustPrayer] || "--:--"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {formatOffsetLabel(prayerSettings.offsets?.[adjustPrayer] || 0)}
+                  {rawTimes && (prayerSettings.offsets?.[adjustPrayer] || 0) !== 0 && (
+                    <> · calculated {applyOffset(rawTimes[adjustPrayer], 0)}</>
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <p className="mb-2 text-xs font-medium text-muted-foreground">Shift minutes</p>
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => adjustOffset(-5)}
+                    className="rounded-xl border border-border px-3 py-2 text-xs font-semibold hover:bg-muted"
+                  >
+                    −5
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => adjustOffset(-1)}
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-border text-lg font-bold hover:bg-muted"
+                  >
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => adjustOffset(1)}
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-border text-lg font-bold hover:bg-muted"
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => adjustOffset(5)}
+                    className="rounded-xl border border-border px-3 py-2 text-xs font-semibold hover:bg-muted"
+                  >
+                    +5
+                  </button>
+                </div>
+                {(prayerSettings.offsets?.[adjustPrayer] || 0) !== 0 && (
+                  <button
+                    type="button"
+                    onClick={() => updatePrayerSettings({ offsets: { [adjustPrayer]: 0 } })}
+                    className="mt-2 w-full text-center text-[11px] text-primary hover:underline"
+                  >
+                    Reset this prayer to calculated time
+                  </button>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-2 text-xs font-medium text-muted-foreground">Calculation method</p>
+                <select
+                  value={prayerSettings.method}
+                  onChange={(e) => {
+                    updatePrayerSettings({ method: Number(e.target.value) });
+                    // effect will refetch
+                  }}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  {[
+                    { id: 2, name: "ISNA" },
+                    { id: 3, name: "Muslim World League" },
+                    { id: 4, name: "Umm Al-Qura, Makkah" },
+                    { id: 1, name: "Karachi" },
+                    { id: 5, name: "Egypt" },
+                    { id: 13, name: "Turkey (Diyanet)" },
+                    { id: 15, name: "Moonsighting Committee" },
+                    { id: 8, name: "Gulf Region" },
+                    { id: 7, name: "Tehran" },
+                    { id: 9, name: "Kuwait" },
+                    { id: 10, name: "Qatar" },
+                    { id: 11, name: "Singapore" },
+                    { id: 12, name: "France (UOIF)" },
+                    { id: 14, name: "Russia" },
+                  ].map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1.5 text-[10px] text-muted-foreground">Changing method updates all prayer times.</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setAdjustPrayer(null)}
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
+              >
+                Done
+              </button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Prayer Journal Dialog */}
       <Dialog open={!!showJournal} onOpenChange={(open) => !open && setShowJournal(null)}>
         <DialogContent className="z-[100] max-w-sm">
@@ -469,48 +621,45 @@ const PrayerTimesComponent = ({ onClose }: PrayerTimesProps) => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Quick journal */}
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Quick reflection (optional)</label>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Quick reflection (optional)</label>
               <textarea
                 value={journalNote}
                 onChange={(e) => setJournalNote(e.target.value)}
                 placeholder="How did you feel? Did it help with your emotions?"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 rows={3}
               />
             </div>
-
-            {/* Tools used today — prefilled */}
-            {Object.keys(toolLabels).length > 0 && (
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Tools used today</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(toolLabels).map(([key, label]) => (
-                    <button
-                      key={key}
-                      onClick={() => toggleTool(key)}
-                      className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all ${
-                        selectedTools.includes(key)
-                          ? "bg-primary/10 border border-primary/30 text-primary"
-                          : "border border-border text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Tools used today</label>
+              <div className="flex flex-wrap gap-1.5">
+                {Object.entries(toolLabels).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => toggleTool(key)}
+                    className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+                      selectedTools.includes(key)
+                        ? "border border-primary/30 bg-primary/10 text-primary"
+                        : "border border-border text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
-            )}
-
+            </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setShowJournal(null)}
                 className="flex-1 rounded-lg border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={submitPrayerLog}
                 className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground"
               >

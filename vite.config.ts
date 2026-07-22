@@ -19,7 +19,11 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "favicon.svg", "favicon-96x96.png", "apple-touch-icon.png"],
       workbox: {
-        navigateFallbackDenylist: [/^\/~oauth/],
+        // SPA deep links (/products, /product/:slug, etc.) must fall back to index.html
+        navigateFallback: "index.html",
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /\.[a-zA-Z0-9]+$/],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,jpg,webp}"],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [

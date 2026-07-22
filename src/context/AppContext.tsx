@@ -13,7 +13,7 @@ interface OnboardingData {
 export interface ActivityEntry {
   id: string;
   date: string;
-  type: "breathing" | "silence" | "wudu" | "dhikr" | "reading" | "learning" | "mood_checkin" | "prayer" | "quran_listen";
+  type: "breathing" | "silence" | "wudu" | "dhikr" | "reading" | "learning" | "mood_checkin" | "prayer" | "quran_listen" | "nafl";
   details?: string;
   durationSeconds?: number;
   journalNote?: string;
@@ -35,6 +35,8 @@ export interface PrayerSettings {
   country: string;
   method: number;
   autoDetect: boolean;
+  /** Per-prayer minute adjustments applied on top of calculated times (−60…+60). */
+  offsets?: Partial<Record<"Fajr" | "Dhuhr" | "Asr" | "Maghrib" | "Isha", number>>;
 }
 
 interface AppContextType {
@@ -118,6 +120,7 @@ const defaultPrayerSettings: PrayerSettings = {
   country: "",
   method: 2, // ISNA
   autoDetect: true,
+  offsets: {},
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -314,7 +317,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const updatePrayerSettings = (partial: Partial<PrayerSettings>) => {
     setPrayerSettings((prev) => {
-      const next = { ...prev, ...partial };
+      const next: PrayerSettings = {
+        ...prev,
+        ...partial,
+        offsets: partial.offsets !== undefined
+          ? { ...(prev.offsets || {}), ...partial.offsets }
+          : prev.offsets || {},
+      };
+      // Allow clearing a single offset by passing nullish via replaceOffsets pattern
+      if (partial.offsets) {
+        const cleaned: NonNullable<PrayerSettings["offsets"]> = {};
+        for (const [key, value] of Object.entries(next.offsets || {})) {
+          const n = typeof value === "number" ? Math.max(-60, Math.min(60, Math.round(value))) : 0;
+          if (n !== 0) cleaned[key as keyof typeof cleaned] = n;
+        }
+        next.offsets = cleaned;
+      }
+      // Validate method id
+      if (typeof next.method !== "number" || !Number.isFinite(next.method)) {
+        next.method = prev.method || 2;
+      }
       localStorage.setItem("hc-prayer-settings", JSON.stringify(next));
       return next;
     });

@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
 import MarketingNav from "@/components/MarketingNav";
 import SiteFooter from "@/components/SiteFooter";
+import EmptyState from "@/components/EmptyState";
 import {
   filterProducts,
   productCategories,
@@ -20,6 +21,10 @@ const categoryStats = productCategories.map((cat) => ({
 const ProductsPage = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<ProductCategory | "">("");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const filtered = useMemo(
     () => filterProducts(query, activeCategory),
@@ -71,7 +76,7 @@ const ProductsPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <MarketingNav />
 
       <header className="bg-gradient-hero py-14 md:py-20">
@@ -115,84 +120,111 @@ const ProductsPage = () => {
       <section className="border-b border-border bg-card/50">
         <div className="container mx-auto grid grid-cols-2 gap-3 px-4 py-6 sm:grid-cols-4 lg:grid-cols-5">
           {categoryStats.map(({ category, count }) => (
-            <div key={category} className="rounded-xl border border-border bg-background px-3 py-3 text-center">
+            <button
+              key={category}
+              type="button"
+              onClick={() => setActiveCategory(activeCategory === category ? "" : category)}
+              className={`rounded-xl border px-3 py-3 text-center transition-colors ${
+                activeCategory === category
+                  ? "border-primary/40 bg-primary/10"
+                  : "border-border bg-background hover:border-primary/30"
+              }`}
+              aria-pressed={activeCategory === category}
+            >
               <p className="font-heading text-xl font-bold text-foreground">{count}</p>
               <p className="text-xs font-medium text-foreground/70">{category}</p>
-            </div>
+            </button>
           ))}
         </div>
       </section>
 
       <main className="container mx-auto px-4 py-10">
-        <div className="mb-6 space-y-4">
-          <div className="relative max-w-md">
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products..."
-              aria-label="Search products"
-              className="w-full rounded-xl border border-border bg-card px-4 py-2.5 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">🔍</span>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveCategory("")}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${!activeCategory ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}
-            >
-              All
-            </button>
-            {productCategories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setActiveCategory(activeCategory === cat ? "" : cat)}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-6 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {filtered.length} product{filtered.length !== 1 ? "s" : ""}
-            {activeCategory ? ` in ${activeCategory}` : ""}
-          </p>
-          {(query || activeCategory) && (
-            <button
-              type="button"
-              onClick={() => { setQuery(""); setActiveCategory(""); }}
-              className="text-xs text-primary underline hover:text-primary/80"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card py-16 text-center">
-            <p className="mb-2 text-4xl">📦</p>
-            <p className="text-muted-foreground">No products match your search.</p>
-          </div>
+        {ummahProducts.length === 0 ? (
+          <EmptyState
+            emoji="📦"
+            title="Products unavailable"
+            description="We couldn't load the product catalog. Reload the page or try again shortly."
+            actionLabel="Reload"
+            onAction={() => window.location.reload()}
+            secondaryLabel="Go home"
+            onSecondary={() => { window.location.href = "/"; }}
+          />
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((product, i) => (
-              <motion.div
-                key={product.slug}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.03 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </div>
+          <>
+            <div className="mb-6 space-y-4">
+              <div className="relative max-w-md">
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search products..."
+                  aria-label="Search products"
+                  className="w-full rounded-xl border border-border bg-card px-4 py-2.5 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">🔍</span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory("")}
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${!activeCategory ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}
+                >
+                  All
+                </button>
+                {productCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setActiveCategory(activeCategory === cat ? "" : cat)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-6 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {filtered.length} product{filtered.length !== 1 ? "s" : ""}
+                {activeCategory ? ` in ${activeCategory}` : ""}
+              </p>
+              {(query || activeCategory) && (
+                <button
+                  type="button"
+                  onClick={() => { setQuery(""); setActiveCategory(""); }}
+                  className="text-xs text-primary underline hover:text-primary/80"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+
+            {filtered.length === 0 ? (
+              <EmptyState
+                emoji="🔍"
+                title="No matching products"
+                description="Try a different search term or clear the category filter."
+                actionLabel="Clear filters"
+                onAction={() => { setQuery(""); setActiveCategory(""); }}
+              />
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {filtered.map((product, i) => (
+                  <motion.div
+                    key={product.slug}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{ delay: Math.min(i * 0.03, 0.24) }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
 
